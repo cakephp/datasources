@@ -1,6 +1,6 @@
 <?php
 
-App::import('Core', array('HttpSocket', 'Xml', 'Datasource'));
+App::import('Core', array('HttpSocket', 'Xml'));
 
 class XmlrpcSource extends Datasource {
 
