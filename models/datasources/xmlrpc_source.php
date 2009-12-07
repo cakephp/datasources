@@ -14,7 +14,6 @@ class XmlrpcSource extends Datasource {
 	);
 
 	function __construct($config = array()) {
-		$config = array_merge($this->_baseConfig, (array)$config);
 		parent::__construct($config);
 	}
 
