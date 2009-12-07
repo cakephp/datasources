@@ -50,6 +50,21 @@ class XmlrpcSource extends Datasource {
 		return $xml->toString(array('cdata' => false, 'header' => true));
 	}
 
+	function parseResponse($response) {
+		$xml = new Xml($response);
+		$data = $xml->toArray(false);
+		unset($xml);
+		if (isset($data['methodResponse']['fault'])) {
+			return $this->__parseResponseError($data);
+		}
+		if (!isset($data['methodResponse']['params']['param']['value'])) {
+			$this->errno = -32700;
+			$this->error = 'parse error. not well formed';
+			return false;
+		}
+		return $this->__parseResponse($data['methodResponse']['params']['param']['value']);
+	}
+
 	function _normalizeParam($param) {
 		if (is_array($param)) {
 			if (empty($param) || isset($param[0])) { // Single consideration if is array or struct
@@ -77,6 +92,49 @@ class XmlrpcSource extends Datasource {
 		return array('value' => array('string' => $param));
 	}
 
+	function __parseResponseError(&$data) {
+		foreach ($data['methodResponse']['fault']['value']['struct']['member'] as $member) {
+			if ($member['name'] === 'faultCode') {
+				if (isset($member['value']['int'])) {
+					$this->errno = (int)$member['value']['int'];
+				} elseif (isset($member['value']['i4'])) {
+					$this->errno = (int)$member['value']['i4'];
+				}
+			} elseif ($member['name'] === 'faultString' && isset($member['value']['string'])) {
+				$this->error = $member['value']['string'];
+			}
+		}
+		return false;
+	}
+
+	function __parseResponse($value) {
+		$type = array_keys($value);
+		$type = $type[0];
+		switch ($type) {
+			case 'string':
+				return (string)$value['string'];
+			case 'int':
+			case 'i4':
+				return (int)$value[$type];
+			case 'double':
+				return (float)$value['double'];
+			case 'boolean':
+				return (bool)$value['boolean'];
+			case 'array':
+				$return = array();
+				foreach ($value['array']['data']['value'] as $newValue) {
+					$return[] = $this->__parseResponse($newValue);
+				}
+				return $return;
+			case 'struct':
+				$return = array();
+				foreach ($value['struct']['member'] as $member) {
+					$return[$member['name']] = $this->__parseResponse($member['value']);
+				}
+				return $return;
+		}
+		return null;
+	}
 }
 
 ?>
