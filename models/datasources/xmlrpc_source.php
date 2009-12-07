@@ -21,7 +21,7 @@ class XmlrpcSource extends Datasource {
 
 	function query() {
 		$args = func_get_args();
-		if (!isset($args[0])) {
+		if (!isset($args[0]) || is_string($args[0])) {
 			return false;
 		}
 		$method = $args[0];
