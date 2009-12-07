@@ -121,7 +121,18 @@ class XmlrpcSourceTest extends CakeTestCase {
 		$this->assertFalse($this->Xmlrpc->parseResponse($xml));
 		$this->assertEqual(0, $this->Xmlrpc->errno);
 		$this->assertTrue(empty($this->Xmlrpc->error));
+	}
 
+	function testRequest() {
+		$config = array(
+			'host' => 'phpxmlrpc.sourceforge.net',
+			'port' => 80,
+			'url' => '/server.php'
+		);
+		$Xmlrpc = new XmlrpcSource($config);
+		$this->assertEqual('Alabama', $Xmlrpc->query('examples.getStateName', 1));
+		$this->assertEqual(5, $Xmlrpc->query('examples.addtwo', 2, 3));
+		$this->assertTrue(is_array($Xmlrpc->query('system.listMethods')));
 	}
 
 }

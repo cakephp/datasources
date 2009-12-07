@@ -13,6 +13,8 @@ class XmlrpcSource extends Datasource {
 		'timeout' => 20
 	);
 
+	var $HttpSocket = null;
+
 	function __construct($config = array()) {
 		parent::__construct($config);
 	}
@@ -29,7 +31,16 @@ class XmlrpcSource extends Datasource {
 
 	function _request($method, $params) {
 		$xmlRequest = $this->generateXML($method, $params);
-		// @todo Make a request to server
+		if (!$this->HttpSocket) {
+			$this->HttpSocket =& new HttpSocket(array('timeout' => $this->config['timeout']));
+		}
+		$uri = array(
+			'host' => $this->config['host'],
+			'port' => $this->config['port'],
+			'path' => $this->config['url']
+		);
+		$response = $this->HttpSocket->post($uri, $xmlRequest, array('header' => array('Content-Type' => 'text/xml')));
+		return $this->parseResponse($response);
 	}
 
 	function generateXML($method, $params = array()) {
