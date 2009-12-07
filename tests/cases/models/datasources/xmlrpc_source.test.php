@@ -110,6 +110,18 @@ class XmlrpcSourceTest extends CakeTestCase {
 		$this->assertFalse($this->Xmlrpc->parseResponse($xml));
 		$this->assertEqual(4, $this->Xmlrpc->errno);
 		$this->assertEqual('Too many parameters.', $this->Xmlrpc->error);
+
+		$xml = '<' . '?xml version="1.0"?' .'><methodInvalid><params /></methodInvalid>';
+		$this->assertFalse($this->Xmlrpc->parseResponse($xml));
+		$this->assertEqual(-32700, $this->Xmlrpc->errno);
+		$this->assertFalse(empty($this->Xmlrpc->error));
+
+		// This is a valid response, but the error must be cleared
+		$xml = '<' . '?xml version="1.0"?' .'><methodResponse><params><param><value><boolean>0</boolean></value></param></params></methodResponse>';
+		$this->assertFalse($this->Xmlrpc->parseResponse($xml));
+		$this->assertEqual(0, $this->Xmlrpc->errno);
+		$this->assertTrue(empty($this->Xmlrpc->error));
+
 	}
 
 }

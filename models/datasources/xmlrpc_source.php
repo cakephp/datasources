@@ -57,10 +57,10 @@ class XmlrpcSource extends Datasource {
 			return $this->__parseResponseError($data);
 		}
 		if (!isset($data['methodResponse']['params']['param']['value'])) {
-			$this->errno = -32700;
-			$this->error = 'parse error. not well formed';
+			$this->_error(-32700, 'parse error. not well formed');
 			return false;
 		}
+		$this->_error(0, '');
 		return $this->__parseResponse($data['methodResponse']['params']['param']['value']);
 	}
 
@@ -134,6 +134,12 @@ class XmlrpcSource extends Datasource {
 		}
 		return null;
 	}
+
+	function _error($number, $text) {
+		$this->errno = $number;
+		$this->error = $text;
+	}
+
 }
 
 ?>
