@@ -124,6 +124,7 @@ class XmlrpcSourceTest extends CakeTestCase {
 	}
 
 	function testRequest() {
+		// All nice
 		$config = array(
 			'host' => 'phpxmlrpc.sourceforge.net',
 			'port' => 80,
@@ -133,6 +134,36 @@ class XmlrpcSourceTest extends CakeTestCase {
 		$this->assertEqual('Alabama', $Xmlrpc->query('examples.getStateName', 1));
 		$this->assertEqual(5, $Xmlrpc->query('examples.addtwo', 2, 3));
 		$this->assertTrue(is_array($Xmlrpc->query('system.listMethods')));
+
+		// Not 200 (no connection)
+		$config = array(
+			'host' => 'invalid.host',
+			'port' => 80,
+			'url' => '/RPC2'
+		);
+		$Xmlrpc = new XmlrpcSource($config);
+		$this->assertFalse($Xmlrpc->query('examples.getStateName', 1));
+		$this->assertEqual(-32300, $Xmlrpc->errno);
+
+		// Not 200 (HTTP 404)
+		$config = array(
+			'host' => 'code.google.com',
+			'port' => 80,
+			'url' => '/InvalidPath'
+		);
+		$Xmlrpc = new XmlrpcSource($config);
+		$this->assertFalse($Xmlrpc->query('examples.getStateName', 1));
+		$this->assertEqual(-32300, $Xmlrpc->errno);
+
+		// Not XML-RPC Response
+		$config = array(
+			'host' => 'groups.google.com',
+			'port' => 80,
+			'url' => '/group/cake-php/feed/rss_v2_0_msgs.xml'
+		);
+		$Xmlrpc = new XmlrpcSource($config);
+		$this->assertFalse($Xmlrpc->query('examples.getStateName', 1));
+		$this->assertEqual(-32700, $Xmlrpc->errno);
 	}
 
 }

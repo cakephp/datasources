@@ -95,6 +95,12 @@ class XmlrpcSource extends Datasource {
 			'path' => $this->config['url']
 		);
 		$response = $this->HttpSocket->post($uri, $xmlRequest, array('header' => array('Content-Type' => 'text/xml')));
+		if (!$this->HttpSocket->response['status']['code']) {
+			return $this->_error(-32300, __('Transport error - could not open socket', true));
+		}
+		if ($this->HttpSocket->response['status']['code'] != 200) {
+			return $this->_error(-32300, __('Transport error - HTTP status code was not 200', true));
+		}
 		return $this->parseResponse($response);
 	}
 
@@ -136,8 +142,7 @@ class XmlrpcSource extends Datasource {
 			return $this->__parseResponseError($data);
 		}
 		if (!isset($data['methodResponse']['params']['param']['value'])) {
-			$this->_error(-32700, 'parse error. not well formed');
-			return false;
+			return $this->_error(-32700, __('Parse error. Not well formed', true));
 		}
 		$this->_error(0, '');
 		return $this->__parseResponse($data['methodResponse']['params']['param']['value']);
@@ -240,12 +245,13 @@ class XmlrpcSource extends Datasource {
  *
  * @param integer $number Number of error
  * @param string $text Description of error
- * @return void
+ * @return boolean Always false
  * @access private
  */
 	function _error($number, $text) {
 		$this->errno = $number;
 		$this->error = $text;
+		return false;
 	}
 
 }
