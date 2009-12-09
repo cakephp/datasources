@@ -2,6 +2,22 @@
 
 App::import('Datasource', 'XmlrpcDatasource.XmlrpcSource');
 
+class XmlrpcModel extends CakeTestModel {
+	var $useTable = false;
+	var $useDbConfig = 'test_xmlrpc';
+
+	function getStateName($number) {
+		return $this->query('examples.getStateName', $number);
+	}
+
+	function call__($method, $params) {
+		array_unshift($params, 'interopEchoTests.' . $method);
+
+		$db =& ConnectionManager::getDataSource($this->useDbConfig);
+		return call_user_func_array(array(&$db, 'query'), $params);
+	}
+}
+
 class XmlrpcSourceTest extends CakeTestCase {
 
 	var $Xmlrpc = null;
@@ -185,6 +201,23 @@ class XmlrpcSourceTest extends CakeTestCase {
 		);
 		$Xmlrpc = new XmlrpcSource($config);
 		$this->assertFalse($Xmlrpc->describe());
+	}
+
+	function testWithModel() {
+		$connection = array(
+			'datasource' => 'XmlrpcDatasource.XmlrpcSource',
+			'host' => 'phpxmlrpc.sourceforge.net',
+			'port' => 80,
+			'url' => '/server.php'
+		);
+		ConnectionManager::create('test_xmlrpc', $connection);
+		$model = ClassRegistry::init('XmlrpcModel');
+
+		// Test implemented method in model
+		$this->assertEqual('Alabama', $model->getStateName(1));
+
+		// Test with call__
+		$this->assertEqual('XmlrpcEcho', $model->echoString('XmlrpcEcho'));
 	}
 
 }
