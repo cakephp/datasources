@@ -42,6 +42,14 @@ class XmlrpcSource extends Datasource {
 	var $HttpSocket = null;
 
 /**
+ * Cache for describe
+ *
+ * @var mixed Array with methods or false if not supported by server
+ * @access private
+ */
+	var $_cacheDescribe = null;
+
+/**
  * Configuration base
  *
  * @var array
@@ -74,6 +82,20 @@ class XmlrpcSource extends Datasource {
 		$method = $args[0];
 		unset($args[0]);
 		return $this->_request($method, $args);
+	}
+
+/**
+ * List supported methods by server.
+ *
+ * @param Model $model
+ * @return mixed Array with methods or false if not supported
+ */
+	function describe($model = null) {
+		if (!is_null($this->_cacheDescribe)) {
+			return $this->_cacheDescribe;
+		}
+		$this->_cacheDescribe = $this->query('system.listMethods');
+		return $this->_cacheDescribe;
 	}
 
 /**

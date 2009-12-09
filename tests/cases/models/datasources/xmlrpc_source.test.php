@@ -166,6 +166,27 @@ class XmlrpcSourceTest extends CakeTestCase {
 		$this->assertEqual(-32700, $Xmlrpc->errno);
 	}
 
+	function testDescribe() {
+		$config = array(
+			'host' => 'phpxmlrpc.sourceforge.net',
+			'port' => 80,
+			'url' => '/server.php'
+		);
+		$Xmlrpc = new XmlrpcSource($config);
+		$result = $Xmlrpc->describe();
+		$this->assertTrue(is_array($result));
+		$this->assertTrue(in_array('examples.getStateName', $result));
+
+		// Not XML-RPC Response
+		$config = array(
+			'host' => 'groups.google.com',
+			'port' => 80,
+			'url' => '/group/cake-php/feed/rss_v2_0_msgs.xml'
+		);
+		$Xmlrpc = new XmlrpcSource($config);
+		$this->assertFalse($Xmlrpc->describe());
+	}
+
 }
 
 ?>
