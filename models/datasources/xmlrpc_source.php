@@ -4,10 +4,18 @@
  *
  * PHP versions 4 and 5
  *
+ * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
+ * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
+ * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
  * @link          http://www.xmlrpc.com/spec Specification
+ * @package       datasources
+ * @subpackage    datasources.models.datasources
+ * @since         CakePHP Datasources v 0.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 App::import('Core', array('HttpSocket', 'Xml'));
@@ -23,6 +31,7 @@ class XmlrpcSource extends Datasource {
  * Version for this Data Source.
  *
  * @var string
+ * @access public
  */
 	var $version = '0.1';
 
@@ -30,6 +39,7 @@ class XmlrpcSource extends Datasource {
  * Description string for this Data Source.
  *
  * @var string
+ * @access public
  */
 	var $description = 'XmlRpc Datasource';
 
@@ -37,6 +47,7 @@ class XmlrpcSource extends Datasource {
  * HttpSocket Object
  *
  * @var object HttpSocket
+ * @access public
  */
 	var $HttpSocket = null;
 
@@ -44,7 +55,7 @@ class XmlrpcSource extends Datasource {
  * Cache for describe
  *
  * @var mixed Array with methods or false if not supported by server
- * @access private
+ * @access protected
  */
 	var $_cacheDescribe = null;
 
@@ -52,7 +63,7 @@ class XmlrpcSource extends Datasource {
  * Configuration base
  *
  * @var array
- * @access private
+ * @access protected
  */
 	var $_baseConfig = array(
 		'host' => '127.0.0.1',
@@ -62,16 +73,20 @@ class XmlrpcSource extends Datasource {
 	);
 
 /**
- * Constructor
+ * Default Constructor
+ *
+ * @param array $config options
+ * @access public
  */
 	function __construct($config = array()) {
 		parent::__construct($config);
 	}
 
 /**
- * Perform a xmlrpc call
+ * Perform a XML RPC call
  *
  * @return mixed Response of XML-RPC Server. If return false, $this->error contain a error message.
+ * @access public
  */
 	function query() {
 		$args = func_get_args();
@@ -88,6 +103,7 @@ class XmlrpcSource extends Datasource {
  *
  * @param Model $model
  * @return mixed Array with methods or false if not supported
+ * @access public
  */
 	function describe($model = null) {
 		if (!is_null($this->_cacheDescribe)) {
@@ -103,7 +119,7 @@ class XmlrpcSource extends Datasource {
  * @param string $method Name of method
  * @param array $params List of methods
  * @return mixed Response of XML-RPC Server
- * @access private
+ * @access protected
  */
 	function _request($method, $params) {
 		$xmlRequest = $this->generateXML($method, $params);
@@ -131,6 +147,7 @@ class XmlrpcSource extends Datasource {
  * @param string $method Name of method
  * @param array $params List of methods
  * @return string XML of request
+ * @access protected
  */
 	function generateXML($method, $params = array()) {
 		$query = array(
@@ -154,6 +171,7 @@ class XmlrpcSource extends Datasource {
  *
  * @param string $response XML from Server
  * @return mixed Response as PHP
+ * @access protected
  */
 	function parseResponse($response) {
 		$xml = new Xml($response);
@@ -174,7 +192,7 @@ class XmlrpcSource extends Datasource {
  *
  * @param mixed $param Parameter
  * @return array Parameter to XML Class
- * @access private
+ * @access protected
  */
 	function _normalizeParam($param) {
 		if (is_array($param)) {
@@ -208,7 +226,7 @@ class XmlrpcSource extends Datasource {
  *
  * @param array $data Response as array of XML Class
  * @return boolean Always false
- * @access protected
+ * @access private
  */
 	function __parseResponseError(&$data) {
 		foreach ($data['methodResponse']['fault']['value']['struct']['member'] as $member) {
@@ -230,7 +248,7 @@ class XmlrpcSource extends Datasource {
  *
  * @param array $value Value
  * @return mixed
- * @access protected
+ * @access private
  */
 	function __parseResponse($value) {
 		$type = array_keys($value);
@@ -267,14 +285,12 @@ class XmlrpcSource extends Datasource {
  * @param integer $number Number of error
  * @param string $text Description of error
  * @return boolean Always false
- * @access private
+ * @access protected
  */
 	function _error($number, $text) {
 		$this->errno = $number;
 		$this->error = $text;
 		return false;
 	}
-
 }
-
 ?>
