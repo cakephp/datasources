@@ -7,7 +7,6 @@
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @link          http://github.com/jrbasso/xmlrpc_datasource Project
  * @link          http://www.xmlrpc.com/spec Specification
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */

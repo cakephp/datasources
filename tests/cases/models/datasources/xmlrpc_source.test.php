@@ -1,6 +1,6 @@
 <?php
 
-App::import('Datasource', 'XmlrpcDatasource.XmlrpcSource');
+App::import('Datasource', 'Datasources.XmlrpcSource');
 
 class XmlrpcModel extends CakeTestModel {
 	var $useTable = false;
@@ -205,7 +205,7 @@ class XmlrpcSourceTest extends CakeTestCase {
 
 	function testWithModel() {
 		$connection = array(
-			'datasource' => 'XmlrpcDatasource.XmlrpcSource',
+			'datasource' => 'Datasources.XmlrpcSource',
 			'host' => 'phpxmlrpc.sourceforge.net',
 			'port' => 80,
 			'url' => '/server.php'
