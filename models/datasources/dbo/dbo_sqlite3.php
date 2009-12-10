@@ -24,7 +24,7 @@
  * A DboSource adapter for SQLite 3 using PDO
  *
  * @package datasources
- * @package datasources.models.datasources.dbo
+ * @subpackage datasources.models.datasources.dbo
  */
 class DboSqlite3 extends DboSource {
 
