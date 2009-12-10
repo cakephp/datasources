@@ -16,7 +16,7 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       cake
  * @subpackage    cake.cake.libs.model.datasources.dbo
- * @since         CakePHP(tm) v 0.2.9
+ * @since         CakePHP Datasources v 0.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 App::import('Model');
@@ -27,8 +27,8 @@ App::import('Datasource', 'Datasources.DboAdodb');
 /**
  * DboAdoTestDb
  *
- * @package       cake
- * @subpackage    cake.tests.cases.libs.model.datasources
+ * @package       datasources
+ * @subpackage    datasources.tests.cases.models.datasources.dbo
  */
 class DboAdoTestDb extends DboAdodb {
 
