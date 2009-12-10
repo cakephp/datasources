@@ -19,10 +19,10 @@
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-require_once LIBS.'model'.DS.'model.php';
-require_once LIBS.'model'.DS.'datasources'.DS.'datasource.php';
-require_once LIBS.'model'.DS.'datasources'.DS.'dbo_source.php';
-require_once LIBS.'model'.DS.'datasources'.DS.'dbo'.DS.'dbo_adodb.php';
+App::import('Model');
+App::import('Datasource', 'Datasource');
+App::import('Datasource', 'DboSource');
+App::import('Datasource', 'Datasources.DboAdodb');
 
 /**
  * DboAdoTestDb
@@ -215,7 +215,7 @@ class DboAdodbTest extends CakeTestCase {
  *
  * @access public
  */
-	function setUp() {
+	function startTest() {
 		$db = ConnectionManager::getDataSource('test_suite');
 		$this->db = new DboAdoTestDb($db->config);
 		$this->model = new AdodbTestModel();
