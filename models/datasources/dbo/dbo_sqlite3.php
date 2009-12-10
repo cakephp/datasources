@@ -1,28 +1,54 @@
 <?php
 /**
+ * SQLite layer for DBO.
+ *
+ * PHP versions 4 and 5
+ *
+ * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
+ * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs.model.datasources.dbo
+ * @since         CakePHP Datasources v 0.1
+ * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ */
+
+/**
  * DBO implementation for the SQLite3 DBMS.
  *
  * A DboSource adapter for SQLite 3 using PDO
  *
+ * @package datasources
+ * @package datasources.models.datasources.dbo
  */
 class DboSqlite3 extends DboSource {
 
 /**
- * Enter description here...
+ * Datasource Description
  *
- * @var unknown_type
+ * @var string
+ * @access public
  */
 	var $description = "SQLite3 DBO Driver";
+
 /**
- * Enter description here...
+ * Quote Start
  *
- * @var unknown_type
+ * @var string
+ * @access public
  */
 	var $startQuote = '"';
+
 /**
- * Enter description here...
+ * Quote End
  *
- * @var unknown_type
+ * @var string
+ * @access public
  */
 	var $endQuote = '"';
 
@@ -30,16 +56,19 @@ class DboSqlite3 extends DboSource {
  * Base configuration settings for SQLite3 driver
  *
  * @var array
+ * @access public
  */
 	var $_baseConfig = array(
 		'persistent' => false,
 		'database' => null,
 		'connect' => 'sqlite' //sqlite3 in pdo_sqlite is sqlite. sqlite2 is sqlite2
 	);
+
 /**
  * SQLite3 column definition
  *
  * @var array
+ * @access public
  */
 	var $columns = array(
 		'primary_key' => array('name' => 'integer primary key autoincrement'),
@@ -54,6 +83,7 @@ class DboSqlite3 extends DboSource {
 		'binary' => array('name' => 'blob'),
 		'boolean' => array('name' => 'boolean')
 	);
+
 /**
  * List of engine specific additional field parameters used on table creating
  *
@@ -72,11 +102,53 @@ class DboSqlite3 extends DboSource {
 			)
 		),
 	);
+
+/**
+ * Last Error
+ *
+ * @var string
+ * @access public
+ */
 	var $last_error = NULL;
+
+/**
+ * PDO Statement
+ *
+ * @var string
+ * @access public
+ */
 	var $pdo_statement = NULL;
+
+/**
+ * Rows
+ *
+ * @var mixed
+ * @access public
+ */
 	var $rows = NULL;
+
+/**
+ * Row Count
+ *
+ * @var integer
+ * @access public
+ */
 	var $row_count = NULL;
+
+/**
+ * Transaction Started
+ *
+ * @var boolean
+ * @access protected
+ */
 	var $_transactionStarted = false;
+
+/**
+ * Transaction Nesting
+ *
+ * @var integer
+ * @access protected
+ */
 	var $_transactionNesting = 0;
 
 /**
@@ -84,16 +156,14 @@ class DboSqlite3 extends DboSource {
  *
  * @param array $config Configuration array for connecting
  * @return mixed
+ * @access public
  */
 	function connect() {
-		#echo "runs connect\n";
 		$this->last_error = null;
 		$config = $this->config;
-		#$this->connection = $config['connect']($config['database']);
 		try {
 			$this->connection = new PDO($config['connect'].':'.$config['database'],null,null,array(PDO::ATTR_PERSISTENT => $config['persistent']));
 			$this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			#$this->connected = is_resource($this->connection);
 			$this->connected = is_object($this->connection);
 		}
 		catch(PDOException $e) {
@@ -101,27 +171,27 @@ class DboSqlite3 extends DboSource {
 		}
 		return $this->connected;
 	}
+
 /**
  * Disconnects from database.
  *
  * @return boolean True if the database could be disconnected, else false
+ * @access public
  */
 	function disconnect() {
-		#echo "runs disconnect\n";
-		#@sqlite3_close($this->connection);
 		$this->connection = NULL;
 		$this->connected = false;
 		return $this->connected;
 	}
+
 /**
  * Executes given SQL statement.
  *
  * @param string $sql SQL statement
  * @return resource Result resource identifier
+ * @access protected
  */
 	function _execute($sql) {
-		#echo "runs execute\n";
-		#return sqlite3_query($this->connection, $sql);
 		if (strncmp($sql,"CREATE",6) === 0) {
 			$statements = explode(";",$sql);
 			if (count($statements) > 1) {
@@ -151,10 +221,12 @@ class DboSqlite3 extends DboSource {
 		}
 		return false;
 	}
+
 /**
  * Returns an array of tables in the database. If there are no tables, an error is raised and the application exits.
  *
  * @return array Array of tablenames in the database
+ * @access public
  */
 	function listSources() {
 		$db = $this->config['database'];
@@ -182,11 +254,13 @@ class DboSqlite3 extends DboSource {
 		$this->config['database'] = $db;
 		return array();
 	}
+
 /**
  * Returns an array of the fields in given table name.
  *
  * @param string $tableName Name of database table to inspect
  * @return array Fields in table. Keys are name and type
+ * @access public
  */
 	function describe(&$model) {
 		$cache = parent::describe($model);
@@ -217,13 +291,15 @@ class DboSqlite3 extends DboSource {
 		$this->__cacheDescription($model->tablePrefix . $model->table, $fields);
 		return $fields;
 	}
+
 /**
  * Returns a quoted and escaped string of $data for use in an SQL statement.
  *
  * @param string $data String to be prepared for use in an SQL statement
  * @return string Quoted and escaped
+ * @access public
  */
-	function value ($data, $column = null, $safe = false) {
+	function value($data, $column = null, $safe = false) {
 		$parent = parent::value($data, $column, $safe);
 
 		if ($parent != null) {
@@ -246,6 +322,7 @@ class DboSqlite3 extends DboSource {
 		}
 		return "'" . $data . "'";
 	}
+
 /**
  * Generates and executes an SQL UPDATE statement for given model, fields, and values.
  *
@@ -254,6 +331,7 @@ class DboSqlite3 extends DboSource {
  * @param array $values
  * @param mixed $conditions
  * @return array
+ * @access public
  */
 	function update(&$model, $fields = array(), $values = null, $conditions = null) {
 		if (empty($values) && !empty($fields)) {
@@ -268,12 +346,14 @@ class DboSqlite3 extends DboSource {
 		}
 		return parent::update($model, $fields, $values, $conditions);
 	}
+
 /**
  * Begin a transaction
  *
  * @param unknown_type $model
  * @return boolean True on success, false on fail
- * (i.e. if the database/model does not support transactions).
+ *    (i.e. if the database/model does not support transactions).
+ * @access public
  */
 	function begin (&$model) {
 		if ($this->_transactionStarted || $this->connection->beginTransaction()) {
@@ -283,13 +363,15 @@ class DboSqlite3 extends DboSource {
 		}
 		return false;
 	}
+
 /**
  * Commit a transaction
  *
  * @param unknown_type $model
  * @return boolean True on success, false on fail
- * (i.e. if the database/model does not support transactions,
- * or a transaction has not started).
+ *    (i.e. if the database/model does not support transactions,
+ *    or a transaction has not started).
+ * @access public
  */
 	function commit (&$model) {
 		if ($this->_transactionStarted) {
@@ -303,13 +385,15 @@ class DboSqlite3 extends DboSource {
 		}
 		return false;
 	}
+
 /**
  * Rollback a transaction
  *
  * @param unknown_type $model
  * @return boolean True on success, false on fail
- * (i.e. if the database/model does not support transactions,
- * or a transaction has not started).
+ *    (i.e. if the database/model does not support transactions,
+ *    or a transaction has not started).
+ * @access public
  */
 	function rollback (&$model) {
 		if ($this->_transactionStarted && $this->connection->rollBack()) {
@@ -319,6 +403,7 @@ class DboSqlite3 extends DboSource {
 		}
 		return false;
 	}
+
 /**
  * Deletes all the records in a table and resets the count of the auto-incrementing
  * primary key, where applicable.
@@ -330,18 +415,22 @@ class DboSqlite3 extends DboSource {
 	function truncate($table) {
 		return $this->execute('DELETE From ' . $this->fullTableName($table));
 	}
+
 /**
  * Returns a formatted error message from previous database operation.
  *
  * @return string Error message
+ * @access public
  */
 	function lastError() {
 		return $this->last_error;
 	}
+
 /**
  * Returns number of affected rows in previous database operation. If no previous operation exists, this returns false.
  *
  * @return integer Number of affected rows
+ * @access public
  */
 	function lastAffected() {
 		if ($this->_result) {
@@ -349,11 +438,13 @@ class DboSqlite3 extends DboSource {
 		}
 		return false;
 	}
+
 /**
  * Returns number of rows in previous resultset. If no previous resultset exists,
  * this returns false.
  *
- * @return integer Number of rows in resultset
+ * @return mixed Number of rows in resultset, or false on error
+ * @access public
  */
 	function lastNumRows() {
 		if ($this->pdo_statement) {
@@ -362,19 +453,23 @@ class DboSqlite3 extends DboSource {
 		}
 		return false;
 	}
+
 /**
  * Returns the ID generated from the previous INSERT operation.
  *
- * @return int
+ * @return mixed Last insert ID
+ * @access public
  */
 	function lastInsertId() {
 		return $this->connection->lastInsertId();
 	}
+
 /**
  * Converts database-layer column types to basic types
  *
  * @param string $real Real database-layer column type (i.e. "varchar(255)")
  * @return string Abstract column type (i.e. "string")
+ * @access public
  */
 	function column($real) {
 		if (is_array($real)) {
@@ -403,15 +498,15 @@ class DboSqlite3 extends DboSource {
 		}
 		return 'text';
 	}
+
 /**
- * Enter description here...
+ * Generate ResultSet
  *
  * @param unknown_type $results
+ * @access public
  */
 	function resultSet(&$results) {
 		$this->results =& $results;
-		#echo "resultSet:results ";
-		#pr($results);
 		$this->map = array();
 		$num_fields = $results->columnCount();
 		$index = 0;
@@ -462,20 +557,16 @@ class DboSqlite3 extends DboSource {
  * Fetches the next row from the current result set
  *
  * @return unknown
+ * @access public
  */
 	function fetchResult() {
-		#if ($row = sqlite3_fetch_array($this->results, SQLITE3_ASSOC)) {
 		if (count($this->rows)) {
 			$row = array_shift($this->rows);
-			#echo "fetchResult:nextrow ";
-			#pr($row);
 			$resultRow = array();
 			$i = 0;
 
 			foreach ($row as $index => $field) {
-				#pr($index);
 				if (isset($this->map[$index]) and $this->map[$index] != "") {
-					#echo "asdf: ".$this->map[$index];
 					list($table, $column) = $this->map[$index];
 					$resultRow[$table][$column] = $row[$index];
 				} else {
@@ -483,18 +574,18 @@ class DboSqlite3 extends DboSource {
 				}
 				$i++;
 			}
-			#pr($resultRow);
 			return $resultRow;
-		} else {
-			return false;
 		}
+		return false;
 	}
+
 /**
  * Returns a limit statement in the correct format for the particular database.
  *
  * @param integer $limit Limit of results returned
  * @param integer $offset Offset from which to start results
  * @return string SQL limit/offset statement
+ * @access public
  */
 	function limit ($limit, $offset = null) {
 		if ($limit) {
@@ -515,8 +606,9 @@ class DboSqlite3 extends DboSource {
  * Generate a database-native column schema string
  *
  * @param array $column An array structured like the following: array('name'=>'value', 'type'=>'value'[, options]),
- *                      where options can be 'default', 'length', or 'key'.
+ *    where options can be 'default', 'length', or 'key'.
  * @return string
+ * @access public
  */
 	function buildColumn($column) {
 		$name = $type = null;
@@ -545,6 +637,7 @@ class DboSqlite3 extends DboSource {
  * Sets the database encoding
  *
  * @param string $enc Database encoding
+ * @access public
  */
 	function setEncoding($enc) {
 		if (!in_array($enc, array("UTF-8", "UTF-16", "UTF-16le", "UTF-16be"))) {
@@ -557,6 +650,7 @@ class DboSqlite3 extends DboSource {
  * Gets the database encoding
  *
  * @return string The database encoding
+ * @access public
  */
 	function getEncoding() {
 		return $this->fetchRow('PRAGMA encoding');
@@ -568,6 +662,7 @@ class DboSqlite3 extends DboSource {
  * @param array $indexes
  * @param string $table
  * @return string
+ * @access public
  */
 	function buildIndex($indexes, $table = null) {
 		$join = array();
@@ -599,6 +694,7 @@ class DboSqlite3 extends DboSource {
  *
  * @param string $model Name of model to inspect
  * @return array Fields in table. Keys are column and unique
+ * @access public
  */
 	function index(&$model) {
 		$index = array();
@@ -636,6 +732,7 @@ class DboSqlite3 extends DboSource {
  * @param string $type
  * @param array $data
  * @return string
+ * @access public
  */
 	function renderStatement($type, $data) {
 		switch (strtolower($type)) {
@@ -656,11 +753,13 @@ class DboSqlite3 extends DboSource {
 	}
 
 /**
-* PDO deals in objects, not resources, so overload accordingly.
-*/
+ * PDO deals in objects, not resources, so overload accordingly.
+ *
+ * @return boolean
+ * @access public
+ */
 	function hasResult() {
 		return is_object($this->_result);
 	}
-
 }
 ?>
