@@ -515,32 +515,29 @@ class DboSqlite3 extends DboSource {
 		//PDO::getColumnMeta is experimental and does not work with sqlite3,
 		//	so try to figure it out based on the querystring
 		$querystring = $results->queryString;
-		if (strpos($querystring,"SELECT") === 0)
-		{
-			$last = strpos($querystring,"FROM");
-			if ($last !== false)
-			{
-				$selectpart = substr($querystring,7,$last-8);
-				$selects = explode(",",$selectpart);
+		if (strpos($querystring, 'SELECT') === 0) {
+			$last = strpos($querystring, 'FROM');
+			if ($last !== false) {
+				$selectpart = substr($querystring, 7, $last - 8);
+				$selects = explode(',', $selectpart);
 			}
-		}
-		elseif (strpos($querystring,"PRAGMA table_info") === 0)
-		{
-			$selects = array("cid","name","type","notnull","dflt_value","pk");
-		}elseif(strpos($querystring,"PRAGMA index_list") === 0) {
-			$selects = array("seq","name","unique");
-		}elseif(strpos($querystring,"PRAGMA index_info") === 0) {
-			$selects = array("seqno","cid","name");
+		} elseif (strpos($querystring, 'PRAGMA table_info') === 0) {
+			$selects = array('cid', 'name', 'type', 'notnull', 'dflt_value', 'pk');
+		} elseif(strpos($querystring, 'PRAGMA index_list') === 0) {
+			$selects = array('seq', 'name', 'unique');
+		} elseif(strpos($querystring, 'PRAGMA index_info') === 0) {
+			$selects = array('seqno', 'cid', 'name');
 		}
 		while ($j < $num_fields) {
-
 			if (preg_match('/.*AS (.*).*/i', $selects[$j], $matches)) {
 				 $columnName = trim($matches[1],'"');
-			} else
+			} else {
 				$columnName = trim(str_replace('"', '', $selects[$j]));
+			}
 
-			if (strpos($selects[$j],"DISTINCT") === 0)
-				$columnName = str_replace('DISTINCT','',$columnName);
+			if (strpos($selects[$j], 'DISTINCT') === 0) {
+				$columnName = str_replace('DISTINCT', '', $columnName);
+			}
 
 			if (strpos($columnName, '.')) {
 				$parts = explode('.', $columnName);
@@ -548,7 +545,6 @@ class DboSqlite3 extends DboSource {
 			} else {
 				$this->map[$index++] = array(0, $columnName);
 			}
-
 			$j++;
 		}
 	}
