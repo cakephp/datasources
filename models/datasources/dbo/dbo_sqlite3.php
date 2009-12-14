@@ -355,7 +355,7 @@ class DboSqlite3 extends DboSource {
  *    (i.e. if the database/model does not support transactions).
  * @access public
  */
-	function begin (&$model) {
+	function begin(&$model) {
 		if ($this->_transactionStarted || $this->connection->beginTransaction()) {
 			$this->_transactionStarted = true;
 			$this->_transactionNesting++;
@@ -373,7 +373,7 @@ class DboSqlite3 extends DboSource {
  *    or a transaction has not started).
  * @access public
  */
-	function commit (&$model) {
+	function commit(&$model) {
 		if ($this->_transactionStarted) {
 			$this->_transactionNesting--;
 			if ($this->_transactionNesting <= 0) {
@@ -395,7 +395,7 @@ class DboSqlite3 extends DboSource {
  *    or a transaction has not started).
  * @access public
  */
-	function rollback (&$model) {
+	function rollback(&$model) {
 		if ($this->_transactionStarted && $this->connection->rollBack()) {
 			$this->_transactionStarted = false;
 			$this->_transactionNesting = 0;
