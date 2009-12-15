@@ -502,7 +502,7 @@ class DboSqlite3 extends DboSource {
 /**
  * Generate ResultSet
  *
- * @param unknown_type $results
+ * @param mixed $results
  * @access public
  */
 	function resultSet(&$results) {
@@ -552,7 +552,7 @@ class DboSqlite3 extends DboSource {
 /**
  * Fetches the next row from the current result set
  *
- * @return unknown
+ * @return mixed
  * @access public
  */
 	function fetchResult() {
