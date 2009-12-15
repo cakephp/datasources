@@ -63,9 +63,9 @@ class DboOdbc extends DboSource {
 	);
 
 /**
- * Enter description here...
+ * Columns
  *
- * @var unknown_type
+ * @var array
  */
 	var $columns = array();
 
@@ -112,6 +112,7 @@ class DboOdbc extends DboSource {
 	function enabled() {
 		return extension_loaded('odbc');
 	}
+
 /**
  * Disconnects from database.
  *
@@ -153,7 +154,6 @@ class DboOdbc extends DboSource {
 		}
 
 		$result = odbc_tables($this->connection);
-
 		$tables = array();
 		while (odbc_fetch_row($result)) {
 			array_push($tables, odbc_result($result, 'TABLE_NAME'));
@@ -173,17 +173,16 @@ class DboOdbc extends DboSource {
 		$cache=parent::describe($model);
 
 		if ($cache != null) {
-				return $cache;
+			return $cache;
 		}
 
 		$fields = array();
 		$sql = 'SELECT * FROM ' . $this->fullTableName($model);
 		$result = odbc_exec($this->connection, $sql);
-
 		$count = odbc_num_fields($result);
 
 		for ($i = 1; $i <= $count; $i++) {
-				$cols[$i - 1] = odbc_field_name($result, $i);
+			$cols[$i - 1] = odbc_field_name($result, $i);
 		}
 
 		foreach ($cols as $column) {
@@ -204,18 +203,18 @@ class DboOdbc extends DboSource {
  * @todo Add logic that formats/escapes data based on column type
  */
 	function value($data, $column = null) {
-		$parent=parent::value($data, $column);
+		$parent = parent::value($data, $column);
 
 		if ($parent != null) {
-				return $parent;
+			return $parent;
 		}
 
 		if ($data === null) {
-				return 'NULL';
+			return 'NULL';
 		}
 
 		if (!is_numeric($data)) {
-				return "'" . $data . "'";
+			return "'" . $data . "'";
 		}
 
 		return $data;
@@ -328,7 +327,7 @@ class DboOdbc extends DboSource {
 			} else {
 				foreach($model->tableToModel as $tableName => $modelName) {
 					foreach($this->__descriptions[$model->tablePrefix .$tableName] as $field => $type) {
-						$fields[] = $modelName .'.' .$field;
+						$fields[] = $modelName . '.' . $field;
 					}
 				}
 			}
