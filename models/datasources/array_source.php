@@ -126,6 +126,9 @@ class ArraySource extends Datasource {
 		}
 		// Filter fields
 		if (!empty($queryData['fields'])) {
+			if ($queryData['fields'] === 'COUNT') {
+				return array(array(array('count' => count($data))));
+			}
 			$listOfFields = array();
 			foreach ($queryData['fields'] as $field) {
 				if (strpos($field, '.') !== false) {
@@ -148,6 +151,19 @@ class ArraySource extends Datasource {
 			return $data;
 		}
 		return array($model->alias => $data);
+	}
+
+/**
+ * Returns an calculation
+ *
+ * @param model $model
+ * @param string $type Lowercase name type, i.e. 'count' or 'max'
+ * @param array $params Function parameters (any values must be quoted manually)
+ * @return string Calculation method
+ * @access public
+ */
+	function calculate(&$model, $type, $params = array()) {
+		return 'COUNT';
 	}
 }
 ?>
