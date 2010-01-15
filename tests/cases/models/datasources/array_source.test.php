@@ -169,6 +169,42 @@ class ArraySourceTest extends CakeTestCase {
 			)
 		);
 		$this->assertEqual($result, $expected);
+
+		$result = $this->Model->find('all', array('order' => 'ArrayModel.name'));
+		$expected = array(
+			'ArrayModel' => array(
+				array(
+					'id' => 2,
+					'name' => 'Brazil'
+				),
+				array(
+					'id' => 3,
+					'name' => 'Germany'
+				),
+				array(
+					'id' => 1,
+					'name' => 'USA'
+				)
+			)
+		);
+		$this->assertEqual($result, $expected);
+
+		$result = $this->Model->find('all', array('fields' => array('ArrayModel.id'), 'order' => 'ArrayModel.name'));
+		$expected = array(
+			'ArrayModel' => array(
+				array(
+					'id' => 2
+				),
+				array(
+					'id' => 3
+				),
+				array(
+					'id' => 1
+				)
+			)
+		);
+		$this->assertEqual($result, $expected);
+
 	}
 }
 ?>

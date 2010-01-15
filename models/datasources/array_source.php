@@ -97,22 +97,7 @@ class ArraySource extends Datasource {
 			if (!empty($queryData['conditions'])) {
 				// continue;
 			}
-			// Select the fields
-			if (empty($queryData['fields'])) {
-				$data[$i] = $record;
-			} else {
-				foreach ($queryData['fields'] as $field) {
-					if (strpos($field, '.') !== false) {
-						list($alias, $field) = explode('.', $field, 2);
-						if ($alias !== $model->alias) {
-							continue;
-						}
-					}
-					if (isset($record[$field])) {
-						$data[$i][$field] = $record[$field];
-					}
-				}
-			}
+			$data[$i] = $record;
 			$i++;
 			// Test limit
 			if ($limit !== false && $i == $limit) {
@@ -121,6 +106,43 @@ class ArraySource extends Datasource {
 		}
 		if ($limit !== false) {
 			$data = array_slice($data, ($queryData['page'] - 1) * $queryData['limit'], $queryData['limit'], false);
+		}
+		// Order
+		if (!empty($queryData['order'])) {
+			if (is_string($queryData['order'][0])) {
+				$field = $queryData['order'][0];
+				$alias = $model->alias;
+				if (strpos($field, '.') !== false) {
+					list($alias, $field) = explode('.', $field, 2);
+				}
+				if ($alias === $model->alias) {
+					$sort = 'ASC';
+					if (strpos($field, ' ') !== false) {
+						list($field, $sort) = explode(' ', $field, 2);
+					}
+					$data = Set::sort($data, '{n}.' . $field, $sort);
+				}
+			}
+		}
+		// Filter fields
+		if (!empty($queryData['fields'])) {
+			$listOfFields = array();
+			foreach ($queryData['fields'] as $field) {
+				if (strpos($field, '.') !== false) {
+					list($alias, $field) = explode('.', $field, 2);
+					if ($alias !== $model->alias) {
+						continue;
+					}
+				}
+				$listOfFields[] = $field;
+			}
+			foreach ($data as $id => $record) {
+				foreach ($record as $field => $value) {
+					if (!in_array($field, $listOfFields)) {
+						unset($data[$id][$field]);
+					}
+				}
+			}
 		}
 		return array($model->alias => $data);
 	}
