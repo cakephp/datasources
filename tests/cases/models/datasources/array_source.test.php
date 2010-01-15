@@ -204,6 +204,29 @@ class ArraySourceTest extends CakeTestCase {
 			)
 		);
 		$this->assertEqual($result, $expected);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name' => 'USA')));
+		$expected = array('ArrayModel' => array(array('id' => 1, 'name' => 'USA')));
+		$this->assertEqual($result, $expected);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name = USA')));
+		$this->assertEqual($result, $expected);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name != USA')));
+		$expected = array('ArrayModel' => array(array('id' => 2, 'name' => 'Brazil'), array('id' => 3, 'name' => 'Germany')));
+		$this->assertEqual($result, $expected);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name LIKE ra')));
+		$expected = array('ArrayModel' => array(array('id' => 2, 'name' => 'Brazil')));
+		$this->assertEqual($result, $expected);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name IN (USA, Germany)')));
+		$expected = array('ArrayModel' => array(array('id' => 1, 'name' => 'USA'), array('id' => 3, 'name' => 'Germany')));
+		$this->assertEqual($result, $expected);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name' => 'USA', 'ArrayModel.id' => 2)));
+		$expected = array('ArrayModel' => array());
+		$this->assertEqual($result, $expected);
 	}
 
 	function testFindFirst() {

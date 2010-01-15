@@ -95,7 +95,54 @@ class ArraySource extends Datasource {
 		foreach ($model->records as $pos => $record) {
 			// Tests whether the record will be chosen
 			if (!empty($queryData['conditions'])) {
-				// continue;
+				$queryData['conditions'] = (array)$queryData['conditions'];
+				foreach ($queryData['conditions'] as $field => $value) {
+					if (is_string($field)) {
+						if (strpos($field, ' ') === false) {
+							$value = $field . ' = ' . $value;
+						} else {
+							// Can have LIKE, NOT, IN, ...
+							$value = $field . ' ' . $value;
+						}
+					}
+					if (preg_match('/^(\w+\.?\w+)\s+(=|!=|LIKE|IN)\s+(.*)$/', $value, $matches)) {
+						$field = $matches[1];
+						$value = $matches[3];
+						if (strpos($field, '.') !== false) {
+							list($alias, $field) = explode('.', $field, 2);
+							if ($alias != $model->alias) {
+								continue;
+							}
+						}
+						switch ($matches[2]) {
+							case '=':
+								if (!isset($record[$field]) || $record[$field] != $value) {
+									continue(3);
+								}
+								break;
+							case '!=':
+								if (isset($record[$field]) && $record[$field] == $value) {
+									continue(3);
+								}
+								break;
+							case 'LIKE':
+								if (!isset($record[$field]) || strpos($record[$field], $value) === false) {
+									continue(3);
+								}
+								break;
+							case 'IN':
+								$items = array();
+								if (preg_match('/^\(\w+(,\s*\w+)*\)$/', $value)) {
+									$items = explode(',', trim($value, '()'));
+									$items = array_map('trim', $items);
+								}
+								if (!isset($record[$field]) || !in_array($record[$field], (array)$items)) {
+									continue(3);
+								}
+								break;
+						}
+					}
+				}
 			}
 			$data[$i] = $record;
 			$i++;
