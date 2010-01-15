@@ -144,6 +144,9 @@ class ArraySource extends Datasource {
 				}
 			}
 		}
+		if ($model->findQueryType === 'first') {
+			return $data;
+		}
 		return array($model->alias => $data);
 	}
 }

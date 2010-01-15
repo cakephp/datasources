@@ -204,7 +204,12 @@ class ArraySourceTest extends CakeTestCase {
 			)
 		);
 		$this->assertEqual($result, $expected);
+	}
 
+	function testFindFirst() {
+		$result = $this->Model->find('first');
+		$expected = array('id' => 1, 'name' => 'USA');
+		$this->assertEqual($result, $expected);
 	}
 }
 ?>
