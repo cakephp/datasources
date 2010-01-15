@@ -228,8 +228,17 @@ class ArraySourceTest extends CakeTestCase {
 
 		$result = $this->Model->find('count', array('limit' => 2, 'page' => 2));
 		$this->assertEqual($result, 1);
+	}
 
+	function testFindList() {
+		$result = $this->Model->find('list');
+		$expected = array(1 => 1, 2 => 2, 3 => 3);
+		$this->assertEqual($result, $expected);
 
+		$this->Model->displayField = 'name';
+		$result = $this->Model->find('list');
+		$expected = array(1 => 'USA', 2 => 'Brazil', 3 => 'Germany');
+		$this->assertEqual($result, $expected);
 	}
 }
 ?>

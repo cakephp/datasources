@@ -56,11 +56,11 @@ class ArraySource extends Datasource {
  * Returns a Model description (metadata) or null if none found.
  *
  * @param Model $model
- * @return null It's not supported
+ * @return array Show only id
  * @access public
  */
 	function describe(&$model) {
-		return null;
+		return array('id' => array());
 	}
 
 /**
@@ -149,6 +149,12 @@ class ArraySource extends Datasource {
 		}
 		if ($model->findQueryType === 'first') {
 			return $data;
+		} elseif ($model->findQueryType === 'list') {
+			$newData = array();
+			foreach ($data as $item) {
+				$newData[] = array($model->alias => $item);
+			}
+			return $newData;
 		}
 		return array($model->alias => $data);
 	}
