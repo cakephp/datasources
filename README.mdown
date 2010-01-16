@@ -7,7 +7,7 @@ Exemple: CakePHP dont support enumerations, but with this datasource you can put
 texts in a model and associate (belongsTo / hasMany / ...). Also, you can generate a list of
 states in a model, avoiding create a table or write various selects with this.
 
-To more informations, see the "wiki":http://wiki.github.com/jrbasso/array_datasource .
+To more informations, see the [wiki](http://wiki.github.com/jrbasso/array_datasource).
 
 ## License
 
