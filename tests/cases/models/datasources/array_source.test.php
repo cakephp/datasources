@@ -1,34 +1,14 @@
 <?php
-/**
- * Array Source Test file
- *
- * PHP versions 4 and 5
- *
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
- *
- * Licensed under The MIT License
- * Redistributions of files must retain the above copyright notice.
- *
- * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
- * @package       datasources
- * @subpackage    datasources.tests.cases.models.datasources.dbo
- * @since         CakePHP Datasources v 0.3
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
- */
 
-App::import('Datasource', 'Datasources.ArraySource');
+App::import('Datasource', 'ArrayDatasource.ArraySource');
 
 // Add new db config
 ConnectionManager::getDataSource('test');
-ConnectionManager::create('test_array', array('datasource' => 'Datasources.ArraySource'));
+ConnectionManager::create('test_array', array('datasource' => 'ArrayDatasource.ArraySource'));
 
 /**
  * Array Testing Model
  *
- * @package datasources
- * @subpackage datasources.tests.models.datasources.dbo
  */
 class ArrayModel extends CakeTestModel {
 
@@ -85,8 +65,6 @@ class UserModel extends CakeTestModel {
 /**
  * Array Datasource Test
  *
- * @package datasources
- * @subpackage datasources.tests.models.datasources.dbo
  */
 class ArraySourceTest extends CakeTestCase {
 
@@ -280,7 +258,7 @@ class ArraySourceTest extends CakeTestCase {
 
 class IntractModelTest extends CakeTestCase {
 
-	var $fixtures = array('plugin.datasources.user');
+	var $fixtures = array('plugin.array_datasource.user');
 
 	function skip() {
 		$db =& ConnectionManager::getDataSource('test');
