@@ -1,0 +1,14 @@
+# Array Datasource
+
+Array Datasource is a datasource to CakePHP that you can use static content as model and interact
+with your models that use DBO.
+
+Exemple: CakePHP dont support enumerations, but with this datasource you can put your values and
+texts in a model and associate (belongsTo / hasMany / ...). Also, you can generate a list of
+states in a model, avoiding create a table or write various selects with this.
+
+To more informations, see the "wiki":http://wiki.github.com/jrbasso/array_datasource .
+
+## License
+
+Licensed under The MIT License (http://www.opensource.org/licenses/mit-license.php)
