@@ -21,6 +21,7 @@
 App::import('Datasource', 'Datasources.ArraySource');
 
 // Add new db config
+ConnectionManager::getDataSource('test');
 ConnectionManager::create('test_array', array('datasource' => 'Datasources.ArraySource'));
 
 /**
@@ -65,6 +66,25 @@ class ArrayModel extends CakeTestModel {
 		array(
 			'id' => 3,
 			'name' => 'Germany'
+		)
+	);
+
+	function __construct($id = false, $table = null, $ds = null) {
+		if (isset($id['ds'])) {
+			$id['ds'] = $this->useDbConfig;
+		}
+		parent::__construct($id, $table, $this->useDbConfig);
+	}
+}
+
+class UserModel extends CakeTestModel {
+	var $name = 'UserModel';
+	var $useDbConfig = 'test';
+	var $useTable = 'users';
+	var $belongsTo = array(
+		'Born' => array(
+			'className' => 'ArrayModel',
+			'foreignKey' => 'born_id',
 		)
 	);
 }
@@ -261,6 +281,43 @@ class ArraySourceTest extends CakeTestCase {
 		$this->Model->displayField = 'name';
 		$result = $this->Model->find('list');
 		$expected = array(1 => 'USA', 2 => 'Brazil', 3 => 'Germany');
+		$this->assertEqual($result, $expected);
+	}
+}
+
+class IntractModelTest extends CakeTestCase {
+
+	var $fixtures = array('plugin.datasources.user');
+
+	function skip() {
+		$db =& ConnectionManager::getDataSource('test');
+		$this->skipUnless(is_subclass_of($db, 'DboSource'), '%s because database test not extends one DBO driver.');
+	}
+
+	function testBelongsTo() {
+		$model = ClassRegistry::init('UserModel');
+
+		$result = $model->find('all', array('recursive' => 0));
+		$expected = array(
+			array('UserModel' => array('id' => 1, 'born_id' => 1, 'name' => 'User 1'), 'Born' => array('id' => 1, 'name' => 'USA')),
+			array('UserModel' => array('id' => 2, 'born_id' => 2, 'name' => 'User 2'), 'Born' => array('id' => 2, 'name' => 'Brazil')),
+			array('UserModel' => array('id' => 3, 'born_id' => 1, 'name' => 'User 3'), 'Born' => array('id' => 1, 'name' => 'USA')),
+			array('UserModel' => array('id' => 4, 'born_id' => 3, 'name' => 'User 4'), 'Born' => array('id' => 3, 'name' => 'Germany'))
+		);
+		$this->assertEqual($result, $expected);
+
+		$model->belongsTo['Born']['fields'] = array('name');
+		$result = $model->find('all', array('recursive' => 0));
+		$expected = array(
+			array('UserModel' => array('id' => 1, 'born_id' => 1, 'name' => 'User 1'), 'Born' => array('name' => 'USA')),
+			array('UserModel' => array('id' => 2, 'born_id' => 2, 'name' => 'User 2'), 'Born' => array('name' => 'Brazil')),
+			array('UserModel' => array('id' => 3, 'born_id' => 1, 'name' => 'User 3'), 'Born' => array('name' => 'USA')),
+			array('UserModel' => array('id' => 4, 'born_id' => 3, 'name' => 'User 4'), 'Born' => array('name' => 'Germany'))
+		);
+		$this->assertEqual($result, $expected);
+
+		$result = $model->read(null, 1);
+		$expected = array('UserModel' => array('id' => 1, 'born_id' => 1, 'name' => 'User 1'), 'Born' => array('name' => 'USA'));
 		$this->assertEqual($result, $expected);
 	}
 }

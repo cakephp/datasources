@@ -218,5 +218,15 @@ class ArraySource extends Datasource {
 	function calculate(&$model, $type, $params = array()) {
 		return 'COUNT';
 	}
+
+	function queryAssociation(&$model, &$linkModel, $type, $association, $assocData, &$queryData, $external = false, &$resultSet, $recursive, $stack) {
+		foreach ($resultSet as $id => $result) {
+			$resultSet[$id][$association] = $model->{$association}->find('first', array(
+				'conditions' => array_merge((array)$assocData['conditions'], array($model->{$association}->primaryKey => $result[$model->alias][$assocData['foreignKey']])),
+				'fields' => $assocData['fields'],
+				'order' => $assocData['order']
+			));
+		}
+	}
 }
 ?>
