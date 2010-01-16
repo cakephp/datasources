@@ -68,13 +68,6 @@ class ArrayModel extends CakeTestModel {
 			'name' => 'Germany'
 		)
 	);
-
-	function __construct($id = false, $table = null, $ds = null) {
-		if (isset($id['ds'])) {
-			$id['ds'] = $this->useDbConfig;
-		}
-		parent::__construct($id, $table, $this->useDbConfig);
-	}
 }
 
 class UserModel extends CakeTestModel {
@@ -295,6 +288,7 @@ class IntractModelTest extends CakeTestCase {
 	}
 
 	function testBelongsTo() {
+		ClassRegistry::config(array());
 		$model = ClassRegistry::init('UserModel');
 
 		$result = $model->find('all', array('recursive' => 0));
