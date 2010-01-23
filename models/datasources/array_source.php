@@ -137,6 +137,9 @@ class ArraySource extends Datasource {
 		if ($limit !== false) {
 			$data = array_slice($data, ($queryData['page'] - 1) * $queryData['limit'], $queryData['limit'], false);
 		}
+		if ($queryData['fields'] === 'COUNT') {
+			return array(array(array('count' => count($data))));
+		}
 		// Order
 		if (!empty($queryData['order'])) {
 			if (is_string($queryData['order'][0])) {
@@ -156,9 +159,6 @@ class ArraySource extends Datasource {
 		}
 		// Filter fields
 		if (!empty($queryData['fields'])) {
-			if ($queryData['fields'] === 'COUNT') {
-				return array(array(array('count' => count($data))));
-			}
 			$listOfFields = array();
 			foreach ($queryData['fields'] as $field) {
 				if (strpos($field, '.') !== false) {
