@@ -50,6 +50,10 @@ class ArrayModel extends CakeTestModel {
 	);
 }
 
+/**
+ * User Testing Model
+ *
+ */
 class UserModel extends CakeTestModel {
 	var $name = 'UserModel';
 	var $useDbConfig = 'test';
@@ -97,36 +101,29 @@ class ArraySourceTest extends CakeTestCase {
 		$result = $this->Model->find('all');
 		$expected = array(
 			'ArrayModel' => array(
-				array(
-					'id' => 1,
-					'name' => 'USA'
-				),
-				array(
-					'id' => 2,
-					'name' => 'Brazil'
-				),
-				array(
-					'id' => 3,
-					'name' => 'Germany'
-				)
+				array('id' => 1, 'name' => 'USA'),
+				array('id' => 2, 'name' => 'Brazil'),
+				array('id' => 3, 'name' => 'Germany')
 			)
 		);
 		$this->assertEqual($result, $expected);
+	}
 
-		$result = $this->Model->find('all', array('fields' => array('id')));
+/**
+ * testFindFields
+ *
+ * @return void
+ * @access public
+ */
+	function testFindFields() {
 		$expected = array(
 			'ArrayModel' => array(
-				array(
-					'id' => 1
-				),
-				array(
-					'id' => 2
-				),
-				array(
-					'id' => 3
-				)
+				array('id' => 1),
+				array('id' => 2),
+				array('id' => 3)
 			)
 		);
+		$result = $this->Model->find('all', array('fields' => array('id')));
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('fields' => array('ArrayModel.id')));
@@ -134,18 +131,20 @@ class ArraySourceTest extends CakeTestCase {
 
 		$result = $this->Model->find('all', array('fields' => array('ArrayModel.id', 'Unknow.id')));
 		$this->assertEqual($result, $expected);
+	}
 
+/**
+ * testFindLimit
+ *
+ * @return void
+ * @access public
+ */
+	function testFindLimit() {
 		$result = $this->Model->find('all', array('limit' => 2));
 		$expected = array(
 			'ArrayModel' => array(
-				array(
-					'id' => 1,
-					'name' => 'USA'
-				),
-				array(
-					'id' => 2,
-					'name' => 'Brazil'
-				)
+				array('id' => 1, 'name' => 'USA'),
+				array('id' => 2, 'name' => 'Brazil')
 			)
 		);
 		$this->assertEqual($result, $expected);
@@ -153,29 +152,25 @@ class ArraySourceTest extends CakeTestCase {
 		$result = $this->Model->find('all', array('limit' => 2, 'page' => 2));
 		$expected = array(
 			'ArrayModel' => array(
-				array(
-					'id' => 3,
-					'name' => 'Germany'
-				)
+				array('id' => 3, 'name' => 'Germany')
 			)
 		);
 		$this->assertEqual($result, $expected);
+	}
 
+/**
+ * testFindOrder
+ *
+ * @return void
+ * @access public
+ */
+	function testFindOrder() {
 		$result = $this->Model->find('all', array('order' => 'ArrayModel.name'));
 		$expected = array(
 			'ArrayModel' => array(
-				array(
-					'id' => 2,
-					'name' => 'Brazil'
-				),
-				array(
-					'id' => 3,
-					'name' => 'Germany'
-				),
-				array(
-					'id' => 1,
-					'name' => 'USA'
-				)
+				array('id' => 2, 'name' => 'Brazil'),
+				array('id' => 3, 'name' => 'Germany'),
+				array('id' => 1, 'name' => 'USA')
 			)
 		);
 		$this->assertEqual($result, $expected);
@@ -183,19 +178,21 @@ class ArraySourceTest extends CakeTestCase {
 		$result = $this->Model->find('all', array('fields' => array('ArrayModel.id'), 'order' => 'ArrayModel.name'));
 		$expected = array(
 			'ArrayModel' => array(
-				array(
-					'id' => 2
-				),
-				array(
-					'id' => 3
-				),
-				array(
-					'id' => 1
-				)
+				array('id' => 2),
+				array('id' => 3),
+				array('id' => 1)
 			)
 		);
 		$this->assertEqual($result, $expected);
+	}
 
+/**
+ * testFindConditions
+ *
+ * @return void
+ * @access public
+ */
+	function testFindConditions() {
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name' => 'USA')));
 		$expected = array('ArrayModel' => array(array('id' => 1, 'name' => 'USA')));
 		$this->assertEqual($result, $expected);
@@ -220,6 +217,12 @@ class ArraySourceTest extends CakeTestCase {
 		$this->assertEqual($result, $expected);
 	}
 
+/**
+ * testFindFirst
+ *
+ * @return void
+ * @access public
+ */
 	function testFindFirst() {
 		$result = $this->Model->find('first');
 		$expected = array('id' => 1, 'name' => 'USA');
@@ -230,6 +233,12 @@ class ArraySourceTest extends CakeTestCase {
 		$this->assertEqual($result, $expected);
 	}
 
+/**
+ * testFindCount
+ *
+ * @return void
+ * @access public
+ */
 	function testFindCount() {
 		$result = $this->Model->find('count');
 		$this->assertEqual($result, 3);
@@ -244,6 +253,12 @@ class ArraySourceTest extends CakeTestCase {
 		$this->assertEqual($result, 1);
 	}
 
+/**
+ * testFindList
+ *
+ * @return void
+ * @access public
+ */
 	function testFindList() {
 		$result = $this->Model->find('list');
 		$expected = array(1 => 1, 2 => 2, 3 => 3);
@@ -256,15 +271,37 @@ class ArraySourceTest extends CakeTestCase {
 	}
 }
 
+/**
+ * Interact with Dbo Test
+ *
+ */
 class IntractModelTest extends CakeTestCase {
 
+/**
+ * List of fixtures
+ *
+ * @var array
+ * @access public
+ */
 	var $fixtures = array('plugin.array_datasource.user');
 
+/**
+ * skip
+ *
+ * @return void
+ * @access public
+ */
 	function skip() {
 		$db =& ConnectionManager::getDataSource('test');
 		$this->skipUnless(is_subclass_of($db, 'DboSource'), '%s because database test not extends one DBO driver.');
 	}
 
+/**
+ * testBeongsTo
+ *
+ * @return void
+ * @access public
+ */
 	function testBelongsTo() {
 		ClassRegistry::config(array());
 		$model = ClassRegistry::init('UserModel');
