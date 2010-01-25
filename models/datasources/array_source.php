@@ -156,15 +156,15 @@ class ArraySource extends Datasource {
 			$data[$i] = $record;
 			$i++;
 			// Test limit
-			if ($limit !== false && $i == $limit) {
+			if ($limit !== false && $i == $limit && empty($queryData['order'])) {
 				break;
 			}
 		}
-		if ($limit !== false) {
-			$data = array_slice($data, ($queryData['page'] - 1) * $queryData['limit'], $queryData['limit'], false);
-		}
 		if ($queryData['fields'] === 'COUNT') {
-			$this->_registerLog($model, $queryData, getMicrotime() - $startTime, count($data));
+			$this->_registerLog($model, $queryData, getMicrotime() - $startTime, 1);
+			if ($limit !== false) {
+				$data = array_slice($data, ($queryData['page'] - 1) * $queryData['limit'], $queryData['limit'], false);
+			}
 			return array(array(array('count' => count($data))));
 		}
 		// Order
@@ -183,6 +183,10 @@ class ArraySource extends Datasource {
 					$data = Set::sort($data, '{n}.' . $field, $sort);
 				}
 			}
+		}
+		// Limit
+		if ($limit !== false) {
+			$data = array_slice($data, ($queryData['page'] - 1) * $queryData['limit'], $queryData['limit'], false);
 		}
 		// Filter fields
 		if (!empty($queryData['fields'])) {

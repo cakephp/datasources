@@ -184,6 +184,14 @@ class ArraySourceTest extends CakeTestCase {
 			)
 		);
 		$this->assertEqual($result, $expected);
+
+		$result = $this->Model->find('all', array('fields' => array('ArrayModel.id'), 'order' => 'ArrayModel.name', 'limit' => 1, 'page' => 2));
+		$expected = array(
+			'ArrayModel' => array(
+				array('id' => 3)
+			)
+		);
+		$this->assertEqual($result, $expected);
 	}
 
 /**
