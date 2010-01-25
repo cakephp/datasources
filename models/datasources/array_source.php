@@ -26,6 +26,24 @@ class ArraySource extends Datasource {
 	var $description = 'Array Datasource';
 
 /**
+ * List of requests ("queries")
+ *
+ * @var array
+ * @access protected
+ */
+	var $_requestsLog = array();
+
+/**
+ * Base Config
+ *
+ * @var array
+ * @access protected
+ */
+	var $_baseConfig = array(
+		'driver' => '' // Just to avoid DebugKit warning
+	);
+
+/**
  * Default Constructor
  *
  * @param array $config options
@@ -67,8 +85,16 @@ class ArraySource extends Datasource {
  */
 	function read(&$model, $queryData = array()) {
 		if (!isset($model->records) || !is_array($model->records) || empty($model->records)) {
+			$this->_requestsLog[] = array(
+				'query' => 'Model ' . $model->alias,
+				'error' => __('No records found in model.', true),
+				'affected' => 0,
+				'numRows' => 0,
+				'took' => 0
+			);
 			return array($model->alias => array());
 		}
+		$startTime = getMicrotime();
 		$data = array();
 		$i = 0;
 		$limit = false;
@@ -138,6 +164,7 @@ class ArraySource extends Datasource {
 			$data = array_slice($data, ($queryData['page'] - 1) * $queryData['limit'], $queryData['limit'], false);
 		}
 		if ($queryData['fields'] === 'COUNT') {
+			$this->_registerLog($model, $queryData, getMicrotime() - $startTime, count($data));
 			return array(array(array('count' => count($data))));
 		}
 		// Order
@@ -177,6 +204,7 @@ class ArraySource extends Datasource {
 				}
 			}
 		}
+		$this->_registerLog($model, $queryData, getMicrotime() - $startTime, count($data));
 		if ($model->findQueryType === 'first') {
 			return $data;
 		} elseif ($model->findQueryType === 'list') {
@@ -210,6 +238,97 @@ class ArraySource extends Datasource {
 				'order' => $assocData['order']
 			));
 		}
+	}
+
+/**
+ * Get the query log as an array.
+ *
+ * @param boolean $sorted Get the queries sorted by time taken, defaults to false.
+ * @param boolean $clear Clear after return logs
+ * @return array Array of queries run as an array
+ * @access public
+ */
+	function getLog($sorted = false, $clear = true) {
+		if ($sorted) {
+			$log = sortByKey($this->_requestsLog, 'took', 'desc', SORT_NUMERIC);
+		} else {
+			$log = $this->_requestsLog;
+		}
+		if ($clear) {
+			$this->_requestsLog = array();
+		}
+		return array('log' => $log, 'count' => count($log), 'time' => array_sum(Set::extract('{n}.took', $log)));
+	}
+
+/**
+ * Generate a log registry
+ *
+ * @param object $model
+ * @param array $queryData
+ * @param float $took
+ * @param integer $numRows
+ * @return void
+ */
+	function _registerLog(&$model, &$queryData, $took, $numRows) {
+		if (!Configure::read()) {
+			return;
+		}
+		$this->_requestsLog[] = array(
+			'query' => $this->_pseudoSelect($model, $queryData),
+			'error' => '',
+			'affected' => 0,
+			'numRows' => $numRows,
+			'took' => round($took, 3)
+		);
+	}
+
+/**
+ * Generate a pseudo select to log
+ *
+ * @param object $model Model
+ * @param array $queryData Query data sended by find
+ * @return string Pseudo query
+ * @access protected
+ */
+	function _pseudoSelect(&$model, &$queryData) {
+		$out = '(symbolic) SELECT ';
+		if (empty($queryData['fields'])) {
+			$out .= '*';
+		} elseif ($queryData['fields']) {
+			$out .= 'COUNT(*)';
+		} else {
+			$out .= implode(', ', $queryData['fields']);
+		}
+		$out .= ' FROM ' . $model->alias;
+		if (!empty($queryData['conditions'])) {
+			$out .= ' WHERE';
+			foreach ($queryData['conditions'] as $id => $condition) {
+				if (empty($condition)) {
+					continue;
+				}
+				if (is_string($id)) {
+					if (strpos($id, ' ') !== false) {
+						$condition = $id . ' ' . $condition;
+					} else {
+						$condition = $id . ' = ' . $condition;
+					}
+				}
+				if (preg_match('/^(\w+\.)?\w+ /', $condition, $matches)) {
+					if (!empty($matches[1]) && substr($matches[1], 0, -1) !== $model->alias) {
+						continue;
+					}
+				}
+				$out .= ' (' . $condition . ') &&';
+			}
+			$out = substr($out, 0, -3);
+		}
+		if (!empty($queryData['order'][0])) {
+			$out .= ' ORDER BY ' . implode(', ', $queryData['order']);
+		}
+		if (!empty($queryData['limit'])) {
+			$out .= ' LIMIT ' . (($queryData['page'] - 1) * $queryData['limit']) . ', ' .  $queryData['limit'];
+		}
+		return $out;
 	}
 }
 ?>
