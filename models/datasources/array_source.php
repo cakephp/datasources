@@ -230,6 +230,20 @@ class ArraySource extends Datasource {
 		return 'COUNT';
 	}
 
+/**
+ * Queries associations.  Used to fetch results on recursive models.
+ *
+ * @param Model $model Primary Model object
+ * @param Model $linkModel Linked model that
+ * @param string $type Association type, one of the model association types ie. hasMany
+ * @param unknown_type $association
+ * @param unknown_type $assocData
+ * @param array $queryData
+ * @param boolean $external Whether or not the association query is on an external datasource.
+ * @param array $resultSet Existing results
+ * @param integer $recursive Number of levels of association
+ * @param array $stack
+ */
 	function queryAssociation(&$model, &$linkModel, $type, $association, $assocData, &$queryData, $external = false, &$resultSet, $recursive, $stack) {
 		foreach ($resultSet as $id => $result) {
 			$resultSet[$id][$association] = $model->{$association}->find('first', array(
