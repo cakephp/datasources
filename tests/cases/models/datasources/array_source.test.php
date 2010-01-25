@@ -3,7 +3,6 @@
 App::import('Datasource', 'ArrayDatasource.ArraySource');
 
 // Add new db config
-ConnectionManager::getDataSource('test');
 ConnectionManager::create('test_array', array('datasource' => 'ArrayDatasource.ArraySource'));
 
 /**
