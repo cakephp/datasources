@@ -261,22 +261,26 @@ class CsvSource extends DataSource {
                 }
 
                 $record = array();
-                if ($allFields) {
-                    $i = 0;
-                    $record['id'] = $lineCount;
-                    foreach($fields as $field) {
-                        $record[$field] = $data[$i++];
-                    }
-                } else {
-                    $record['id'] = $lineCount;
-                    if (count($_fieldIndex) > 0) {
-                        foreach($_fieldIndex as $i) {
-                            $record[$this->fields[$i]] = $data[$i];
-                        }
-                    }
+                $i = 0;
+                $record['id'] = $lineCount;
+                foreach($this->fields as $field) {
+                    $record[$field] = $data[$i++];
                 }
-                if ( $this->__checkConditions($record, $queryData['conditions']) )
-                    $resultSet[] = $record;
+
+                if ( $this->__checkConditions($record, $queryData['conditions']) ) {
+                  if ($allFields) {
+                      $resultSet[] = $record;
+                  } else {
+                    $record = array();
+                      $record['id'] = $lineCount;
+                      if (count($_fieldIndex) > 0) {
+                          foreach($_fieldIndex as $i) {
+                              $record[$this->fields[$i]] = $data[$i];
+                          }
+                      }
+                      $resultSet[] = $record;
+                  }
+                }
                 unset($record);
 
                 // now count every record
