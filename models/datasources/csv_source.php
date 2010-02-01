@@ -267,7 +267,6 @@ class CsvSource extends DataSource {
                     foreach($fields as $field) {
                         $record[$field] = $data[$i++];
                     }
-                    $resultSet[] = $record;
                 } else {
                     $record['id'] = $lineCount;
                     if (count($_fieldIndex) > 0) {
@@ -275,8 +274,9 @@ class CsvSource extends DataSource {
                             $record[$this->fields[$i]] = $data[$i];
                         }
                     }
-                    $resultSet[] = $record;
                 }
+                if ( $this->__checkConditions($record, $queryData['conditions']) )
+                    $resultSet[] = $record;
                 unset($record);
 
                 // now count every record
@@ -308,5 +308,46 @@ class CsvSource extends DataSource {
         return $data;
     }
 
+/**
+ * Private helper method to check conditions.
+ *
+ * @param array $record
+ * @param array $conditions
+ * @return bool
+ */
+    function __checkConditions($record, $conditions) 
+    {
+        $result = true ;
+        foreach( $conditions as $name => $value ) {
+            if ( strtolower($name) === 'or' ) {
+                $cond = $value;
+                $result = false ;
+                foreach( $cond as $name => $value ) {
+                    if ( Set::matches($this->__createRule($name, $value), $record) ) 
+                        return true ;
+                }
+            } else {
+                if ( !Set::matches($this->__createRule($name, $value), $record) ) 
+                    return false ;
+            }
+        }
+        return $result ;
+    }
+    
+/**
+ * Private helper method to crete rule.
+ *
+ * @param string $name
+ * @param string $value
+ * @return string
+ */
+    function __createRule($name, $value) 
+    {
+        if ( strpos($name,' ') !== false ) {
+            return array(str_replace(' ','',$name).$value) ;
+        } else {
+            return array("{$name}={$value}") ;
+        }
+    }
 }
 
