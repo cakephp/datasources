@@ -202,6 +202,8 @@ class CsvSource extends DataSource {
         $filename = $config['path'] . DS .  $model->table . "." . $config['extension'];
         if ($this->handle === false) {
             $this->handle = fopen($filename,  "r");
+        } else {
+          fseek($this->handle, 0, SEEK_SET) ;
         }
         $queryData = $this->__scrubQueryData($queryData);
 
@@ -236,6 +238,7 @@ class CsvSource extends DataSource {
 
         $lineCount = 0;
         $recordCount = 0;
+        $findCount = 0;
         $resultSet = array();
 
         // Daten werden aus der Datei in ein Array $data gelesen
@@ -246,14 +249,6 @@ class CsvSource extends DataSource {
                 continue;
                 // $_page = 1;
             } else {
-                // compute the virtual pagenumber
-                $_page = floor($lineCount / $this->limit) + 1;
-
-                // do have have reached our requested page ?
-                if ($this->page > $_page) {
-                    $lineCount++;
-                    continue;
-                }
                 // skip over records, that are not complete
                 if (count($data) < $this->maxCol) {
                     $lineCount++;
@@ -268,24 +263,27 @@ class CsvSource extends DataSource {
                 }
 
                 if ( $this->__checkConditions($record, $queryData['conditions']) ) {
-                  if ($allFields) {
-                      $resultSet[] = $record;
-                  } else {
-                    $record = array();
-                      $record['id'] = $lineCount;
-                      if (count($_fieldIndex) > 0) {
-                          foreach($_fieldIndex as $i) {
-                              $record[$this->fields[$i]] = $data[$i];
-                          }
-                      }
-                      $resultSet[] = $record;
+                  // compute the virtual pagenumber
+                  $_page = floor($findCount / $this->limit) + 1;
+                  $lineCount++;
+                  if ($this->page <= $_page) {
+                    if (!$allFields) {
+                      $record = array();
+                        $record['id'] = $lineCount;
+                        if (count($_fieldIndex) > 0) {
+                            foreach($_fieldIndex as $i) {
+                                $record[$this->fields[$i]] = $data[$i];
+                            }
+                        }
+                    }
+                    $resultSet[] = $record ;
+                    $recordCount++;
                   }
                 }
                 unset($record);
 
                 // now count every record
-                $recordCount++;
-                $lineCount++;
+                $findCount++;
 
                 // is our page filled with records, then stop
                 if ($recordCount >= $this->limit) {
@@ -293,8 +291,13 @@ class CsvSource extends DataSource {
                 }
             }
         }
-        $result[$model->table] = $resultSet;
-        return $result;
+
+        
+        if ($model->findQueryType === 'count') {
+            return array(array(array('count' => count($resultSet)))) ;
+        } else {
+            return $resultSet;
+        }
     }
 
 /**
@@ -352,6 +355,11 @@ class CsvSource extends DataSource {
         } else {
             return array("{$name}={$value}") ;
         }
+    }
+  
+    function calculate(&$model, $func, $params = array()) 
+    {
+        return array('count' => true);
     }
 }
 
