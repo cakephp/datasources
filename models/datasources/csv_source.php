@@ -56,7 +56,6 @@ class CsvSource extends DataSource {
         }
 	}
 
-
 /**
  * Connects to the mailbox using options in the given configuration array.
  *
@@ -80,7 +79,7 @@ class CsvSource extends DataSource {
         // debug($config['path']);
         $this->connection = &new Folder($path = $config['path'], $create, $mode);
         if ($this->connection) {
-            $this->handle = false;
+            $this->handle = array();
             $this->connected = true;
         }
 		return $this->connected;
@@ -182,7 +181,9 @@ class CsvSource extends DataSource {
     {
         if ($this->connected) {
             if ($this->handle) {
-                @fclose($this->handle);
+                foreach($this->handle as $h) {
+                  @fclose($h);
+                }
                 $this->handle = false;
             }
             $this->connected = false;
@@ -200,10 +201,10 @@ class CsvSource extends DataSource {
     function read(&$model, $queryData = array(), $recursive = null) {
         $config = $this->config;
         $filename = $config['path'] . DS .  $model->table . "." . $config['extension'];
-        if ($this->handle === false) {
-            $this->handle = fopen($filename,  "r");
+        if (!Set::extract($this->handle,$model->table)) {
+            $this->handle[$model->table] = fopen($filename,  "r") ;
         } else {
-          fseek($this->handle, 0, SEEK_SET) ;
+          fseek($this->handle[$model->table], 0, SEEK_SET) ;
         }
         $queryData = $this->__scrubQueryData($queryData);
 
@@ -242,7 +243,7 @@ class CsvSource extends DataSource {
         $resultSet = array();
 
         // Daten werden aus der Datei in ein Array $data gelesen
-        while ( ($data = fgetcsv ($this->handle, 8192, $this->delimiter)) !== FALSE ) {
+        while ( ($data = fgetcsv ($this->handle[$model->table], 8192, $this->delimiter)) !== FALSE ) {
             if ($lineCount == 0) {
                 // throw away the first line
                 $lineCount++;
