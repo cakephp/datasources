@@ -24,7 +24,7 @@ App::import('Datasource', 'Datasources.XmlrpcSource');
  * XML RPC Testing Model
  *
  * @package datasources
- * @subpackage datasources.tests.models.datasources.dbo
+ * @subpackage datasources.tests.models.datasources
  */
 class XmlrpcModel extends CakeTestModel {
 
