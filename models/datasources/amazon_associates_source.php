@@ -48,9 +48,9 @@ class AmazonAssociatesSource extends DataSource{
     */
   var $Http = null;
 
-	/**
-	  * Append HttpSocket to Http
-	  */
+  /**
+    * Append HttpSocket to Http
+    */
   function __construct($config) {
     parent::__construct($config);
     App::import('HttpSocket');
@@ -58,86 +58,86 @@ class AmazonAssociatesSource extends DataSource{
   }
 
 	/**
-	  * Query the Amazon Database
-	  *
-	  * @param string type (DVD, Book, Movie, etc...)
-	  * @param array options (title search, etc...)
-	  * @return mixed array of the resulting request or false if unable to contact server
-	  * @access public
-	  */
-    function find($type = null, $query = array()) {
-      if($type){
-        $query['SearchIndex'] = $type;
-      }
-      if (!is_array($query)) {
-        $query = array('Title' => $query);
-      }
-      foreach ($query as $key => $val) {
-        if (preg_match('/^[a-z]/', $key)) {
-          $query[Inflector::camelize($key)] = $val;
-          unset($query[$key]);
-        }
-      }
-      
-      $this->query = am(
-        array(
-          'Service' => 'AWSECommerceService',
-          'AWSAccessKeyId' => $this->config['key'],
-          'Timestamp' => gmdate("Y-m-d\TH:i:s\Z"),
-          'AccociateTag' => $this->config['tag'],
-          'Operation' => 'ItemSearch',
-          'Version' => '2009-03-31',
-        ), 
-        $query
-      );
-      
-      return $this->__request();
+    * Query the Amazon Database
+    *
+    * @param string type (DVD, Book, Movie, etc...)
+    * @param array options (title search, etc...)
+    * @return mixed array of the resulting request or false if unable to contact server
+    * @access public
+    */
+  function find($type = null, $query = array()) {
+    if($type){
+      $query['SearchIndex'] = $type;
     }
-	
-	/**
-	  * Find an item by it's ID
-	  *
-	  * @param string id of amazon product
-	  * @return mixed array of the resulting request or false if unable to contact server
-	  * @access public
-	  */
-    function findById($item_id){
-      $this->query = am(
-        array(
-          'Service' => 'AWSECommerceService',
-          'AWSAccessKeyId' => $this->config['key'],
-          'Timestamp' => gmdate("Y-m-d\TH:i:s\Z"),
-          'AccociateTag' => $this->config['tag'],
-          'Version' => '2009-03-31',
-          'Operation' => 'ItemLookup',
-        ),
-        array('ItemId' => $item_id)
-      );
+    if (!is_array($query)) {
+      $query = array('Title' => $query);
+    }
+    foreach ($query as $key => $val) {
+      if (preg_match('/^[a-z]/', $key)) {
+        $query[Inflector::camelize($key)] = $val;
+        unset($query[$key]);
+      }
+    }
     
-      return $this->__request();
-    }
+    $this->query = am(
+      array(
+        'Service' => 'AWSECommerceService',
+        'AWSAccessKeyId' => $this->config['key'],
+        'Timestamp' => gmdate("Y-m-d\TH:i:s\Z"),
+        'AccociateTag' => $this->config['tag'],
+        'Operation' => 'ItemSearch',
+        'Version' => '2009-03-31',
+      ), 
+      $query
+    );
+    
+    return $this->__request();
+  }
+	
+  /**
+    * Find an item by it's ID
+    *
+    * @param string id of amazon product
+    * @return mixed array of the resulting request or false if unable to contact server
+    * @access public
+    */
+  function findById($item_id){
+    $this->query = am(
+      array(
+        'Service' => 'AWSECommerceService',
+        'AWSAccessKeyId' => $this->config['key'],
+        'Timestamp' => gmdate("Y-m-d\TH:i:s\Z"),
+        'AccociateTag' => $this->config['tag'],
+        'Version' => '2009-03-31',
+        'Operation' => 'ItemLookup',
+      ),
+      array('ItemId' => $item_id)
+    );
+  
+    return $this->__request();
+  }
 	
 	/**
-	  * Actually preform the request to AWS
-	  *
-	  * @return mixed array of the resulting request or false if unable to contact server
-	  * @access private
-	  */
-	  function __request(){
-      $this->_request = $this->__signQuery();
-      $retval = $this->Http->get($this->_request);
-      $retval = Set::reverse(new Xml($retval));
-      return $retval;
-    }
+    * Actually preform the request to AWS
+    *
+    * @return mixed array of the resulting request or false if unable to contact server
+    * @access private
+    */
+  function __request(){
+    $this->_request = $this->__signQuery();
+    $retval = $this->Http->get($this->_request);
+    $retval = Set::reverse(new Xml($retval));
+    return $retval;
+  }
 	
 	/**
-	  * Sign a query using sha256.
-	  * this is a required step for the new Amazon API
-	  *
-	  * @return string request signed string.
-	  * @access private
-	  */
-	function __signQuery(){
+    * Sign a query using sha256.
+    * this is a required step for the new Amazon API
+    *
+    * @return string request signed string.
+    * @access private
+    */
+  function __signQuery(){
     $method = "GET";
     $host = "ecs.amazonaws.".$this->region;
     $uri = "/onca/xml";
@@ -162,6 +162,6 @@ class AmazonAssociatesSource extends DataSource{
     
     // create request
     return "http://".$host.$uri."?".$canonicalized_query."&Signature=".$signature;
-	}
+  }
 }
 ?>
