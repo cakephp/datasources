@@ -21,41 +21,41 @@ class AmazonAssociatesSource extends DataSource{
     * Description of datasource
     * @access public
     */
-	var $description = "AmazonAssociates Data Source";
-	
-	/**
-	  * Region
-	  * (ca,com,co,ul,de.fr,jp)
-	  * @access public
-	  */
-	var $region = "com";
-	
-	/**
-	  * Query array
-	  * @access public
-	  */
-	var $query = null;
-	
-	/**
-	  * signed request string to pass to Amazon
-	  * @access protected
-	  */
-	var $_request = null;
-	
-	/**
-	  * HttpSocket object
-	  * @access public
-	  */
-	var $Http = null;
+  var $description = "AmazonAssociates Data Source";
+  
+  /**
+    * Region
+    * (ca,com,co,ul,de.fr,jp)
+    * @access public
+    */
+  var $region = "com";
+  
+  /**
+    * Query array
+    * @access public
+    */
+  var $query = null;
+  
+  /**
+    * signed request string to pass to Amazon
+    * @access protected
+    */
+  var $_request = null;
+  
+  /**
+    * HttpSocket object
+    * @access public
+    */
+  var $Http = null;
 
 	/**
 	  * Append HttpSocket to Http
 	  */
-	function __construct($config) {
-		parent::__construct($config);
-		App::import('HttpSocket');
-		$this->Http = new HttpSocket();
-	}
+  function __construct($config) {
+    parent::__construct($config);
+    App::import('HttpSocket');
+    $this->Http = new HttpSocket();
+  }
 
 	/**
 	  * Query the Amazon Database
@@ -65,31 +65,34 @@ class AmazonAssociatesSource extends DataSource{
 	  * @return mixed array of the resulting request or false if unable to contact server
 	  * @access public
 	  */
-	function find($type = null, $query = array()) {
-	  if($type){
-	    $query['SearchIndex'] = $type;
-	  }
-		if (!is_array($query)) {
-			$query = array('Title' => $query);
-		}
-		foreach ($query as $key => $val) {
-			if (preg_match('/^[a-z]/', $key)) {
-				$query[Inflector::camelize($key)] = $val;
-				unset($query[$key]);
-			}
-		}
-		
-		$this->query = am(array(
-			'Service' => 'AWSECommerceService',
-			'AWSAccessKeyId' => $this->config['key'],
-			'Timestamp' => gmdate("Y-m-d\TH:i:s\Z"),
-			'AccociateTag' => $this->config['tag'],
-			'Operation' => 'ItemSearch',
-			'Version' => '2009-03-31',
-		), $query);
-		
-		return $this->__request();
-	}
+    function find($type = null, $query = array()) {
+      if($type){
+        $query['SearchIndex'] = $type;
+      }
+      if (!is_array($query)) {
+        $query = array('Title' => $query);
+      }
+      foreach ($query as $key => $val) {
+        if (preg_match('/^[a-z]/', $key)) {
+          $query[Inflector::camelize($key)] = $val;
+          unset($query[$key]);
+        }
+      }
+      
+      $this->query = am(
+        array(
+          'Service' => 'AWSECommerceService',
+          'AWSAccessKeyId' => $this->config['key'],
+          'Timestamp' => gmdate("Y-m-d\TH:i:s\Z"),
+          'AccociateTag' => $this->config['tag'],
+          'Operation' => 'ItemSearch',
+          'Version' => '2009-03-31',
+        ), 
+        $query
+      );
+      
+      return $this->__request();
+    }
 	
 	/**
 	  * Find an item by it's ID
@@ -98,21 +101,21 @@ class AmazonAssociatesSource extends DataSource{
 	  * @return mixed array of the resulting request or false if unable to contact server
 	  * @access public
 	  */
-	function findById($item_id){
-	  $this->query = am(
-	    array(
-	      'Service' => 'AWSECommerceService',
-        'AWSAccessKeyId' => $this->config['key'],
-        'Timestamp' => gmdate("Y-m-d\TH:i:s\Z"),
-        'AccociateTag' => $this->config['tag'],
-        'Version' => '2009-03-31',
-	      'Operation' => 'ItemLookup',
-	    ),
-	    array('ItemId' => $item_id)
-	  );
-	  
-	  return $this->__request();
-	}
+    function findById($item_id){
+      $this->query = am(
+        array(
+          'Service' => 'AWSECommerceService',
+          'AWSAccessKeyId' => $this->config['key'],
+          'Timestamp' => gmdate("Y-m-d\TH:i:s\Z"),
+          'AccociateTag' => $this->config['tag'],
+          'Version' => '2009-03-31',
+          'Operation' => 'ItemLookup',
+        ),
+        array('ItemId' => $item_id)
+      );
+    
+      return $this->__request();
+    }
 	
 	/**
 	  * Actually preform the request to AWS
@@ -120,12 +123,12 @@ class AmazonAssociatesSource extends DataSource{
 	  * @return mixed array of the resulting request or false if unable to contact server
 	  * @access private
 	  */
-	function __request(){
-	  $this->_request = $this->__signQuery();
-	  $retval = $this->Http->get($this->_request);
-		$retval = Set::reverse(new Xml($retval));
-		return $retval;
-	}
+	  function __request(){
+      $this->_request = $this->__signQuery();
+      $retval = $this->Http->get($this->_request);
+      $retval = Set::reverse(new Xml($retval));
+      return $retval;
+    }
 	
 	/**
 	  * Sign a query using sha256.
@@ -135,7 +138,7 @@ class AmazonAssociatesSource extends DataSource{
 	  * @access private
 	  */
 	function __signQuery(){
-	  $method = "GET";
+    $method = "GET";
     $host = "ecs.amazonaws.".$this->region;
     $uri = "/onca/xml";
     
@@ -160,6 +163,5 @@ class AmazonAssociatesSource extends DataSource{
     // create request
     return "http://".$host.$uri."?".$canonicalized_query."&Signature=".$signature;
 	}
-
 }
 ?>
