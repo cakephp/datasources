@@ -1,5 +1,5 @@
 <?php
-App::import('Datsource', 'WebTechNick.AmazonAssociatesSource');
+App::import('Datsource', 'Datasources.AmazonAssociatesSource');
 Mock::generatePartial('AmazonAssociatesSource', 'MockAmazonAssociatesSource', array('__request'));
 class AmazonAssociatesTestCase extends CakeTestCase {
   var $Amazon = null;
