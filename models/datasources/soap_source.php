@@ -2,30 +2,21 @@
 /**
  * SoapSource
  * 
- * A SOAP Client Datasource
+ * A SOAP Client Datasource for Cakephp
  * Connects to a SOAP server using the configured wsdl file
  *
  * PHP Version 5
  *
- * Copyright 2008 Pagebakers, www.pagebakers.nl
+ * Copyright 2008-2010 Pagebakers, (http://www.pagebakers.nl)
  *
- * This library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Licensed under The MIT License
+ * Redistributions of files must retain the above copyright notice.
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * @copyright   Copyright 2008-2010 Pagebakers (http://www.pagebakers.nl)
  * @link        http://github.com/Pagebakers/soapsource/
- * @copyright   Copyright 2008 Pagebakers
- * @license     http://www.gnu.org/licenses/lgpl.html
-
+ * @link        http://www.php.net/soapclient
+ * @link        http://cakephp.org
+ * @license     MIT License (http://www.opensource.org/licenses/mit-license.php)
  *
 */
 class SoapSource extends DataSource {
