@@ -13,14 +13,14 @@ Datasource plugin datasources can be used either through App::import of by defin
 
 	class DATABASE_CONFIG {
 		var $mySource = array(
-			'datasource' => 'Datasources.Xmlrpc',
+			'datasource' => 'Datasources.XmlrpcSource',
 			...
 			);
 		}
 
 or
 
-	App::import('Datasource', 'Datasources.Xmlrpc');
+	App::import('Datasource', 'Datasources.XmlrpcSource');
 
 ## Contributing to datasources
 

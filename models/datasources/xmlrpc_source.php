@@ -83,6 +83,16 @@ class XmlrpcSource extends Datasource {
 	}
 
 /**
+ * Checks if the source is connected.
+ *
+ * @return boolean
+ * @access public
+ */
+	function isConnected() {
+		return true;
+	}
+
+/**
  * Perform a XML RPC call
  *
  * @return mixed Response of XML-RPC Server. If return false, $this->error contain a error message.

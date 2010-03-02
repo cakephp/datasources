@@ -13,7 +13,7 @@
  * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       datasources
- * @subpackage    datasources.tests.cases.models.datasources.dbo
+ * @subpackage    datasources.tests.cases.models.datasources
  * @since         CakePHP Datasources v 0.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
@@ -24,7 +24,7 @@ App::import('Datasource', 'Datasources.XmlrpcSource');
  * XML RPC Testing Model
  *
  * @package datasources
- * @subpackage datasources.tests.models.datasources.dbo
+ * @subpackage datasources.tests.models.datasources
  */
 class XmlrpcModel extends CakeTestModel {
 
