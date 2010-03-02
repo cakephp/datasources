@@ -76,13 +76,12 @@ class SoapSource extends DataSource {
 	}
 
 /**
- * Connects to the SOAP server using the WSDL in the configuration
+ * Setup Configuration options
  *
- * @param array $config An array defining the new configuration settings
- * @return boolean True on success, false on failure
- * @access public
- */ 
-	public function connect() {
+ * @return array Configuration options
+ * @access protected
+ */
+	protected function _parseConfig() {
 		if (!class_exists('SoapClient')) {
 			$this->error = 'Class SoapClient not found, please enable Soap extensions';
 			$this->showError();
@@ -100,7 +99,18 @@ class SoapSource extends DataSource {
 			$options['password'] = $this->config['password'];
 			$options['authentication'] = $this->config['authentication'];
 		}
+		return $options;
+	}
 
+/**
+ * Connects to the SOAP server using the WSDL in the configuration
+ *
+ * @param array $config An array defining the new configuration settings
+ * @return boolean True on success, false on failure
+ * @access public
+ */ 
+	public function connect() {
+		$options = $this->_parseConfig();
 		try {
 			$this->client = new SoapClient($this->config['wsdl'], $options);
 		} catch(SoapFault $fault) {
@@ -166,14 +176,10 @@ class SoapSource extends DataSource {
 			$result = $this->client->__soapCall($method, $queryData);
 		} catch (SoapFault $fault) {
 			$this->error = $fault->faultstring;
-		}
-
-		if ($this->error) {
 			$this->showError();
-			return false;   
-		} else {
-			return $result;
+			return false;
 		}
+		return $result;
 	}
 
 /**
