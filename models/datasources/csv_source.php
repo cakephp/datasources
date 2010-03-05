@@ -142,7 +142,6 @@ class CsvSource extends DataSource {
 			$mode = 0777;
 		}
 
-		$config['path'] = WWW_ROOT . $config['path'];
 		$this->connection =& new Folder($path = $config['path'], $create, $mode);
 		if ($this->connection) {
 			$this->handle = array();
