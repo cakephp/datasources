@@ -117,11 +117,8 @@ class CsvSource extends DataSource {
 		$this->debug = Configure::read('debug') > 0;
 		$this->fullDebug = Configure::read('debug') > 1;
 		parent::__construct($config);
-
 		if ($autoConnect) {
-			return $this->connect();
-		} else {
-			return true;
+			$this->connect();
 		}
 	}
 
