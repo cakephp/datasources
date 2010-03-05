@@ -43,7 +43,7 @@ class CsvSource extends DataSource {
  * @var string
  * @access public
  */
-	var $description = "CSV Data Source";
+	var $description = 'CSV Data Source';
 
 /**
  * Column delimiter
@@ -75,7 +75,7 @@ class CsvSource extends DataSource {
  * @var mixed
  * @access public
  */
-	var $handle = false; // handle of the open csv file
+	var $handle = false;
 
 /**
  * Page to start on
@@ -91,7 +91,7 @@ class CsvSource extends DataSource {
  * @var integer
  * @access public
  */
-	var $limit = 99999; // just to make the chunks not too big
+	var $limit = 99999;
 
 /**
  * Default configuration.
