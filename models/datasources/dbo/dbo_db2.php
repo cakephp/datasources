@@ -22,6 +22,8 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
+App::import('Datasource','DboSource');
+
 /**
  * IBM DB2 for DBO
  *
@@ -32,6 +34,7 @@
  * @package       cake
  * @subpackage    cake.cake.libs.model.datasources.dbo
  */
+
 class DboDb2 extends DboSource {
 
 /**

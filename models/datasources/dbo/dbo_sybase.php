@@ -18,6 +18,8 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
+App::import('Datasource','DboSource');
+
 /**
  * Short description for class.
  *

@@ -18,12 +18,15 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
+App::import('Datasource','DboSource');
+
 /**
  * Firebird/Interbase Datasource
  *
  * @package       cake
  * @subpackage    cake.cake.libs.model.dbo
  */
+
 class DboFirebird extends DboSource {
 
 /**
