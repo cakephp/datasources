@@ -259,11 +259,11 @@ class CsvSource extends DataSource {
  */
 	function read(&$model, $queryData = array(), $recursive = null) {
 		$config = $this->config;
-		$filename = $config['path'] . DS .  $model->table . '.' . $config['extension'];
-		if (!Set::extract($this->handle,$model->table)) {
-			$this->handle[$model->table] = fopen($filename,  'r');
+		$filename = $config['path'] . DS . $model->table . '.' . $config['extension'];
+		if (!Set::extract($this->handle, $model->table)) {
+			$this->handle[$model->table] = fopen($filename, 'r');
 		} else {
-		  fseek($this->handle[$model->table], 0, SEEK_SET) ;
+			fseek($this->handle[$model->table], 0, SEEK_SET) ;
 		}
 		$queryData = $this->__scrubQueryData($queryData);
 
