@@ -168,10 +168,10 @@ class CsvSource extends DataSource {
 			// not supported yet -> has to use Folder::findRecursive()
 		} else {
 			// list all .csv files and remove the extension to get only "tablenames"
-			$list = $this->connection->find('.*'.$config['extension'], false);
+			$list = $this->connection->find('.*' . $config['extension'], false);
 			foreach ($list as &$l) {
-				if (stripos($l,  '.'.$config['extension']) > 0) {
-					$l = str_ireplace('.'.$config['extension'],  '',  $l);
+				if (stripos($l, '.' . $config['extension']) > 0) {
+					$l = str_ireplace('.' . $config['extension'],  '', $l);
 				}
 			}
 			$this->_sources = $list;
@@ -180,7 +180,7 @@ class CsvSource extends DataSource {
 	}
 
 /**
- * Convenience method for DboSource::listSources().  Returns source names in lowercase.
+ * Convenience method for DboSource::listSources(). Returns source names in lowercase.
  *
  * @return array
  * @access public
