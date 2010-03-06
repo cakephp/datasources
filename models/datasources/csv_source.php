@@ -184,19 +184,6 @@ class CsvSource extends DataSource {
 	}
 
 /**
- * Convenience method for DboSource::listSources(). Returns source names in lowercase.
- *
- * @return array
- * @access public
- */
-	function sources($reset = false) {
-		if ($reset === true) {
-			$this->_sources = null;
-		}
-		return array_map('strtolower', $this->listSources());
-	}
-
-/**
  * Returns a Model description (metadata) or null if none found.
  *
  * @return mixed

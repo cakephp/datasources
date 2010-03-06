@@ -91,15 +91,13 @@ class CsvSourceTestCase extends CakeTestCase {
 		$this->assertFalse($this->Csv->connected);
 	}
 
+/**
+ * testSources
+ *
+ * @return void
+ * @access public
+ */
 	function testSources() {
-		$expected = array('posts', 'users');
-		sort($expected);
-		$result = $this->Csv->listSources();
-		sort($result);
-		$this->assertIdentical($expected, $result);
-	}
-
-	function testSourceCaching() {
 		$this->Csv->cacheSources = false;
 
 		$expected = array('posts', 'users');
@@ -113,7 +111,6 @@ class CsvSourceTestCase extends CakeTestCase {
 		$result = $this->Csv->listSources();
 		sort($result);
 		$this->assertIdentical($expected, $result);
-
 	}
 
 /**
