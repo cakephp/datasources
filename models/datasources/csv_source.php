@@ -151,7 +151,6 @@ class CsvSource extends DataSource {
 		return $this->connected;
 	}
 
-
 /**
  * List available sources
  *
