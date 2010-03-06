@@ -204,7 +204,7 @@ class CsvSource extends DataSource {
 	function __getDescriptionFromFirstLine($model) {
 		$config = $this->config;
 		$filename = $model->table . '.' . $config['extension'];
-		$handle = fopen ($config['path'] . DS .  $filename, 'r');
+		$handle = fopen($config['path'] . DS .  $filename, 'r');
 		$line = rtrim(fgets($handle));
 		$data_comma = explode(',', $line);
 		$data_semicolon = explode(';', $line);
