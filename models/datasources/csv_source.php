@@ -173,9 +173,9 @@ class CsvSource extends DataSource {
 			$list = $this->connection->find('.*\.' . $this->config['extension'], true);
 		}
 
-		foreach ($list as &$l) {
-			if (stripos($l, '.' . $this->config['extension']) > 0) {
-				$l = str_ireplace('.' . $this->config['extension'],  '', $l);
+		foreach ($list as &$item) {
+			if (stripos($item, '.' . $this->config['extension']) > 0) {
+				$item = str_ireplace('.' . $this->config['extension'],  '', $item);
 			}
 		}
 		
