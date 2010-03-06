@@ -29,6 +29,10 @@
  *   );
  */
 
+if (!class_exists('Folder')) {
+	App::import('Core', 'Folder');
+}
+
 /**
  * CSVSource Datasource
  *
@@ -129,12 +133,9 @@ class CsvSource extends DataSource {
  * @access public
  */
 	function connect() {
-		$config = $this->config;
 		$this->connected = false;
 
-		uses('Folder');
-
-		if ($config['readonly']) {
+		if ($this->config['readonly']) {
 			$create = false;
 			$mode = 0;
 		} else {
@@ -142,7 +143,7 @@ class CsvSource extends DataSource {
 			$mode = 0777;
 		}
 
-		$this->connection =& new Folder($path = $config['path'], $create, $mode);
+		$this->connection =& new Folder($this->config['path'], $create, $mode);
 		if ($this->connection) {
 			$this->handle = array();
 			$this->connected = true;
