@@ -165,11 +165,13 @@ class CsvSource extends DataSource {
 		}
 
 		if ($this->config['recursive']) {
-			// not supported yet -> has to use Folder::findRecursive()
-			$list = array();
+			$list = $this->connection->findRecursive('.*\.' . $this->config['extension'], false);
+			foreach($list as &$item) {
+				$item = mb_substr($item, mb_strlen($this->config['path'] . DS));
+			}
 		} else {
 			// list all .csv files and remove the extension to get only "tablenames"
-			$list = $this->connection->find('.*' . $this->config['extension'], false);
+			$list = $this->connection->find('.*\.' . $this->config['extension'], false);
 		}
 
 		foreach ($list as &$l) {
