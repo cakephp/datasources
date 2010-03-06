@@ -1,0 +1,5 @@
+id,user_id,title,body
+1,1,"Blog Post 1","This is my blog post. Rawr!"
+2,1,"Blog Post 2","Another post, look at me go!"
+3,2,"Blog Post 3","User 3 posts boring things"
+4,3,"Blog Post 4","Hello World!"

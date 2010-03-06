@@ -158,24 +158,28 @@ class CsvSource extends DataSource {
  * @access public
  */
 	function listSources() {
-		$config = $this->config;
-
-		if ($this->_sources !== null) {
-			return $this->_sources;
+		$this->config['database'] = 'csv';
+		$cache = parent::listSources();
+		if ($cache !== null) {
+			return $cache;
 		}
 
-		if ($config['recursive']) {
+		if ($this->config['recursive']) {
 			// not supported yet -> has to use Folder::findRecursive()
+			$list = array();
 		} else {
 			// list all .csv files and remove the extension to get only "tablenames"
-			$list = $this->connection->find('.*' . $config['extension'], false);
-			foreach ($list as &$l) {
-				if (stripos($l, '.' . $config['extension']) > 0) {
-					$l = str_ireplace('.' . $config['extension'],  '', $l);
-				}
-			}
-			$this->_sources = $list;
+			$list = $this->connection->find('.*' . $this->config['extension'], false);
 		}
+
+		foreach ($list as &$l) {
+			if (stripos($l, '.' . $this->config['extension']) > 0) {
+				$l = str_ireplace('.' . $this->config['extension'],  '', $l);
+			}
+		}
+		
+		parent::listSources($list);
+		unset($this->config['database']);
 		return $list;
 	}
 
