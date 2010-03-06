@@ -164,17 +164,18 @@ class CsvSource extends DataSource {
 			return $cache;
 		}
 
+		$extPattern = '\.' . preg_quote($this->config['extension']);
 		if ($this->config['recursive']) {
-			$list = $this->connection->findRecursive('.*\.' . $this->config['extension'], true);
+			$list = $this->connection->findRecursive('.*' . $extPattern, true);
 			foreach($list as &$item) {
 				$item = mb_substr($item, mb_strlen($this->config['path'] . DS));
 			}
 		} else {
-			$list = $this->connection->find('.*\.' . $this->config['extension'], true);
+			$list = $this->connection->find('.*' . $extPattern, true);
 		}
 
 		foreach ($list as &$item) {
-			$item = preg_replace('/\.' . preg_quote($this->config['extension']) . '$/i', '', $item);
+			$item = preg_replace('/' . $extPattern . '$/i', '', $item);
 		}
 		
 		parent::listSources($list);
