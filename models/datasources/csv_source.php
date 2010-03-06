@@ -174,9 +174,7 @@ class CsvSource extends DataSource {
 		}
 
 		foreach ($list as &$item) {
-			if (stripos($item, '.' . $this->config['extension']) > 0) {
-				$item = str_ireplace('.' . $this->config['extension'],  '', $item);
-			}
+			$item = str_ireplace('.' . $this->config['extension'],  '', $item);
 		}
 		
 		parent::listSources($list);
