@@ -174,7 +174,7 @@ class CsvSource extends DataSource {
 		}
 
 		foreach ($list as &$item) {
-			$item = str_ireplace('.' . $this->config['extension'],  '', $item);
+			$item = preg_replace('/\.' . preg_quote($this->config['extension']) . '$/i', '', $item);
 		}
 		
 		parent::listSources($list);
