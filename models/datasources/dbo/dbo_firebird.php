@@ -291,7 +291,7 @@ class DboFirebird extends DboSource {
 		if ($parent != null) {
 			return $parent;
 		}
-		if ($data === null) {
+		if ($data === null || (is_array($data) && empty($data))) {
 			return 'NULL';
 		}
 		if ($data === '') {

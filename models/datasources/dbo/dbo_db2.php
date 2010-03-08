@@ -275,7 +275,7 @@ class DboDb2 extends DboSource {
 			return $parent;
 		}
 
-		if ($data === null) {
+		if ($data === null || (is_array($data) && empty($data))) {
 			return 'NULL';
 		}
 
