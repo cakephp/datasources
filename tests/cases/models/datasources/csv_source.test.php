@@ -24,8 +24,19 @@
  */
 App::import('Datasource', 'Datasources.CsvSource');
 
-class CsvSourceTestModel extends CakeTestModel {
-	
+/**
+ * Test Model for users.csv
+ *
+ * @package default
+ * @author Predominant
+ */
+class UserTest extends CakeTestModel {
+
+/**
+ * Table to use
+ *
+ * @var string
+ */	
 	var $useTable = 'users';
 }
 
@@ -121,6 +132,15 @@ class CsvSourceTestCase extends CakeTestCase {
 		$expected = array('posts', 'users', 'second_level/things');
 		$result = $this->Csv->listSources();
 		$this->assertIdentical($expected, $result);
+	}
+
+/**
+ * testDescribe
+ *
+ * @return void
+ * @access public
+ */
+	function testDescribe() {
 	}
 
 /**

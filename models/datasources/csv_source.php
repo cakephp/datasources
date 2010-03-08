@@ -177,7 +177,7 @@ class CsvSource extends DataSource {
 		foreach ($list as &$item) {
 			$item = preg_replace('/' . $extPattern . '$/i', '', $item);
 		}
-		
+
 		parent::listSources($list);
 		unset($this->config['database']);
 		return $list;
@@ -202,9 +202,8 @@ class CsvSource extends DataSource {
  * @access private
  */
 	function __getDescriptionFromFirstLine($model) {
-		$config = $this->config;
-		$filename = $model->table . '.' . $config['extension'];
-		$handle = fopen($config['path'] . DS .  $filename, 'r');
+		$filename = $model->table . '.' . $this->config['extension'];
+		$handle = fopen($this->config['path'] . DS .  $filename, 'r');
 		$line = rtrim(fgets($handle));
 		$data_comma = explode(',', $line);
 		$data_semicolon = explode(';', $line);
