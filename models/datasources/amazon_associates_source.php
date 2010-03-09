@@ -85,6 +85,14 @@ class AmazonAssociatesSource extends DataSource{
 	var $Http = null;
 
 /**
+ * Request Logs
+ *
+ * @var array
+ * @access private
+ */
+	var $__requestLog = array();
+	
+/**
  * Constructor
  *
  * Creates new HttpSocket
@@ -155,6 +163,21 @@ class AmazonAssociatesSource extends DataSource{
 		);
 		return $this->__request();
 	}
+	
+/**
+ * Play nice with the DebugKit
+ *
+ * @param boolean sorted ignored
+ * @param boolean clear will clear the log if set to true (default)
+ * @return array of log requested
+ */
+	function getLog($sorted = false, $clear = true){
+		$log = $this->__requestLog;
+		if($clear){
+			$this->__requestLog = array();
+		}
+		return array('log' => $log, 'count' => count($log), 'time' => 'Unknown');
+	}
 
 /**
  * Perform the request to AWS
@@ -164,6 +187,7 @@ class AmazonAssociatesSource extends DataSource{
  */
 	function __request(){
 		$this->_request = $this->__signQuery();
+		$this->__requestLog[] = $this->_request;
 		$retval = $this->Http->get($this->_request);
 		$retval = Set::reverse(new Xml($retval));
 		return $retval;
