@@ -250,6 +250,9 @@ class ArraySource extends Datasource {
  */
 	function queryAssociation(&$model, &$linkModel, $type, $association, $assocData, &$queryData, $external = false, &$resultSet, $recursive, $stack) {
 		foreach ($resultSet as $id => $result) {
+			if (!array_key_exists($model->alias, $result) || !array_key_exists($assocData['foreignKey'], $result[$model->alias])) {
+				continue;
+			}
 			$resultSet[$id][$association] = $model->{$association}->find('first', array(
 				'conditions' => array_merge((array)$assocData['conditions'], array($model->{$association}->primaryKey => $result[$model->alias][$assocData['foreignKey']])),
 				'fields' => $assocData['fields'],

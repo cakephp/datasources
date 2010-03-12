@@ -336,5 +336,21 @@ class IntractModelTest extends CakeTestCase {
 		$expected = array('UserModel' => array('id' => 1, 'born_id' => 1, 'name' => 'User 1'), 'Born' => array('name' => 'USA'));
 		$this->assertEqual($result, $expected);
 	}
+
+	function testBelongsToWithoutForeignKey() {
+		ClassRegistry::config(array());
+		$model = ClassRegistry::init('UserModel');
+		$result = $model->find('all', array(
+			'fields' => array('UserModel.id', 'UserModel.name'),
+			'recursive' => 0
+		));
+		$expected = array(
+			array('UserModel' => array('id' => 1, 'name' => 'User 1')),
+			array('UserModel' => array('id' => 2, 'name' => 'User 2')),
+			array('UserModel' => array('id' => 3, 'name' => 'User 3')),
+			array('UserModel' => array('id' => 4, 'name' => 'User 4'))
+		);
+		$this->assertEqual($result, $expected);
+	}
 }
 ?>
