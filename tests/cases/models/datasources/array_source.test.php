@@ -1,4 +1,22 @@
 <?php
+/**
+ * Array Datasource Test file
+ *
+ * PHP versions 4 and 5
+ *
+ * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
+ * @package       datasources
+ * @subpackage    datasources.tests.cases.models.datasources
+ * @since         CakePHP Datasources v 0.3
+ * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ */
 
 App::import('Datasource', 'ArrayDatasource.ArraySource');
 
@@ -54,9 +72,37 @@ class ArrayModel extends CakeTestModel {
  *
  */
 class UserModel extends CakeTestModel {
+
+/**
+ * Name of model
+ *
+ * @var string
+ * @access public
+ */
 	var $name = 'UserModel';
+
+/**
+ * Use DB Config
+ *
+ * @var string
+ * @access public
+ */
 	var $useDbConfig = 'test';
+
+/**
+ * Use Table
+ *
+ * @var string
+ * @access public
+ */
 	var $useTable = 'users';
+
+/**
+ * Belongs To
+ *
+ * @var array
+ * @access public
+ */
 	var $belongsTo = array(
 		'Born' => array(
 			'className' => 'ArrayModel',
@@ -337,6 +383,12 @@ class IntractModelTest extends CakeTestCase {
 		$this->assertEqual($result, $expected);
 	}
 
+/**
+ * testBelongsToWithoutForeignKey
+ *
+ * @return void
+ * @access public
+ */
 	function testBelongsToWithoutForeignKey() {
 		ClassRegistry::config(array());
 		$model = ClassRegistry::init('UserModel');
