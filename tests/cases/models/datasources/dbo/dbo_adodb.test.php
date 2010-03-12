@@ -20,8 +20,6 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 App::import('Model');
-App::import('Datasource', 'Datasource');
-App::import('Datasource', 'DboSource');
 App::import('Datasource', 'Datasources.DboAdodb');
 
 /**
