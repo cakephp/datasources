@@ -129,7 +129,7 @@ class CsvSourceTestCase extends CakeTestCase {
 	function testRecursiveSources() {
 		$config = array_merge($this->config, array('recursive' => true));
 		$this->Csv =& new CsvSource($config);
-		$expected = array('posts', 'users', 'second_level/things');
+		$expected = array('posts', 'users', 'second_level' . DS . 'things');
 		$result = $this->Csv->listSources();
 		$this->assertIdentical($expected, $result);
 	}
