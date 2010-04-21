@@ -227,7 +227,10 @@ class ArraySource extends Datasource {
 		}
 		$this->_registerLog($model, $queryData, getMicrotime() - $startTime, count($data));
 		if ($model->findQueryType === 'first') {
-			return $data;
+			if (!isset($data[0])) {
+				return array();
+			}
+			return array(array($model->alias => $data[0]));
 		} elseif ($model->findQueryType === 'list') {
 			$newData = array();
 			foreach ($data as $item) {
@@ -270,11 +273,16 @@ class ArraySource extends Datasource {
 			if (!array_key_exists($model->alias, $result) || !array_key_exists($assocData['foreignKey'], $result[$model->alias])) {
 				continue;
 			}
-			$resultSet[$id][$association] = $model->{$association}->find('first', array(
+			$find = $model->{$association}->find('first', array(
 				'conditions' => array_merge((array)$assocData['conditions'], array($model->{$association}->primaryKey => $result[$model->alias][$assocData['foreignKey']])),
 				'fields' => $assocData['fields'],
 				'order' => $assocData['order']
 			));
+			if (empty($find)) {
+				$resultSet[$id][$association] = array();
+			} else {
+				$resultSet[$id][$association] = $find[$association];
+			}
 		}
 	}
 

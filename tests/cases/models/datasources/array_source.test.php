@@ -278,11 +278,11 @@ class ArraySourceTest extends CakeTestCase {
  */
 	function testFindFirst() {
 		$result = $this->Model->find('first');
-		$expected = array('id' => 1, 'name' => 'USA');
+		$expected = array('ArrayModel' => array('id' => 1, 'name' => 'USA'));
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('first', array('fields' => array('name')));
-		$expected = array('name' => 'USA');
+		$expected = array('ArrayModel' => array('name' => 'USA'));
 		$this->assertEqual($result, $expected);
 	}
 
@@ -320,6 +320,22 @@ class ArraySourceTest extends CakeTestCase {
 		$this->Model->displayField = 'name';
 		$result = $this->Model->find('list');
 		$expected = array(1 => 'USA', 2 => 'Brazil', 3 => 'Germany');
+		$this->assertEqual($result, $expected);
+	}
+
+/**
+ * testRead
+ *
+ * @return void
+ * @access public
+ */
+	function testRead() {
+		$result = $this->Model->read(null, 1);
+		$expected = array('ArrayModel' => array('id' => 1, 'name' => 'USA'));
+		$this->assertEqual($result, $expected);
+
+		$result = $this->Model->read(array('name'), 2);
+		$expected = array('ArrayModel' => array('name' => 'Brazil'));
 		$this->assertEqual($result, $expected);
 	}
 }
