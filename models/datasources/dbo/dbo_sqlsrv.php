@@ -674,38 +674,18 @@ class DboSqlsrv extends DboSource {
  * @return unknown
  */
 	function fetchResult() {
-		
-                if ($row = sqlsrv_fetch_array($this->results, SQLSRV_FETCH_NUMERIC)) {
+		if ($row = sqlsrv_fetch_array($this->results, SQLSRV_FETCH_NUMERIC)) {
 			$resultRow = array();
 			$i = 0;
-
 			foreach ($row as $index => $field) {
-                                        $a= $this->map[$index];
-                                        list($table, $column) = $a;
-
-
-//                        if(!array_key_exists('TABLE_NAME', $row)) {
-//                        echo '<pre>RESULTS';
-//                        var_dump($this->results);
-//                        echo '</pre>';
-//                        echo '<pre>ROW';
-//                        var_dump($row);
-//                        echo '</pre>';
-//                        echo '<pre>AAAAA';
-//                        var_dump($a);
-//                        echo '</pre>';
-//
-//
-//                        exit;
-//                        }
-
+				$a = $this->map[$index];
+				list($table, $column) = $a;
 				$resultRow[$table][$column] = $row[$index];
 				$i++;
 			}
 			return $resultRow;
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 /**
