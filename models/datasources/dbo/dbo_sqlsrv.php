@@ -133,15 +133,14 @@ class DboSqlsrv extends DboSource {
 			$port = '\\' . $config['port'];	// Named pipe
 		}
 
-                // Windows vs SQL authentication
-                if(!empty($config['login']) && !empty($config['password'])) {
-                    $params = array('UID'=>$config['login'], 'PWD'=>$config['password'], 'Database'=>$config['database'], 'CharacterSet'=>$config['charset'], 'MultipleActiveResultSets'=>$config['mars']);
-                } else {
-                    $params = array('Database'=>$config['database'], 'CharacterSet'=>$config['charset'], 'MultipleActiveResultSets'=>$config['mars']);
-                }
+		// Windows vs SQL authentication
+		if(!empty($config['login']) && !empty($config['password'])) {
+			$params = array('UID'=>$config['login'], 'PWD'=>$config['password'], 'Database'=>$config['database'], 'CharacterSet'=>$config['charset'], 'MultipleActiveResultSets'=>$config['mars']);
+		} else {
+			$params = array('Database'=>$config['database'], 'CharacterSet'=>$config['charset'], 'MultipleActiveResultSets'=>$config['mars']);
+		}
 
 		$this->connection = sqlsrv_connect($config['host'].$port, $params);
-
 		if ($this->connection !== false) {
 			$this->_execute("SET DATEFORMAT ymd");
 			$this->connected = true;
@@ -418,13 +417,13 @@ class DboSqlsrv extends DboSource {
  * @return string Error message with error number
  */
 	function lastError() {
-                $error = false;
+		$error = false;
 		$errors = sqlsrv_errors();
-                if(is_array($errors)){
-                    foreach ($errors as $err) {
-                        $error .= $err['message'].'<br />';
-                    }
-                }
+		if(is_array($errors)){
+			foreach ($errors as $err) {
+				$error .= $err['message'].'<br />';
+			}
+		}
 
 		if ($error) {
 			if (!preg_match('/contexto de la base de datos a|contesto di database|changed database|contexte de la base de don|datenbankkontext/i', $error)) {
@@ -546,11 +545,9 @@ class DboSqlsrv extends DboSource {
 	function resultSet(&$results) {
 		$this->results =& $results;
 		$this->map = array();
-		//$numFields = sqlsrv_num_fields($results);
 		$index = 0;
 
-                foreach( sqlsrv_field_metadata($results) as $fieldMetadata)
-                 {
+		foreach(sqlsrv_field_metadata($results) as $fieldMetadata) {
 			$column = $fieldMetadata['Name'];
 
 			if (strpos($column, '__')) {
@@ -702,7 +699,6 @@ class DboSqlsrv extends DboSource {
 			(is_array($fields) && in_array($primaryKey, $fields)
 			|| (is_string($fields) && strpos($fields, $this->startQuote . $primaryKey . $this->endQuote) !== false))
 		);
-
 		if ($hasPrimaryKey) {
 			$this->_execute('SET IDENTITY_INSERT ' . $this->fullTableName($table) . ' ON');
 		}
