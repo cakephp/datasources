@@ -263,28 +263,31 @@ class XmlrpcSource extends Datasource {
 	function __parseResponse($value) {
 		$type = array_keys($value);
 		$type = $type[0];
+		$value = $value[$type];
 		switch ($type) {
-			case 'string':
-				return (string)$value['string'];
-			case 'int':
 			case 'i4':
-				return (int)$value[$type];
+				return (int)$value;
 			case 'double':
-				return (float)$value['double'];
-			case 'boolean':
-				return (bool)$value['boolean'];
+				return (float)$value;
 			case 'array':
 				$return = array();
-				foreach ($value['array']['data']['value'] as $newValue) {
-					$return[] = $this->__parseResponse($newValue);
+				foreach ($value['data']['value'] as $key => $newValue) {
+					if ($key === 'struct') {
+						$return[] = $this->__parseResponse(array($key => $newValue));
+					} else {
+						$return[] = $this->__parseResponse($newValue);
+					}
 				}
 				return $return;
 			case 'struct':
 				$return = array();
-				foreach ($value['struct']['member'] as $member) {
+				foreach ($value['member'] as $member) {
 					$return[$member['name']] = $this->__parseResponse($member['value']);
 				}
 				return $return;
+			default:
+				settype($value, $type);
+				return $value;
 		}
 		return null;
 	}
