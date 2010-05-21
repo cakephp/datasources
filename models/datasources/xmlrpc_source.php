@@ -272,7 +272,12 @@ class XmlrpcSource extends Datasource {
 			case 'array':
 				$return = array();
 				foreach ($value['data']['value'] as $key => $newValue) {
-					if ($key === 'struct') {
+					// Reconstruct an array form, for arrays with only one entry.
+					if (!is_array($newValue)) {
+						$newValue = array($key => $newValue);
+						$key = 0;
+					}
+					if ($key === 'struct' || $key === 'array') {
 						$return[] = $this->__parseResponse(array($key => $newValue));
 					} else {
 						$return[] = $this->__parseResponse($newValue);

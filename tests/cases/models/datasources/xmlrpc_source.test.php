@@ -230,6 +230,10 @@ class XmlrpcSourceTest extends CakeTestCase {
 		// Struct in Array
 		$xml = '<?xml version="1.0"?><methodResponse><params><param><value><array><data><value><struct><member><name>longitude</name><value><string>53</string></value></member><member><name>altitude</name><value><string>8.72543</string></value></member></struct></value></data></array></value></param></params></methodResponse>';
 		$this->assertEqual(array(array('longitude' => 53, 'altitude' => 8.72543)), $this->Xmlrpc->parseResponse($xml));
+
+		// Array in Array
+		$xml = '<?xml version="1.0"?><methodResponse><params><param><value><array><data><value><array><data><value><int>12</int></value></data></array></value></data></array></value></param></params></methodResponse>';
+		$this->assertEqual(array(array(12)), $this->Xmlrpc->parseResponse($xml));
 	}
 
 /**
