@@ -66,6 +66,8 @@ class DboSqlsrv extends DboSource {
 		'password' => '',
 		'database' => 'cake',
 		'port' => '1433',
+		'mars' => false,
+		'charset' => SQLSRV_ENC_CHAR,
 	);
 
 /**
