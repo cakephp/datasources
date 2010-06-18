@@ -165,8 +165,10 @@ class DboSqlsrv extends DboSource {
  * @return boolean True if the database could be disconnected, else false
  */
 	function disconnect() {
-		@sqlsrv_free_stmt($this->results);
-                $this->connected = !sqlsrv_close($this->connection);
+		if (!empty($this->results)) {
+			@sqlsrv_free_stmt($this->results);
+		}
+		$this->connected = !sqlsrv_close($this->connection);
 		return !$this->connected;
 	}
 
