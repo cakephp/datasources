@@ -18,10 +18,10 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-App::import('Datasource', 'ArrayDatasource.ArraySource');
+App::import('Datasource', 'Datasources.ArraySource');
 
 // Add new db config
-ConnectionManager::create('test_array', array('datasource' => 'ArrayDatasource.ArraySource'));
+ConnectionManager::create('test_array', array('datasource' => 'Datasources.ArraySource'));
 
 /**
  * Array Testing Model
@@ -145,11 +145,9 @@ class ArraySourceTest extends CakeTestCase {
 	function testFindAll() {
 		$result = $this->Model->find('all');
 		$expected = array(
-			'ArrayModel' => array(
-				array('id' => 1, 'name' => 'USA'),
-				array('id' => 2, 'name' => 'Brazil'),
-				array('id' => 3, 'name' => 'Germany')
-			)
+			array('ArrayModel' => array('id' => 1, 'name' => 'USA')),
+			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil')),
+			array('ArrayModel' => array('id' => 3, 'name' => 'Germany'))
 		);
 		$this->assertEqual($result, $expected);
 	}
@@ -162,11 +160,9 @@ class ArraySourceTest extends CakeTestCase {
  */
 	function testFindFields() {
 		$expected = array(
-			'ArrayModel' => array(
-				array('id' => 1),
-				array('id' => 2),
-				array('id' => 3)
-			)
+			array('ArrayModel' => array('id' => 1)),
+			array('ArrayModel' => array('id' => 2)),
+			array('ArrayModel' => array('id' => 3))
 		);
 		$result = $this->Model->find('all', array('fields' => array('id')));
 		$this->assertEqual($result, $expected);
@@ -187,18 +183,14 @@ class ArraySourceTest extends CakeTestCase {
 	function testFindLimit() {
 		$result = $this->Model->find('all', array('limit' => 2));
 		$expected = array(
-			'ArrayModel' => array(
-				array('id' => 1, 'name' => 'USA'),
-				array('id' => 2, 'name' => 'Brazil')
-			)
+			array('ArrayModel' => array('id' => 1, 'name' => 'USA')),
+			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil'))
 		);
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('limit' => 2, 'page' => 2));
 		$expected = array(
-			'ArrayModel' => array(
-				array('id' => 3, 'name' => 'Germany')
-			)
+			array('ArrayModel' => array('id' => 3, 'name' => 'Germany'))
 		);
 		$this->assertEqual($result, $expected);
 	}
@@ -212,29 +204,23 @@ class ArraySourceTest extends CakeTestCase {
 	function testFindOrder() {
 		$result = $this->Model->find('all', array('order' => 'ArrayModel.name'));
 		$expected = array(
-			'ArrayModel' => array(
-				array('id' => 2, 'name' => 'Brazil'),
-				array('id' => 3, 'name' => 'Germany'),
-				array('id' => 1, 'name' => 'USA')
-			)
+			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil')),
+			array('ArrayModel' => array('id' => 3, 'name' => 'Germany')),
+			array('ArrayModel' => array('id' => 1, 'name' => 'USA'))
 		);
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('fields' => array('ArrayModel.id'), 'order' => 'ArrayModel.name'));
 		$expected = array(
-			'ArrayModel' => array(
-				array('id' => 2),
-				array('id' => 3),
-				array('id' => 1)
-			)
+			array('ArrayModel' => array('id' => 2)),
+			array('ArrayModel' => array('id' => 3)),
+			array('ArrayModel' => array('id' => 1)),
 		);
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('fields' => array('ArrayModel.id'), 'order' => 'ArrayModel.name', 'limit' => 1, 'page' => 2));
 		$expected = array(
-			'ArrayModel' => array(
-				array('id' => 3)
-			)
+			array('ArrayModel' => array('id' => 3))
 		);
 		$this->assertEqual($result, $expected);
 	}
@@ -247,27 +233,27 @@ class ArraySourceTest extends CakeTestCase {
  */
 	function testFindConditions() {
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name' => 'USA')));
-		$expected = array('ArrayModel' => array(array('id' => 1, 'name' => 'USA')));
+		$expected = array(array('ArrayModel' => array('id' => 1, 'name' => 'USA')));
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name = USA')));
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name != USA')));
-		$expected = array('ArrayModel' => array(array('id' => 2, 'name' => 'Brazil'), array('id' => 3, 'name' => 'Germany')));
+		$expected = array(array('ArrayModel' => array('id' => 2, 'name' => 'Brazil')), array('ArrayModel' => array('id' => 3, 'name' => 'Germany')));
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name LIKE ra')));
-		$expected = array('ArrayModel' => array(array('id' => 2, 'name' => 'Brazil')));
+		$expected = array(array('ArrayModel' => array('id' => 2, 'name' => 'Brazil')));
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name IN (USA, Germany)')));
-		$expected = array('ArrayModel' => array(array('id' => 1, 'name' => 'USA'), array('id' => 3, 'name' => 'Germany')));
+		$expected = array(array('ArrayModel' => array('id' => 1, 'name' => 'USA')), array('ArrayModel' => array('id' => 3, 'name' => 'Germany')));
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name' => 'USA', 'ArrayModel.id' => 2)));
-		$expected = array('ArrayModel' => array());
-		$this->assertEqual($result, $expected);
+		$expected = array();
+		$this->assertIdentical($result, $expected);
 	}
 
 /**
@@ -352,7 +338,7 @@ class IntractModelTest extends CakeTestCase {
  * @var array
  * @access public
  */
-	var $fixtures = array('plugin.array_datasource.user');
+	var $fixtures = array('plugin.datasources.user');
 
 /**
  * skip

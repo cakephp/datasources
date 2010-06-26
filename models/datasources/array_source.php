@@ -32,7 +32,7 @@ class ArraySource extends Datasource {
  * @var string
  * @access public
  */
-	var $version = '0.1';
+	var $version = '0.2';
 
 /**
  * Description string for this Data Source.
@@ -238,7 +238,11 @@ class ArraySource extends Datasource {
 			}
 			return $newData;
 		}
-		return array($model->alias => $data);
+		$result = array();
+		foreach ($data as $record) {
+			$result[] = array($model->alias => $record);
+		}
+		return $result;
 	}
 
 /**
