@@ -28,14 +28,6 @@ App::import('Core', array('HttpSocket', 'Xml'));
 class XmlrpcSource extends Datasource {
 
 /**
- * Version for this Data Source.
- *
- * @var string
- * @access public
- */
-	var $version = '0.1';
-
-/**
  * Description string for this Data Source.
  *
  * @var string

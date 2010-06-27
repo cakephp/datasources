@@ -27,14 +27,6 @@ App::import('Core', 'Set');
 class ArraySource extends Datasource {
 
 /**
- * Version for this Data Source.
- *
- * @var string
- * @access public
- */
-	var $version = '0.2';
-
-/**
  * Description string for this Data Source.
  *
  * @var string
