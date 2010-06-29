@@ -54,16 +54,58 @@ class ArrayModel extends CakeTestModel {
 	var $records = array(
 		array(
 			'id' => 1,
-			'name' => 'USA'
+			'name' => 'USA',
+			'relate_id' => 1
 		),
 		array(
 			'id' => 2,
-			'name' => 'Brazil'
+			'name' => 'Brazil',
+			'relate_id' => 1
 		),
 		array(
 			'id' => 3,
-			'name' => 'Germany'
+			'name' => 'Germany',
+			'relate_id' => 2
 		)
+	);
+}
+
+/**
+ * ArraysRelate Testing Model
+ *
+ */
+class ArraysRelateModel extends CakeTestModel {
+
+/**
+ * Name of Model
+ *
+ * @var string
+ * @access public
+ */
+	var $name = 'ArraysRelateModel';
+
+/**
+ * Database Configuration
+ *
+ * @var string
+ * @access public
+ */
+	var $useDbConfig = 'test_array';
+
+/**
+ * Records
+ *
+ * @var array
+ * @access public
+ */
+	var $records = array(
+		array('array_model_id' => 1, 'relate_id' => 1),
+		array('array_model_id' => 1, 'relate_id' => 2),
+		array('array_model_id' => 1, 'relate_id' => 3),
+		array('array_model_id' => 2, 'relate_id' => 1),
+		array('array_model_id' => 2, 'relate_id' => 3),
+		array('array_model_id' => 3, 'relate_id' => 1),
+		array('array_model_id' => 3, 'relate_id' => 2)
 	);
 }
 
@@ -145,9 +187,9 @@ class ArraySourceTest extends CakeTestCase {
 	function testFindAll() {
 		$result = $this->Model->find('all');
 		$expected = array(
-			array('ArrayModel' => array('id' => 1, 'name' => 'USA')),
-			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil')),
-			array('ArrayModel' => array('id' => 3, 'name' => 'Germany'))
+			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
+			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)),
+			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2))
 		);
 		$this->assertEqual($result, $expected);
 	}
@@ -183,14 +225,14 @@ class ArraySourceTest extends CakeTestCase {
 	function testFindLimit() {
 		$result = $this->Model->find('all', array('limit' => 2));
 		$expected = array(
-			array('ArrayModel' => array('id' => 1, 'name' => 'USA')),
-			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil'))
+			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
+			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1))
 		);
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('limit' => 2, 'page' => 2));
 		$expected = array(
-			array('ArrayModel' => array('id' => 3, 'name' => 'Germany'))
+			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2))
 		);
 		$this->assertEqual($result, $expected);
 	}
@@ -204,9 +246,9 @@ class ArraySourceTest extends CakeTestCase {
 	function testFindOrder() {
 		$result = $this->Model->find('all', array('order' => 'ArrayModel.name'));
 		$expected = array(
-			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil')),
-			array('ArrayModel' => array('id' => 3, 'name' => 'Germany')),
-			array('ArrayModel' => array('id' => 1, 'name' => 'USA'))
+			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)),
+			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)),
+			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1))
 		);
 		$this->assertEqual($result, $expected);
 
@@ -233,22 +275,26 @@ class ArraySourceTest extends CakeTestCase {
  */
 	function testFindConditions() {
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name' => 'USA')));
-		$expected = array(array('ArrayModel' => array('id' => 1, 'name' => 'USA')));
+		$expected = array(array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)));
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name = USA')));
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name != USA')));
-		$expected = array(array('ArrayModel' => array('id' => 2, 'name' => 'Brazil')), array('ArrayModel' => array('id' => 3, 'name' => 'Germany')));
+		$expected = array(array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)), array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)));
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name LIKE ra')));
-		$expected = array(array('ArrayModel' => array('id' => 2, 'name' => 'Brazil')));
+		$expected = array(array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)));
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name IN (USA, Germany)')));
-		$expected = array(array('ArrayModel' => array('id' => 1, 'name' => 'USA')), array('ArrayModel' => array('id' => 3, 'name' => 'Germany')));
+		$expected = array(array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)), array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)));
+		$this->assertEqual($result, $expected);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name' => array('USA', 'Germany'))));
+		$expected = array(array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)), array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)));
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name' => 'USA', 'ArrayModel.id' => 2)));
@@ -264,7 +310,7 @@ class ArraySourceTest extends CakeTestCase {
  */
 	function testFindFirst() {
 		$result = $this->Model->find('first');
-		$expected = array('ArrayModel' => array('id' => 1, 'name' => 'USA'));
+		$expected = array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1));
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('first', array('fields' => array('name')));
@@ -317,7 +363,7 @@ class ArraySourceTest extends CakeTestCase {
  */
 	function testRead() {
 		$result = $this->Model->read(null, 1);
-		$expected = array('ArrayModel' => array('id' => 1, 'name' => 'USA'));
+		$expected = array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1));
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->read(array('name'), 2);
@@ -352,21 +398,21 @@ class IntractModelTest extends CakeTestCase {
 	}
 
 /**
- * testBeongsTo
+ * testDboToArrayBelongsTo
  *
  * @return void
  * @access public
  */
-	function testBelongsTo() {
+	function testDboToArrayBelongsTo() {
 		ClassRegistry::config(array());
 		$model = ClassRegistry::init('UserModel');
 
 		$result = $model->find('all', array('recursive' => 0));
 		$expected = array(
-			array('UserModel' => array('id' => 1, 'born_id' => 1, 'name' => 'User 1'), 'Born' => array('id' => 1, 'name' => 'USA')),
-			array('UserModel' => array('id' => 2, 'born_id' => 2, 'name' => 'User 2'), 'Born' => array('id' => 2, 'name' => 'Brazil')),
-			array('UserModel' => array('id' => 3, 'born_id' => 1, 'name' => 'User 3'), 'Born' => array('id' => 1, 'name' => 'USA')),
-			array('UserModel' => array('id' => 4, 'born_id' => 3, 'name' => 'User 4'), 'Born' => array('id' => 3, 'name' => 'Germany'))
+			array('UserModel' => array('id' => 1, 'born_id' => 1, 'name' => 'User 1'), 'Born' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
+			array('UserModel' => array('id' => 2, 'born_id' => 2, 'name' => 'User 2'), 'Born' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)),
+			array('UserModel' => array('id' => 3, 'born_id' => 1, 'name' => 'User 3'), 'Born' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
+			array('UserModel' => array('id' => 4, 'born_id' => 3, 'name' => 'User 4'), 'Born' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2))
 		);
 		$this->assertEqual($result, $expected);
 
@@ -386,25 +432,299 @@ class IntractModelTest extends CakeTestCase {
 	}
 
 /**
- * testBelongsToWithoutForeignKey
+ * testDboToArrayBelongsToWithoutForeignKey
  *
  * @return void
  * @access public
  */
-	function testBelongsToWithoutForeignKey() {
+	function testDboToArrayBelongsToWithoutForeignKey() {
 		ClassRegistry::config(array());
 		$model = ClassRegistry::init('UserModel');
+
 		$result = $model->find('all', array(
 			'fields' => array('UserModel.id', 'UserModel.name'),
 			'recursive' => 0
 		));
 		$expected = array(
-			array('UserModel' => array('id' => 1, 'name' => 'User 1')),
-			array('UserModel' => array('id' => 2, 'name' => 'User 2')),
-			array('UserModel' => array('id' => 3, 'name' => 'User 3')),
-			array('UserModel' => array('id' => 4, 'name' => 'User 4'))
+			array(
+				'UserModel' => array('id' => 1, 'name' => 'User 1'),
+				'Born' => array()
+			),
+			array(
+				'UserModel' => array('id' => 2, 'name' => 'User 2'),
+				'Born' => array()
+			),
+			array(
+				'UserModel' => array('id' => 3, 'name' => 'User 3'),
+				'Born' => array()
+			),
+			array(
+				'UserModel' => array('id' => 4, 'name' => 'User 4'),
+				'Born' => array()
+			)
 		);
 		$this->assertEqual($result, $expected);
 	}
+
+/**
+ * testDboToArrayHasMany
+ *
+ * @return void
+ * @access public
+ */
+	function testDboToArrayHasMany() {
+		ClassRegistry::config(array());
+		$model = ClassRegistry::init('UserModel');
+		$model->unBindModel(array('belongsTo' => array('Born')), false);
+		$model->bindModel(array('hasMany' => array('Relate' => array('className' => 'ArrayModel', 'foreignKey' => 'relate_id'))), false);
+
+		$result = $model->find('all', array('recursive' => 1));
+		$expected = array(
+			array(
+				'UserModel' => array('id' => 1, 'name' => 'User 1', 'born_id' => 1),
+				'Relate' => array(
+					array('id' => 1, 'name' => 'USA', 'relate_id' => 1),
+					array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)
+				),
+			),
+			array('UserModel' => array('id' => 2, 'name' => 'User 2', 'born_id' => 2),
+				'Relate' => array(
+					array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)
+				),
+			),
+			array('UserModel' => array('id' => 3, 'name' => 'User 3', 'born_id' => 1),
+				'Relate' => array(
+				),
+			),
+			array('UserModel' => array('id' => 4, 'name' => 'User 4', 'born_id' => 3),
+				'Relate' => array(
+				),
+			)
+		);
+		$this->assertEqual($result, $expected);
+	}
+
+/**
+ * testDboToArrayHasOne
+ *
+ * @return void
+ * @access public
+ */
+	function testDboToArrayHasOne() {
+		ClassRegistry::config(array());
+		$model = ClassRegistry::init('UserModel');
+		$model->unBindModel(array('hasMany' => array('Relate')), false);
+		$model->bindModel(array('hasOne' => array('Relate' => array('className' => 'ArrayModel', 'foreignKey' => 'relate_id'))), false);
+
+		$result = $model->find('all', array('recursive' => 1));
+		$expected = array(
+			array(
+				'UserModel' => array('id' => 1, 'name' => 'User 1', 'born_id' => 1),
+				'Relate' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1),
+			),
+			array('UserModel' => array('id' => 2, 'name' => 'User 2', 'born_id' => 2),
+				'Relate' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2),
+			),
+			array(
+				'UserModel' => array('id' => 3, 'name' => 'User 3', 'born_id' => 1),
+				'Relate' => array()
+			),
+			array(
+				'UserModel' => array('id' => 4, 'name' => 'User 4', 'born_id' => 3),
+				'Relate' => array()
+			)
+		);
+		$this->assertEqual($result, $expected);
+	}
+
+/**
+ * testArrayToArrayBelongsTo
+ *
+ * @return void
+ * @access public
+ */
+	function testArrayToArrayBelongsTo() {
+		ClassRegistry::config(array());
+		$model = ClassRegistry::init('ArrayModel');
+		$model->recursive = 0;
+		$model->bindModel(array('belongsTo' => array('Relate' => array('className' => 'ArrayModel', 'foreignKey' => 'relate_id'))), false);
+
+		$result = $model->find('all');
+		$expected = array(
+			array(
+				'ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1),
+				'Relate' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)
+			),
+			array(
+				'ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1),
+				'Relate' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)
+			),
+			array(
+				'ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2),
+				'Relate' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)
+			)
+		);
+		$this->assertEqual($result, $expected);
+
+		$model->belongsTo['Relate']['fields'] = array('name');
+
+		$result = $model->find('all');
+		$expected = array(
+			array(
+				'ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1),
+				'Relate' => array('name' => 'USA')
+			),
+			array(
+				'ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1),
+				'Relate' => array('name' => 'USA')
+			),
+			array(
+				'ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2),
+				'Relate' => array('name' => 'Brazil')
+			)
+		);
+		$this->assertEqual($result, $expected);
+
+		$result = $model->read(null, 1);
+		$expected = array(
+			'ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1),
+			'Relate' => array('name' => 'USA')
+		);
+		$this->assertEqual($result, $expected);
+	}
+
+/**
+ * testArrayToArrayBelongsToWithoutForeignKey
+ *
+ * @return void
+ * @access public
+ */
+	function testArrayToArrayBelongsToWithoutForeignKey() {
+		ClassRegistry::config(array());
+		$model = ClassRegistry::init('ArrayModel');
+
+		$result = $model->find('all', array(
+			'fields' => array('ArrayModel.id', 'ArrayModel.name')
+		));
+		$expected = array(
+			array(
+				'ArrayModel' => array('id' => 1, 'name' => 'USA'),
+				'Relate' => array()
+			),
+			array(
+				'ArrayModel' => array('id' => 2, 'name' => 'Brazil'),
+				'Relate' => array()
+			),
+			array(
+				'ArrayModel' => array('id' => 3, 'name' => 'Germany'),
+				'Relate' => array()
+			)
+		);
+		$this->assertEqual($result, $expected);
+	}
+
+/**
+ * testArrayToArrayHasMany
+ *
+ * @return void
+ * @access public
+ */
+	function testArrayToArrayHasMany() {
+		ClassRegistry::config(array());
+		$model = ClassRegistry::init('ArrayModel');
+		$model->unBindModel(array('belongsTo' => array('Relate')), false);
+		$model->bindModel(array('hasMany' => array('Relate' => array('className' => 'ArrayModel', 'foreignKey' => 'relate_id'))), false);
+
+		$result = $model->find('all', array('recursive' => 1));
+		$expected = array(
+			array(
+				'ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1),
+				'Relate' => array(
+					array('id' => 1, 'name' => 'USA', 'relate_id' => 1),
+					array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)
+				),
+			),
+			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1),
+				'Relate' => array(
+					array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)
+				),
+			),
+			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2),
+				'Relate' => array(),
+			)
+		);
+		$this->assertEqual($result, $expected);
+	}
+
+/**
+ * testArrayToArrayHasOne
+ *
+ * @return void
+ * @access public
+ */
+	function testArrayToArrayHasOne() {
+		ClassRegistry::config(array());
+		$model = ClassRegistry::init('ArrayModel');
+		$model->unBindModel(array('hasMany' => array('Relate')), false);
+		$model->bindModel(array('hasOne' => array('Relate' => array('className' => 'ArrayModel', 'foreignKey' => 'relate_id'))), false);
+
+		$result = $model->find('all', array('recursive' => 1));
+		$expected = array(
+			array(
+				'ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1),
+				'Relate' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)
+			),
+			array(
+				'ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1),
+				'Relate' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)
+			),
+			array(
+				'ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2),
+				'Relate' => array()
+			)
+		);
+		$this->assertEqual($result, $expected);
+	}
+
+/**
+ * testArrayToArrayHasAndBelongsToMany
+ *
+ * @return void
+ * @access public
+ */
+	function testArrayToArrayHasAndBelongsToMany() {
+		ClassRegistry::config(array());
+		$model = ClassRegistry::init('ArrayModel');
+		$model->unBindModel(array('hasOne' => array('Relate')), false);
+		$model->bindModel(array('hasAndBelongsToMany' => array('Relate' => array('className' => 'ArrayModel', 'with' => 'ArraysRelateModel', 'associationForeignKey' => 'relate_id'))), false);
+
+		$result = $model->find('all', array('recursive' => 1));
+		$expected = array(
+			array(
+				'ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1),
+				'Relate' => array(
+					array('id' => 1, 'name' => 'USA', 'relate_id' => 1),
+					array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1),
+					array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)
+				),
+			),
+			array(
+				'ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1),
+				'Relate' => array(
+					array('id' => 1, 'name' => 'USA', 'relate_id' => 1),
+					array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)
+				),
+			),
+			array(
+				'ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2),
+				'Relate' => array(
+					array('id' => 1, 'name' => 'USA', 'relate_id' => 1),
+					array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)
+				),
+			)
+		);
+		$this->assertEqual($result, $expected);
+	}
+
 }
 ?>
