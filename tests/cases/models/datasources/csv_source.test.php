@@ -38,6 +38,8 @@ class UserTest extends CakeTestModel {
  * @var string
  */	
 	var $useTable = 'users';
+
+	var $useDbConfig = 'test_csv';
 }
 
 /**
@@ -141,6 +143,25 @@ class CsvSourceTestCase extends CakeTestCase {
  * @access public
  */
 	function testDescribe() {
+	}
+
+	function testRead()
+	{
+		// Add new db config
+		ConnectionManager::create('test_csv', $this->config);
+
+		$model = ClassRegistry::init('UserTest');
+		$expected = array(
+			array(
+				'UserTest' => array(
+					'id'   => '1',
+					'name' => 'predominant',
+					'age'  => '29',
+				),
+			),
+		);
+		$result = $model->find('all');
+		$this->assertClone(current($result), current($expected));
 	}
 
 /**
