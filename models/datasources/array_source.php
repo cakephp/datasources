@@ -107,13 +107,11 @@ class ArraySource extends Datasource {
 		$data = array();
 		$i = 0;
 		$limit = false;
+		if (!isset($queryData['recursive'])) {
+			$queryData['recursive'] = $model->recursive;
+		}
 		if (is_integer($queryData['limit']) && $queryData['limit'] > 0) {
 			$limit = $queryData['page'] * $queryData['limit'];
-		}
-		if (isset($queryData['recursive'])) {
-			$recursive = $queryData['recursive'];
-		} else {
-			$recursive = $model->recursive;
 		}
 		foreach ($model->records as $pos => $record) {
 			// Tests whether the record will be chosen
@@ -180,25 +178,21 @@ class ArraySource extends Datasource {
 		}
 		$this->_registerLog($model, $queryData, getMicrotime() - $startTime, count($data));
 		$_associations = $model->__associations;
-		if ($recursive > -1) {
+		if ($queryData['recursive'] > -1) {
 			foreach ($_associations as $type) {
 				foreach ($model->{$type} as $assoc => $assocData) {
 					$linkModel =& $model->{$assoc};
 
-					if (empty($linkedModels[$type . '/' . $assoc])) {
-						if ($model->useDbConfig == $linkModel->useDbConfig) {
-							$db =& $this;
-						} else {
-							$db =& ConnectionManager::getDataSource($linkModel->useDbConfig);
-						}
-					} elseif ($model->recursive > 1 && ($type == 'belongsTo' || $type == 'hasOne')) {
+					if ($model->useDbConfig == $linkModel->useDbConfig) {
 						$db =& $this;
+					} else {
+						$db =& ConnectionManager::getDataSource($linkModel->useDbConfig);
 					}
 
 					if (isset($db)) {
 						if (method_exists($db, 'queryAssociation')) {
 							$stack = array($assoc);
-							$db->queryAssociation($model, $linkModel, $type, $assoc, $assocData, $queryData, true, $data, $recursive - 1, $stack);
+							$db->queryAssociation($model, $linkModel, $type, $assoc, $assocData, $queryData, true, $data, $queryData['recursive'] - 1, $stack);
 						}
 						unset($db);
 					}
@@ -207,67 +201,79 @@ class ArraySource extends Datasource {
 		}
 		if ($model->findQueryType === 'first') {
 			if (!isset($data[0])) {
-				return array();
+				$data = array();
+			} else {
+				$data = array($data[0]);
 			}
-			return array($data[0]);
 		}
 		return $data;
 	}
 
-	function conditionsFilter(&$model, $record, $conditions) {
+	function conditionsFilter(&$model, $record, $conditions, $or = false) {
 		foreach ($conditions as $field => $value) {
+			$return = null;
 			if ($value === '') {
 				continue;
 			}
-			if (is_array($value)) {
-				$type = 'IN';
-			} elseif (preg_match('/^(\w+\.?\w+)\s+(=|!=|LIKE|IN)$/i', $field, $matches)) {
-				$field = $matches[1];
-				$type = strtoupper($matches[2]);
-			} elseif (preg_match('/^(\w+\.?\w+)\s+(=|!=|LIKE|IN)\s+(.*)$/i', $value, $matches)) {
-				$field = $matches[1];
-				$type = strtoupper($matches[2]);
-				$value = $matches[3];
+			if (is_array($value) && in_array(strtoupper($field), array('AND', 'NOT', 'OR'))) {
+				switch (strtoupper($field)) {
+					case 'AND':
+						$return = $this->conditionsFilter($model, $record, $value);
+						break;
+					case 'NOT':
+						$return = !$this->conditionsFilter($model, $record, $value);
+						break;
+					case 'OR':
+						$return = $this->conditionsFilter($model, $record, $value, true);
+						break;
+				}
 			} else {
-				$type = '=';
-			}
-			if (strpos($field, '.') !== false) {
-				list($alias, $field) = explode('.', $field, 2);
-				if ($alias != $model->alias) {
-					continue;
+				if (is_array($value)) {
+					$type = 'IN';
+				} elseif (preg_match('/^(\w+\.?\w+)\s+(=|!=|LIKE|IN)$/i', $field, $matches)) {
+					$field = $matches[1];
+					$type = strtoupper($matches[2]);
+				} elseif (preg_match('/^(\w+\.?\w+)\s+(=|!=|LIKE|IN)\s+(.*)$/i', $value, $matches)) {
+					$field = $matches[1];
+					$type = strtoupper($matches[2]);
+					$value = $matches[3];
+				} else {
+					$type = '=';
+				}
+				if (strpos($field, '.') !== false) {
+					list($alias, $field) = explode('.', $field, 2);
+					if ($alias != $model->alias) {
+						continue;
+					}
+				}
+				switch ($type) {
+					case '=':
+						$return = (isset($record[$field]) && $record[$field] == $value);
+						break;
+					case '!=':
+						$return = (!isset($record[$field]) || $record[$field] != $value);
+						break;
+					case 'LIKE':
+						$value = preg_replace(array('#(^|[^\\\\])_#', '#(^|[^\\\\])%#'), array('$1.', '$1.*'), $value);
+						$return = (isset($record[$field]) && preg_match('#^' . $value . '$#', $record[$field]));
+						break;
+					case 'IN':
+						$items = array();
+						if (is_array($value)) {
+							$items = $value;
+						} elseif (preg_match('/^\(\w+(,\s*\w+)*\)$/', $value)) {
+							$items = explode(',', trim($value, '()'));
+							$items = array_map('trim', $items);
+						}
+						$return = (isset($record[$field]) && in_array($record[$field], (array)$items));
+						break;
 				}
 			}
-			switch ($type) {
-			case '=':
-					if (!isset($record[$field]) || $record[$field] != $value) {
-						return false;
-					}
-					break;
-				case '!=':
-					if (isset($record[$field]) && $record[$field] == $value) {
-						return false;
-					}
-					break;
-				case 'LIKE':
-					if (!isset($record[$field]) || strpos($record[$field], $value) === false) {
-						return false;
-					}
-					break;
-				case 'IN':
-					$items = array();
-					if (is_array($value)) {
-						$items = $value;
-					} elseif (preg_match('/^\(\w+(,\s*\w+)*\)$/', $value)) {
-						$items = explode(',', trim($value, '()'));
-						$items = array_map('trim', $items);
-					}
-					if (!isset($record[$field]) || !in_array($record[$field], (array)$items)) {
-						return false;
-					}
-					break;
+			if ($return === $or) {
+				return $or;
 			}
 		}
-		return true;
+		return !$or;
 	}
 
 /**

@@ -46,6 +46,14 @@ class ArrayModel extends CakeTestModel {
 	var $useDbConfig = 'test_array';
 
 /**
+ * Set recursive
+ *
+ * @var integer
+ * @access public
+ */
+	var $recursive = -1;
+
+/**
  * Records
  *
  * @var array
@@ -278,27 +286,64 @@ class ArraySourceTest extends CakeTestCase {
 		$expected = array(array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)));
 		$this->assertEqual($result, $expected);
 
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name =' => 'USA')));
+		$this->assertEqual($result, $expected);
+
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name = USA')));
 		$this->assertEqual($result, $expected);
 
-		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name != USA')));
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name !=' => 'USA')));
 		$expected = array(array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)), array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)));
 		$this->assertEqual($result, $expected);
 
-		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name LIKE ra')));
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name != USA')));
+		$this->assertEqual($result, $expected);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name LIKE' => '%ra%')));
 		$expected = array(array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)));
 		$this->assertEqual($result, $expected);
 
-		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name IN (USA, Germany)')));
-		$expected = array(array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)), array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)));
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name LIKE %ra%')));
+		$this->assertEqual($result, $expected);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name LIKE _r%')));
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name' => array('USA', 'Germany'))));
 		$expected = array(array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)), array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)));
 		$this->assertEqual($result, $expected);
 
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name IN (USA, Germany)')));
+		$this->assertEqual($result, $expected);
+
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name' => 'USA', 'ArrayModel.id' => 2)));
 		$expected = array();
+		$this->assertIdentical($result, $expected);
+	}
+
+/**
+ * testFindconditionsRecursive
+ *
+ * @return void
+ * @access public
+ */
+	function testFindConditionsRecursive() {
+		$result = $this->Model->find('all', array('conditions' => array('AND' => array('ArrayModel.name' => 'USA', 'ArrayModel.id' => 2))));
+		$expected = array();
+		$this->assertIdentical($result, $expected);
+
+		$result = $this->Model->find('all', array('conditions' => array('OR' => array('ArrayModel.name' => 'USA', 'ArrayModel.id' => 2))));
+		$expected = array(
+			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
+			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1))
+		);
+		$this->assertIdentical($result, $expected);
+
+		$result = $this->Model->find('all', array('conditions' => array('NOT' => array('ArrayModel.id' => 2))));
+		$expected = array(
+			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
+			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2))
+		);
 		$this->assertIdentical($result, $expected);
 	}
 
