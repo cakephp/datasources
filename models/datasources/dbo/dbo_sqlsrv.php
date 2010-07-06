@@ -135,19 +135,15 @@ class DboSqlsrv extends DboSource {
 			$port = '\\' . $config['port'];	// Named pipe
 		}
 
+		$params = array(
+			'Database' => $config['database'],
+			'CharacterSet' => $config['charset'],
+			'MultipleActiveResultSets' => $config['mars']);
+
 		// Windows vs SQL authentication
-		if(!empty($config['login']) && !empty($config['password'])) {
-			$params = array(
-				'UID' => $config['login'],
-				'PWD' => $config['password'],
-				'Database' => $config['database'],
-				'CharacterSet' => $config['charset'],
-				'MultipleActiveResultSets' => $config['mars']);
-		} else {
-			$params = array(
-				'Database' => $config['database'],
-				'CharacterSet' => $config['charset'],
-				'MultipleActiveResultSets' => $config['mars']);
+		if (!empty($config['login']) && !empty($config['password'])) {
+			$params['UID'] = $config['login'];
+			$params['PWD'] = $config['password'];
 		}
 
 		$this->connection = sqlsrv_connect($config['host'] . $port, $params);
