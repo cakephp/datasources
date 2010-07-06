@@ -117,8 +117,6 @@ class DboSqlsrv extends DboSource {
  * @return boolean True if the database could be connected, else false
  */
 	function connect() {
-		$config = $this->config;
-
 		$os = env('OS');
 		if (!empty($os) && strpos($os, 'Windows') !== false) {
 			$sep = ', ';
@@ -127,26 +125,26 @@ class DboSqlsrv extends DboSource {
 		}
 		$this->connected = false;
 
-		if (is_numeric($config['port'])) {
-			$port = $sep . $config['port'];	// Port number
-		} elseif ($config['port'] === null) {
+		if (is_numeric($this->config['port'])) {
+			$port = $sep . $this->config['port'];	// Port number
+		} elseif ($this->config['port'] === null) {
 			$port = '';						// No port - SQL Server 2005
 		} else {
-			$port = '\\' . $config['port'];	// Named pipe
+			$port = '\\' . $this->config['port'];	// Named pipe
 		}
 
 		$params = array(
-			'Database' => $config['database'],
-			'CharacterSet' => $config['charset'],
+			'Database' => $this->config['database'],
+			'CharacterSet' => $this->config['charset'],
 			'MultipleActiveResultSets' => $config['mars']);
 
 		// Windows vs SQL authentication
-		if (!empty($config['login']) && !empty($config['password'])) {
-			$params['UID'] = $config['login'];
-			$params['PWD'] = $config['password'];
+		if (!empty($config['login']) && !empty($this->config['password'])) {
+			$params['UID'] = $this->config['login'];
+			$params['PWD'] = $this->config['password'];
 		}
 
-		$this->connection = sqlsrv_connect($config['host'] . $port, $params);
+		$this->connection = sqlsrv_connect($this->config['host'] . $port, $params);
 		if ($this->connection !== false) {
 			$this->_execute("SET DATEFORMAT ymd");
 			$this->connected = true;
