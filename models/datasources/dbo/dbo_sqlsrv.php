@@ -145,7 +145,7 @@ class DboSqlsrv extends DboSource {
 		}
 
 		$this->connection = sqlsrv_connect($this->config['host'] . $port, $params);
-		if ($this->connection !== false) {
+		if (is_resource($this->connection) && $this->connection !== false) {
 			$this->_execute("SET DATEFORMAT ymd");
 			$this->connected = true;
 		}
