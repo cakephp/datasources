@@ -137,12 +137,20 @@ class DboSqlsrv extends DboSource {
 
 		// Windows vs SQL authentication
 		if(!empty($config['login']) && !empty($config['password'])) {
-			$params = array('UID'=>$config['login'], 'PWD'=>$config['password'], 'Database'=>$config['database'], 'CharacterSet'=>$config['charset'], 'MultipleActiveResultSets'=>$config['mars']);
+			$params = array(
+				'UID' => $config['login'],
+				'PWD' => $config['password'],
+				'Database' => $config['database'],
+				'CharacterSet' => $config['charset'],
+				'MultipleActiveResultSets' => $config['mars']);
 		} else {
-			$params = array('Database'=>$config['database'], 'CharacterSet'=>$config['charset'], 'MultipleActiveResultSets'=>$config['mars']);
+			$params = array(
+				'Database' => $config['database'],
+				'CharacterSet' => $config['charset'],
+				'MultipleActiveResultSets' => $config['mars']);
 		}
 
-		$this->connection = sqlsrv_connect($config['host'].$port, $params);
+		$this->connection = sqlsrv_connect($config['host'] . $port, $params);
 		if ($this->connection !== false) {
 			$this->_execute("SET DATEFORMAT ymd");
 			$this->connected = true;
