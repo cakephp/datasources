@@ -139,7 +139,7 @@ class DboSqlsrv extends DboSource {
 			'MultipleActiveResultSets' => $this->config['mars']);
 
 		// Windows vs SQL authentication
-		if (!empty($config['login']) && !empty($this->config['password'])) {
+		if (!empty($this->config['login']) && !empty($this->config['password'])) {
 			$params['UID'] = $this->config['login'];
 			$params['PWD'] = $this->config['password'];
 		}
