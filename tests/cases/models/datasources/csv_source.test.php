@@ -187,6 +187,13 @@ class CsvSourceTestCase extends CakeTestCase {
 
 		$result = $model->find('count');
 		$this->assertEqual(3, $result);
+
+		$result = $model->find('all', array('conditions' => array('UserTest.id <' => 3)));
+		$this->assertClone($result, $expected);
+
+		$result = $model->find('all', array('conditions' => array('UserTest.id <' => 3), 'limit' => 1));
+		$expected_ = array($expected[0]);
+		$this->assertClone($result, $expected_);
 	}
 
 /**

@@ -306,7 +306,7 @@ class CsvSource extends DataSource {
 					$record[$model->alias][$field] = $data[$i++];
 				}
 
-				if ($this->__checkConditions($record, $queryData['conditions'])) {
+				if ($this->__checkConditions($record, $queryData['conditions'], $model)) {
 					// Compute the virtual pagenumber
 					$_page = floor($findCount / $this->limit) + 1;
 					$lineCount++;
@@ -371,19 +371,24 @@ class CsvSource extends DataSource {
  * @return bool
  * @access private
  */
-	function __checkConditions($record, $conditions) {
+	function __checkConditions($record, $conditions, $model) {
 		$result = true;
 		foreach ($conditions as $name => $value) {
+            $alias = $model->alias;
+            if (strpos($name, '.') !== false) {
+                list ($alias, $name) = explode('.', $name);
+            }
+
 			if (strtolower($name) === 'or') {
 				$cond = $value;
 				$result = false;
 				foreach ($cond as $name => $value) {
-					if (Set::matches($this->__createRule($name, $value), $record)) {
+					if (Set::matches($this->__createRule($name, $value), $record[$alias])) {
 						return true;
 					}
 				}
 			} else {
-				if (!Set::matches($this->__createRule($name, $value), $record)) {
+				if (!Set::matches($this->__createRule($name, $value), $record[$alias])) {
 					return false;
 				}
 			}
@@ -402,9 +407,6 @@ class CsvSource extends DataSource {
 	function __createRule($name, $value) {
 		if (strpos($name, ' ') !== false) {
 			return array(str_replace(' ', '', $name) . $value);
-		} elseif (strpos($name, '.') !== false) {
-			list ($alias, $field) = explode('.', $name);
-			return "/{$alias}[{$field}={$value}]";
 		} else {
 			return array("{$name}={$value}");
 		}
