@@ -145,6 +145,12 @@ class CsvSourceTestCase extends CakeTestCase {
 	function testDescribe() {
 	}
 
+/**
+ * testFind
+ *
+ * @return void
+ * @access public
+ */
 	function testFind()
 	{
 		// Add new db config
