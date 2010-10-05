@@ -348,11 +348,18 @@ class CsvSource extends DataSource {
  * @access private
  */
 	function __scrubQueryData($data) {
-		foreach (array('conditions', 'fields', 'joins', 'order', 'limit', 'offset', 'group') as $key) {
+		foreach (array('conditions', 'fields', 'joins', 'order', /*'limit', 'offset',*/ 'group') as $key) {
 			if (!isset($data[$key]) || empty($data[$key])) {
 				$data[$key] = array();
 			}
 		}
+		if (!isset($data['limit']) || empty($data['limit'])) {
+			$data['limit'] = PHP_INT_MAX;
+		}
+		if (!isset($data['offset']) || empty($data['offset'])) {
+			$data['offset'] = 0;
+		}
+
 		return $data;
 	}
 
