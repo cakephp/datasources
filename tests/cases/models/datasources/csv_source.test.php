@@ -145,12 +145,13 @@ class CsvSourceTestCase extends CakeTestCase {
 	function testDescribe() {
 	}
 
-	function testRead()
+	function testFind()
 	{
 		// Add new db config
 		ConnectionManager::create('test_csv', $this->config);
 
 		$model = ClassRegistry::init('UserTest');
+
 		$expected = array(
 			array(
 				'UserTest' => array(
@@ -160,8 +161,16 @@ class CsvSourceTestCase extends CakeTestCase {
 				),
 			),
 		);
+
+
 		$result = $model->find('all');
-		$this->assertClone(current($result), current($expected));
+		$this->assertClone($result[0], $expected[0]);
+
+		$result = $model->find('first');
+		$this->assertClone($result, $expected[0]);
+
+		$result = $model->find('first', array('conditions' => array('UserTest.id' => 1)));
+		$this->assertClone($result, $expected[0]);
 	}
 
 /**
