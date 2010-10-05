@@ -301,9 +301,9 @@ class CsvSource extends DataSource {
 
 				$record = array();
 				$i = 0;
-				$record['id'] = $lineCount;
+				$record[$model->alias]['id'] = $lineCount;
 				foreach($this->fields as $field) {
-					$record[$field] = $data[$i++];
+					$record[$model->alias][$field] = $data[$i++];
 				}
 
 				if ($this->__checkConditions($record, $queryData['conditions'])) {
@@ -313,10 +313,10 @@ class CsvSource extends DataSource {
 					if ($this->page <= $_page) {
 						if (!$allFields) {
 							$record = array();
-							$record['id'] = $lineCount;
+							$record[$model->alias]['id'] = $lineCount;
 							if (count($_fieldIndex) > 0) {
 								foreach($_fieldIndex as $i) {
-									$record[$this->fields[$i]] = $data[$i];
+									$record[$model->alias][$this->fields[$i]] = $data[$i];
 								}
 							}
 						}
