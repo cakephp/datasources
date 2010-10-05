@@ -395,6 +395,9 @@ class CsvSource extends DataSource {
 	function __createRule($name, $value) {
 		if (strpos($name, ' ') !== false) {
 			return array(str_replace(' ', '', $name) . $value);
+		} elseif (strpos($name, '.') !== false) {
+			list ($alias, $field) = explode('.', $name);
+			return "/{$alias}[{$field}={$value}]";
 		} else {
 			return array("{$name}={$value}");
 		}

@@ -160,6 +160,13 @@ class CsvSourceTestCase extends CakeTestCase {
 					'age'  => '29',
 				),
 			),
+			array(
+				'UserTest' => array(
+					'id'   => '2',
+					'name' => 'mr_sandman',
+					'age'  => '21',
+				),
+			),
 		);
 
 
@@ -169,8 +176,8 @@ class CsvSourceTestCase extends CakeTestCase {
 		$result = $model->find('first');
 		$this->assertClone($result, $expected[0]);
 
-		$result = $model->find('first', array('conditions' => array('UserTest.id' => 1)));
-		$this->assertClone($result, $expected[0]);
+		$result = $model->find('first', array('conditions' => array('UserTest.id' => 2)));
+		$this->assertClone($result, $expected[1]);
 	}
 
 /**
