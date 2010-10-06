@@ -43,6 +43,25 @@ class UserTest extends CakeTestModel {
 }
 
 /**
+ * Test Model for blogs.csv
+ *
+ * @package default
+ */
+class BlogTest extends CakeTestModel {
+
+/**
+ * Table to use
+ *
+ * @var string
+ */	
+	var $useTable = 'blogs';
+
+	var $useDbConfig = 'test_csv';
+
+	var $primaryKey = 'key';
+}
+
+/**
  * CsvSourceTestCase
  *
  * @package datasources
@@ -113,11 +132,11 @@ class CsvSourceTestCase extends CakeTestCase {
 	function testSources() {
 		$this->Csv->cacheSources = false;
 
-		$expected = array('posts', 'users');
+		$expected = array('blogs', 'posts', 'users');
 		$result = $this->Csv->listSources();
 		$this->assertIdentical($expected, $result);
 
-		$expected = array('posts', 'users');
+		$expected = array('blogs', 'posts', 'users');
 		$result = $this->Csv->listSources();
 		$this->assertIdentical($expected, $result);
 	}
@@ -131,7 +150,7 @@ class CsvSourceTestCase extends CakeTestCase {
 	function testRecursiveSources() {
 		$config = array_merge($this->config, array('recursive' => true));
 		$this->Csv =& new CsvSource($config);
-		$expected = array('posts', 'users', 'second_level' . DS . 'things');
+		$expected = array('blogs', 'posts', 'users', 'second_level' . DS . 'things');
 		$result = $this->Csv->listSources();
 		$this->assertIdentical($expected, $result);
 	}
@@ -194,6 +213,41 @@ class CsvSourceTestCase extends CakeTestCase {
 		$result = $model->find('all', array('conditions' => array('UserTest.id <' => 3), 'limit' => 1));
 		$expected_ = array($expected[0]);
 		$this->assertEqual($result, $expected_);
+	}
+
+/**
+ * testFindNonNumericalPrimaryKey
+ *
+ * @return void
+ * @access public
+ */
+	function testFindNonNumericalPrimaryKey()
+	{
+		// Add new db config
+		ConnectionManager::create('test_csv', $this->config);
+
+		$model = ClassRegistry::init('BlogTest');
+
+		$expected = array(
+			array(
+				'BlogTest' => array(
+					'key'	=> '1st',
+					'title' => '1st Blog',
+				),
+			),
+			array(
+				'BlogTest' => array(
+					'key'	=> 'myblog',
+					'title' => 'Hello World!',
+				),
+			),
+		);
+
+		$result = $model->find('all');
+		$this->assertEqual($result, $expected);
+
+		$result = $model->find('first', array('conditions' => array('BlogTest.key' => 'myblog')));
+		$this->assertEqual($result, $expected[1]);
 	}
 
 /**
