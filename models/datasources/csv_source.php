@@ -295,13 +295,11 @@ class CsvSource extends DataSource {
 			} else {
 				// Skip over records, that are not complete
 				if (count($data) < $this->maxCol) {
-					$lineCount++;
 					continue;
 				}
 
 				$record = array();
 				$i = 0;
-				$record[$model->alias]['id'] = $lineCount;
 				foreach($this->fields as $field) {
 					$record[$model->alias][$field] = $data[$i++];
 				}
@@ -309,11 +307,9 @@ class CsvSource extends DataSource {
 				if ($this->__checkConditions($record, $queryData['conditions'], $model)) {
 					// Compute the virtual pagenumber
 					$_page = floor($findCount / $this->limit) + 1;
-					$lineCount++;
 					if ($this->page <= $_page) {
 						if (!$allFields) {
 							$record = array();
-							$record[$model->alias]['id'] = $lineCount;
 							if (count($_fieldIndex) > 0) {
 								foreach($_fieldIndex as $i) {
 									$record[$model->alias][$this->fields[$i]] = $data[$i];
