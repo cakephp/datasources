@@ -17,10 +17,21 @@ Datasource plugin datasources can be used either through App::import of by defin
 			...
 			);
 		}
+	}
 
 or
 
 	App::import('Datasource', 'Datasources.XmlrpcSource');
+
+or, if using one of the pdo extended datasources,
+
+	class DATABASE_CONFIG {
+		var $mySource = array(
+			'driver' => 'Datasources.DboSqlite3',
+			...
+			);
+		}
+	}
 
 ## Contributing to datasources
 
