@@ -1,10 +1,44 @@
 <?php
+/**
+ * User Fixture
+ *
+ * PHP versions 4 and 5
+ *
+ * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
+ * @package       datasources
+ * @subpackage    datasources.tests.fixtures
+ * @since         CakePHP Datasources v 0.3
+ * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ */
 
+/**
+ * User Fixture
+ *
+ * @package datasources
+ * @subpackage datasources.tests.fixtures
+ */
 class UserFixture extends CakeTestFixture {
 
-	var $name = 'User';
+/**
+ * Name
+ *
+ * @var string
+ */
+	public $name = 'User';
 
-	var $fields = array(
+/**
+ * Fields
+ *
+ * @var array
+ */
+	public $fields = array(
 		'id' => array('type' => 'integer', 'key' => 'primary'),
 		'born_id' => array('type' => 'integer', 'null' => false),
 		'name' => array('type' => 'string', 'null' => false)
@@ -14,13 +48,11 @@ class UserFixture extends CakeTestFixture {
  * records property
  *
  * @var array
- * @access public
  */
-	var $records = array(
+	public $records = array(
 		array('born_id' => 1, 'name' => 'User 1'),
 		array('born_id' => 2, 'name' => 'User 2'),
 		array('born_id' => 1, 'name' => 'User 3'),
 		array('born_id' => 3, 'name' => 'User 4')
 	);
 }
-?>
