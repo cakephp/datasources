@@ -2,9 +2,6 @@
 /**
  * MySQL Logging layer for DBO.
  *
- * Original idea by Rainchen
- * Article at: http://bakery.cakephp.org/articles/rainchen/2009/03/09/how-to-debug-as-in-rails
- *
  * PHP versions 4 and 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
@@ -17,7 +14,7 @@
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       datasources
  * @subpackage    datasources.models.datasources.dbo
- * @since         CakePHP Datasources v 0.1
+ * @since         CakePHP Datasources v 0.2
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
@@ -38,22 +35,19 @@ class DboMysqlLog extends DboMysql {
  * Datasource Description
  *
  * @var string
- * @access public
  */
-	var $description = "MySQL Logging DBO Driver";
+	public $description = 'MySQL Logging DBO Driver';
 
 /**
  * Log given SQL query.
  *
  * @param string $sql SQL statement
- * @access public
  */
-	function logQuery($sql) {
+	public function logQuery($sql) {
 		$return = parent::logQuery($sql);
 		if (Configure::read('logQueries')) {
 			$this->log("sql[{$this->_queriesCnt}]:{$sql}", 'sql');
 		}
 		return $return;
 	}
-
 }
