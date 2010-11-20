@@ -205,7 +205,11 @@ class XmlrpcSource extends Datasource {
 					$normalized = $this->_normalizeParam($item);
 					$data[] = $normalized['value'];
 				}
-				return array('value' => array('array' => array('data' => array('value' => $data))));
+				$return = array('value' => array('array' => array('data' => array())));
+				if (!empty($data)) {
+					$return['value']['array']['data']['value'] = $data;
+				}
+				return $return;
 			}
 			// Is struct
 			$members = array();
