@@ -39,6 +39,11 @@ class UserTest extends CakeTestModel {
  */	
 	var $useTable = 'users';
 
+/**
+ * Datasource
+ *
+ * @var string
+ */
 	var $useDbConfig = 'test_csv';
 }
 
@@ -56,8 +61,18 @@ class BlogTest extends CakeTestModel {
  */	
 	var $useTable = 'blogs';
 
+/**
+ * Datasource
+ *
+ * @var string
+ */
 	var $useDbConfig = 'test_csv';
 
+/**
+ * Primary Key
+ *
+ * @var string
+ */
 	var $primaryKey = 'key';
 }
 
@@ -260,4 +275,3 @@ class CsvSourceTestCase extends CakeTestCase {
 		$this->Csv = null;
 	}
 }
-?>
