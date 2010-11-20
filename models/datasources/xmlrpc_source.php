@@ -87,17 +87,17 @@ class XmlrpcSource extends Datasource {
 /**
  * Perform a XML RPC call
  *
+ * @param string $method XML-RPC method name
+ * @param array $params List with XML-RPC parameters
+ * @param Model $model Reference to model (unused)
  * @return mixed Response of XML-RPC Server. If return false, $this->error contain a error message.
  * @access public
  */
-	function query() {
-		$args = func_get_args();
-		if (!isset($args[0]) || !is_string($args[0])) {
+	function query($method, $params, &$model) {
+		if (!is_string($method)) {
 			return false;
 		}
-		$method = $args[0];
-		unset($args[0]);
-		return $this->_request($method, $args);
+		return $this->_request($method, $params);
 	}
 
 /**
