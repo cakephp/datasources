@@ -288,4 +288,3 @@ class DboAdodbTest extends CakeTestCase {
 
 	}
 }
-?>

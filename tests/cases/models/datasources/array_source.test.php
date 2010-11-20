@@ -770,6 +770,4 @@ class IntractModelTest extends CakeTestCase {
 		);
 		$this->assertEqual($result, $expected);
 	}
-
 }
-?>

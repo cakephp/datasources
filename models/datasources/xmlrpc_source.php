@@ -309,4 +309,3 @@ class XmlrpcSource extends Datasource {
 		return false;
 	}
 }
-?>

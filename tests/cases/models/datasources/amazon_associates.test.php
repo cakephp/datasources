@@ -138,4 +138,3 @@ class AmazonAssociatesTestCase extends CakeTestCase {
 		unset($this->Amazon);
 	}
 }
-?>

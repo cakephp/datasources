@@ -377,4 +377,3 @@ class DboOdbc extends DboSource {
 		return false;
 	}
 }
-?>

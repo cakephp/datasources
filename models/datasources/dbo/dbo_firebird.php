@@ -565,4 +565,3 @@ class DboFirebird extends DboSource {
 		return false;
 	}
 }
-?>

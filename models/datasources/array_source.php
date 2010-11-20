@@ -466,4 +466,3 @@ class ArraySource extends Datasource {
 		return $out;
 	}
 }
-?>

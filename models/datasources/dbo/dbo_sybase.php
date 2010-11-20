@@ -407,4 +407,3 @@ class DboSybase extends DboSource {
 		}
 	}
 }
-?>

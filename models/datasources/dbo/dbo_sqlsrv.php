@@ -781,4 +781,3 @@ class DboSqlsrv extends DboSource {
 		return null;
 	}
 }
-?>

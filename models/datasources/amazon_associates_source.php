@@ -226,4 +226,3 @@ class AmazonAssociatesSource extends DataSource{
 		return "http://" . $host . $uri . "?" . $canonicalized_query . "&Signature="  . $signature;
 	}
 }
-?>

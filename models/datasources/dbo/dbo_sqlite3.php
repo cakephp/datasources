@@ -760,4 +760,3 @@ class DboSqlite3 extends DboSource {
 		return is_object($this->_result);
 	}
 }
-?>

@@ -220,4 +220,3 @@ class SoapSource extends DataSource {
 		}
 	}
 }
-?>
