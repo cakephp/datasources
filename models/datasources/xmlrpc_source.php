@@ -93,7 +93,7 @@ class XmlrpcSource extends Datasource {
  * @return mixed Response of XML-RPC Server. If return false, $this->error contain a error message.
  * @access public
  */
-	function query($method, $params, &$model) {
+	function query($method, $params = array(), &$model = null) {
 		if (!is_string($method)) {
 			return false;
 		}
@@ -267,7 +267,7 @@ class XmlrpcSource extends Datasource {
 				return (float)$value;
 			case 'array':
 				$return = array();
-				if (is_array($value['data']['value'])) {
+				if (isset($value['data']['value']) && is_array($value['data']['value'])) {
 					foreach ($value['data']['value'] as $key => $newValue) {
 						// Reconstruct an array form, for arrays with only one entry.
 						if (!is_array($newValue)) {
