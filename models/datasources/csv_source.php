@@ -45,65 +45,57 @@ class CsvSource extends DataSource {
  * Description
  *
  * @var string
- * @access public
  */
-	var $description = 'CSV Data Source';
+	public $description = 'CSV Data Source';
 
 /**
  * Column delimiter
  *
  * @var string
- * @access public
  */
-	var $delimiter = ';';
+	public $delimiter = ';';
 
 /**
  * Maximum Columns
  *
  * @var integer
- * @access public
  */
-	var $maxCol = 0;
+	public $maxCol = 0;
 
 /**
  * Field Names
  *
  * @var mixed
- * @access public
  */
-	var $fields = null;
+	public $fields = null;
 
 /**
  * File Handle
  *
  * @var mixed
- * @access public
  */
-	var $handle = false;
+	public $handle = false;
 
 /**
  * Page to start on
  *
  * @var integer
- * @access public
  */
-	var $page = 1;
+	public $page = 1;
 
 /**
  * Limit of records
  *
  * @var integer
- * @access public
  */
-	var $limit = 99999;
+	public $limit = 99999;
 
 /**
  * Default configuration.
  *
  * @var array
- * @access private
  */
-	var $__baseConfig = array(
+	private $__baseConfig = array(
 		'datasource' => 'csv',
 		'path' => '.',
 		'extension' => 'csv',
@@ -115,9 +107,8 @@ class CsvSource extends DataSource {
  *
  * @param string $config Configuration array
  * @param boolean $autoConnect Automatically connect to / open the file
- * @access public
  */
-	function __construct($config = null, $autoConnect = true) {
+	public function __construct($config = null, $autoConnect = true) {
 		$this->debug = Configure::read('debug') > 0;
 		$this->fullDebug = Configure::read('debug') > 1;
 		parent::__construct($config);
@@ -130,9 +121,8 @@ class CsvSource extends DataSource {
  * Connects to the mailbox using options in the given configuration array.
  *
  * @return boolean True if the file could be opened.
- * @access public
  */
-	function connect() {
+	public function connect() {
 		$this->connected = false;
 
 		if ($this->config['readonly']) {
@@ -155,9 +145,8 @@ class CsvSource extends DataSource {
  * List available sources
  *
  * @return array of available CSV files
- * @access public
  */
-	function listSources() {
+	public function listSources() {
 		$this->config['database'] = 'csv';
 		$cache = parent::listSources();
 		if ($cache !== null) {
@@ -187,9 +176,8 @@ class CsvSource extends DataSource {
  * Returns a Model description (metadata) or null if none found.
  *
  * @return mixed
- * @access public
  */
-	function describe($model) {
+	public function describe($model) {
 		$this->__getDescriptionFromFirstLine($model);
 		return $this->fields;
 	}
@@ -199,9 +187,8 @@ class CsvSource extends DataSource {
  *
  * @param Model $model
  * @return boolean True, Success
- * @access private
  */
-	function __getDescriptionFromFirstLine($model) {
+	private function __getDescriptionFromFirstLine($model) {
 		$filename = $model->table . '.' . $this->config['extension'];
 		$handle = fopen($this->config['path'] . DS .  $filename, 'r');
 		$line = rtrim(fgets($handle));
@@ -225,9 +212,8 @@ class CsvSource extends DataSource {
  * Close file handle
  *
  * @return null
- * @access public
  */
-	function close() {
+	public function close() {
 		if ($this->connected) {
 			if ($this->handle) {
 				foreach($this->handle as $h) {
@@ -247,7 +233,7 @@ class CsvSource extends DataSource {
  * @param integer $recursive Number of levels of association
  * @return mixed
  */
-	function read(&$model, $queryData = array(), $recursive = null) {
+	public function read(&$model, $queryData = array(), $recursive = null) {
 		$config = $this->config;
 		$filename = $config['path'] . DS . $model->table . '.' . $config['extension'];
 		if (!Set::extract($this->handle, $model->table)) {
@@ -295,28 +281,24 @@ class CsvSource extends DataSource {
 			} else {
 				// Skip over records, that are not complete
 				if (count($data) < $this->maxCol) {
-					$lineCount++;
 					continue;
 				}
 
 				$record = array();
 				$i = 0;
-				$record['id'] = $lineCount;
 				foreach($this->fields as $field) {
-					$record[$field] = $data[$i++];
+					$record[$model->alias][$field] = $data[$i++];
 				}
 
-				if ($this->__checkConditions($record, $queryData['conditions'])) {
+				if ($this->__checkConditions($record, $queryData['conditions'], $model)) {
 					// Compute the virtual pagenumber
 					$_page = floor($findCount / $this->limit) + 1;
-					$lineCount++;
 					if ($this->page <= $_page) {
 						if (!$allFields) {
 							$record = array();
-							$record['id'] = $lineCount;
 							if (count($_fieldIndex) > 0) {
 								foreach($_fieldIndex as $i) {
-									$record[$this->fields[$i]] = $data[$i];
+									$record[$model->alias][$this->fields[$i]] = $data[$i];
 								}
 							}
 						}
@@ -335,9 +317,8 @@ class CsvSource extends DataSource {
 
 		if ($model->findQueryType === 'count') {
 			return array(array(array('count' => count($resultSet))));
-		} else {
-			return $resultSet;
 		}
+		return $resultSet;
 	}
 
 /**
@@ -345,13 +326,18 @@ class CsvSource extends DataSource {
  *
  * @param array $data Data
  * @return array Cleaned Data
- * @access private
  */
-	function __scrubQueryData($data) {
-		foreach (array('conditions', 'fields', 'joins', 'order', 'limit', 'offset', 'group') as $key) {
+	private function __scrubQueryData($data) {
+		foreach (array('conditions', 'fields', 'joins', 'order', /*'limit', 'offset',*/ 'group') as $key) {
 			if (!isset($data[$key]) || empty($data[$key])) {
 				$data[$key] = array();
 			}
+		}
+		if (!isset($data['limit']) || empty($data['limit'])) {
+			$data['limit'] = PHP_INT_MAX;
+		}
+		if (!isset($data['offset']) || empty($data['offset'])) {
+			$data['offset'] = 0;
 		}
 		return $data;
 	}
@@ -362,21 +348,25 @@ class CsvSource extends DataSource {
  * @param array $record
  * @param array $conditions
  * @return bool
- * @access private
  */
-	function __checkConditions($record, $conditions) {
+	private function __checkConditions($record, $conditions, $model) {
 		$result = true;
 		foreach ($conditions as $name => $value) {
+            $alias = $model->alias;
+            if (strpos($name, '.') !== false) {
+                list($alias, $name) = explode('.', $name);
+            }
+
 			if (strtolower($name) === 'or') {
 				$cond = $value;
 				$result = false;
 				foreach ($cond as $name => $value) {
-					if (Set::matches($this->__createRule($name, $value), $record)) {
+					if (Set::matches($this->__createRule($name, $value), $record[$alias])) {
 						return true;
 					}
 				}
 			} else {
-				if (!Set::matches($this->__createRule($name, $value), $record)) {
+				if (!Set::matches($this->__createRule($name, $value), $record[$alias])) {
 					return false;
 				}
 			}
@@ -390,14 +380,12 @@ class CsvSource extends DataSource {
  * @param string $name
  * @param string $value
  * @return string
- * @access private
  */
-	function __createRule($name, $value) {
+	private function __createRule($name, $value) {
 		if (strpos($name, ' ') !== false) {
 			return array(str_replace(' ', '', $name) . $value);
-		} else {
-			return array("{$name}={$value}");
 		}
+		return array("{$name}={$value}");
 	}
 
 /**
@@ -407,10 +395,8 @@ class CsvSource extends DataSource {
  * @param mixed $func 
  * @param array $params 
  * @return array
- * @access public
  */
-	function calculate(&$model, $func, $params = array()) {
+	public function calculate(&$model, $func, $params = array()) {
 		return array('count' => true);
 	}
 }
-?>

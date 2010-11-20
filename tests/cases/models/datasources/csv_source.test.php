@@ -38,6 +38,42 @@ class UserTest extends CakeTestModel {
  * @var string
  */	
 	var $useTable = 'users';
+
+/**
+ * Datasource
+ *
+ * @var string
+ */
+	var $useDbConfig = 'test_csv';
+}
+
+/**
+ * Test Model for blogs.csv
+ *
+ * @package default
+ */
+class BlogTest extends CakeTestModel {
+
+/**
+ * Table to use
+ *
+ * @var string
+ */	
+	var $useTable = 'blogs';
+
+/**
+ * Datasource
+ *
+ * @var string
+ */
+	var $useDbConfig = 'test_csv';
+
+/**
+ * Primary Key
+ *
+ * @var string
+ */
+	var $primaryKey = 'key';
 }
 
 /**
@@ -111,11 +147,11 @@ class CsvSourceTestCase extends CakeTestCase {
 	function testSources() {
 		$this->Csv->cacheSources = false;
 
-		$expected = array('posts', 'users');
+		$expected = array('blogs', 'posts', 'users');
 		$result = $this->Csv->listSources();
 		$this->assertIdentical($expected, $result);
 
-		$expected = array('posts', 'users');
+		$expected = array('blogs', 'posts', 'users');
 		$result = $this->Csv->listSources();
 		$this->assertIdentical($expected, $result);
 	}
@@ -129,7 +165,7 @@ class CsvSourceTestCase extends CakeTestCase {
 	function testRecursiveSources() {
 		$config = array_merge($this->config, array('recursive' => true));
 		$this->Csv =& new CsvSource($config);
-		$expected = array('posts', 'users', 'second_level' . DS . 'things');
+		$expected = array('blogs', 'posts', 'users', 'second_level' . DS . 'things');
 		$result = $this->Csv->listSources();
 		$this->assertIdentical($expected, $result);
 	}
@@ -144,6 +180,92 @@ class CsvSourceTestCase extends CakeTestCase {
 	}
 
 /**
+ * testFind
+ *
+ * @return void
+ * @access public
+ */
+	function testFind()
+	{
+		// Add new db config
+		ConnectionManager::create('test_csv', $this->config);
+
+		$model = ClassRegistry::init('UserTest');
+
+		$expected = array(
+			array(
+				'UserTest' => array(
+					'id'   => '1',
+					'name' => 'predominant',
+					'age'  => '29',
+				),
+			),
+			array(
+				'UserTest' => array(
+					'id'   => '2',
+					'name' => 'mr_sandman',
+					'age'  => '21',
+				),
+			),
+		);
+
+
+		$result = $model->find('all');
+		$this->assertEqual($result[0], $expected[0]);
+
+		$result = $model->find('first');
+		$this->assertEqual($result, $expected[0]);
+
+		$result = $model->find('first', array('conditions' => array('UserTest.id' => 2)));
+		$this->assertEqual($result, $expected[1]);
+
+		$result = $model->find('count');
+		$this->assertEqual(3, $result);
+
+		$result = $model->find('all', array('conditions' => array('UserTest.id <' => 3)));
+		$this->assertEqual($result, $expected);
+
+		$result = $model->find('all', array('conditions' => array('UserTest.id <' => 3), 'limit' => 1));
+		$expected_ = array($expected[0]);
+		$this->assertEqual($result, $expected_);
+	}
+
+/**
+ * testFindNonNumericalPrimaryKey
+ *
+ * @return void
+ * @access public
+ */
+	function testFindNonNumericalPrimaryKey()
+	{
+		// Add new db config
+		ConnectionManager::create('test_csv', $this->config);
+
+		$model = ClassRegistry::init('BlogTest');
+
+		$expected = array(
+			array(
+				'BlogTest' => array(
+					'key'	=> '1st',
+					'title' => '1st Blog',
+				),
+			),
+			array(
+				'BlogTest' => array(
+					'key'	=> 'myblog',
+					'title' => 'Hello World!',
+				),
+			),
+		);
+
+		$result = $model->find('all');
+		$this->assertEqual($result, $expected);
+
+		$result = $model->find('first', array('conditions' => array('BlogTest.key' => 'myblog')));
+		$this->assertEqual($result, $expected[1]);
+	}
+
+/**
  * End Test
  *
  * @return void
@@ -153,4 +275,3 @@ class CsvSourceTestCase extends CakeTestCase {
 		$this->Csv = null;
 	}
 }
-?>
