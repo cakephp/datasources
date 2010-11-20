@@ -5,12 +5,12 @@
  * PHP versions 4 and 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       datasources
  * @subpackage    datasources.tests.cases.models.datasources
@@ -52,23 +52,32 @@ class XmlrpcModel extends CakeTestModel {
  * @access public
  */
 	function getStateName($number) {
-		return $this->query('examples.getStateName', $number);
-	}
-
-/**
- * call__ Pass to $db Object
- *
- * @param string $method Method Name
- * @param string $params Parameters
- * @return mixed
- * @access public
- */
-	function call__($method, $params) {
-		array_unshift($params, 'interopEchoTests.' . $method);
-
+		$params = array('examples.getStateName', array($number), &$this);
 		$db =& ConnectionManager::getDataSource($this->useDbConfig);
 		return call_user_func_array(array(&$db, 'query'), $params);
 	}
+
+}
+
+/**
+ * XML RPC Test class
+ *
+ */
+class XmlrpcTestSource extends XmlrpcSource {
+
+/**
+ * Query
+ *
+ * @param string $method XML-RPC method name
+ * @param array $params List with XML-RPC parameters
+ * @param Model $model Reference to model (unused)
+ * @return mixed Response of XML-RPC Server. If return false, $this->error contain a error message.
+ * @access public
+ */
+	function query($method, $params, &$model) {
+		return array($method, $params, $model);
+	}
+
 }
 
 /**
@@ -143,6 +152,8 @@ class XmlrpcSourceTest extends CakeTestCase {
 		$this->assertEqual($expected, $this->Xmlrpc->generateXML('test', array(true)));
 
 		// Array
+		$expected = $header . '<methodCall><methodName>test</methodName><params><param><value><array><data /></array></value></param></params></methodCall>';
+		$this->assertEqual($expected, $this->Xmlrpc->generateXML('test', array(array())));
 		$expected = $header . '<methodCall><methodName>test</methodName><params><param><value><array><data><value><int>12</int></value><value><string>Egypt</string></value><value><boolean>0</boolean></value><value><int>-31</int></value></data></array></value></param></params></methodCall>';
 		$this->assertEqual($expected, $this->Xmlrpc->generateXML('test', array(array(12, 'Egypt', false, -31))));
 
@@ -215,6 +226,8 @@ class XmlrpcSourceTest extends CakeTestCase {
 		$this->assertEqual(true, $this->Xmlrpc->parseResponse($xml));
 
 		// Array
+		$xml = '<?xml version="1.0"?><methodResponse><params><param><value><array><data></data></array></value></param></params></methodResponse>';
+		$this->assertEqual(array(), $this->Xmlrpc->parseResponse($xml));
 		$xml = '<?xml version="1.0"?><methodResponse><params><param><value><array><data><value><int>1</int></value><value><string>testing</string></value></data></array></value></param></params></methodResponse>';
 		$this->assertEqual(array(1, 'testing'), $this->Xmlrpc->parseResponse($xml));
 		$xml = '<?xml version="1.0"?><methodResponse><params><param><value><array><data><value><array><data><value><string>a</string></value><value><string>b</string></value></data></array></value><value><string>testing</string></value></data></array></value></param></params></methodResponse>';
@@ -274,8 +287,8 @@ class XmlrpcSourceTest extends CakeTestCase {
 			'url' => '/server.php'
 		);
 		$Xmlrpc = new XmlrpcSource($config);
-		$this->assertEqual('Alabama', $Xmlrpc->query('examples.getStateName', 1));
-		$this->assertEqual(5, $Xmlrpc->query('examples.addtwo', 2, 3));
+		$this->assertEqual('Alabama', $Xmlrpc->query('examples.getStateName', array(1)));
+		$this->assertEqual(5, $Xmlrpc->query('examples.addtwo', array(2, 3)));
 		$this->assertTrue(is_array($Xmlrpc->query('system.listMethods')));
 
 		// Not 200 (no connection)
@@ -285,7 +298,7 @@ class XmlrpcSourceTest extends CakeTestCase {
 			'url' => '/RPC2'
 		);
 		$Xmlrpc = new XmlrpcSource($config);
-		$this->assertFalse($Xmlrpc->query('examples.getStateName', 1));
+		$this->assertFalse($Xmlrpc->query('examples.getStateName', array(1)));
 		$this->assertEqual(-32300, $Xmlrpc->errno);
 
 		// Not 200 (HTTP 404)
@@ -295,7 +308,7 @@ class XmlrpcSourceTest extends CakeTestCase {
 			'url' => '/InvalidPath'
 		);
 		$Xmlrpc = new XmlrpcSource($config);
-		$this->assertFalse($Xmlrpc->query('examples.getStateName', 1));
+		$this->assertFalse($Xmlrpc->query('examples.getStateName', array(1)));
 		$this->assertEqual(-32300, $Xmlrpc->errno);
 
 		// Not XML-RPC Response
@@ -305,7 +318,7 @@ class XmlrpcSourceTest extends CakeTestCase {
 			'url' => '/group/cake-php/feed/rss_v2_0_msgs.xml'
 		);
 		$Xmlrpc = new XmlrpcSource($config);
-		$this->assertFalse($Xmlrpc->query('examples.getStateName', 1));
+		$this->assertFalse($Xmlrpc->query('examples.getStateName', array(1)));
 		$this->assertEqual(-32700, $Xmlrpc->errno);
 	}
 
@@ -344,19 +357,20 @@ class XmlrpcSourceTest extends CakeTestCase {
  */
 	function testWithModel() {
 		$connection = array(
-			'datasource' => 'Datasources.XmlrpcSource',
-			'host' => 'phpxmlrpc.sourceforge.net',
-			'port' => 80,
-			'url' => '/server.php'
+			'datasource' => 'Datasources.XmlrpcTestSource',
 		);
 		ConnectionManager::create('test_xmlrpc', $connection);
 		$model = ClassRegistry::init('XmlrpcModel');
 
 		// Test implemented method in model
-		$this->assertEqual('Alabama', $model->getStateName(1));
+		$result = $model->getStateName(1);
+		$expected = array('examples.getStateName', array(1), $model);
+		$this->assertEqual($result, $expected);
 
 		// Test with call__
-		$this->assertEqual('XmlrpcEcho', $model->echoString('XmlrpcEcho'));
+		$result = $model->someFunction();
+		$expected = array('someFunction', array(), $model);
+		$this->assertEqual($result, $expected);
 	}
 }
 ?>
