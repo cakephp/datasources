@@ -22,7 +22,7 @@
  * Import Required libraries
  *
  */
-App::import('Datsource', 'Datasources.AmazonAssociatesSource');
+App::import('Datasource', 'Datasources.AmazonAssociatesSource');
 
 /**
  * Generate Mock for AmazonAssociatesSource requests
