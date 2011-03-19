@@ -8,16 +8,16 @@
  * CAKEPHP Version 1.3.x
  *
  * Reference:
- * 	  gwoo couchsource datasource (http://bin.cakephp.org/view/925615535#modify)
- * 	  Trabalhando com o couchdb (http://www.botecounix.com.br/blog/?p=1375) 
+ * gwoo couchsource datasource (http://bin.cakephp.org/view/925615535#modify)
+ * Trabalhando com o couchdb (http://www.botecounix.com.br/blog/?p=1375)
  *
- * Copyright 2010, Maury M. Marques http://github.com/maurymmarques/ 
+ * Copyright 2010, Maury M. Marques http://github.com/maurymmarques/
  *
  * Disponibilizado sob licença MIT.
  * Redistribuições dos arquivos devem manter a nota de copyright acima.
- * 
+ *
  * @package couchdb
- * @subpackage couchdb.models.datasources 
+ * @subpackage couchdb.models.datasources
  * @filesource
  * @copyright Copyright 2010, Maury M. Marques http://github.com/maurymmarques/
  * @license http://www.opensource.org/licenses/mit-license.php A licença MIT
@@ -37,6 +37,7 @@ class CouchdbSource extends DataSource{
 	public function __construct($config = null, $autoConnect = true){
 		if(!isset($config['request'])){
 			$config['request']['uri'] = $config;
+			$config['request']['header']['Content-Type'] = 'application/json';
 		}
 		parent::__construct($config);
 		$this->fullDebug = Configure::read() > 1;
@@ -87,8 +88,9 @@ class CouchdbSource extends DataSource{
 	 * @access public
 	 */
 	public function close(){
-		if(Configure::read() > 1){//$this->showLog();
-}
+		if(Configure::read() > 1){
+			//$this->showLog();
+		}
 		$this->disconnect();
 	}
 
@@ -215,6 +217,19 @@ class CouchdbSource extends DataSource{
 		$result = array();
 		$result[0][$model->alias] = $this->decode($this->Socket->get($this->uri($model, $params)), true);
 
+		return $this->readResult($model, $queryData, $result);
+	}
+
+	/**
+	 * Aplica as regras ao documento lido.
+	 *
+	 * @param Model $model
+	 * @param array $queryData um array de informações $queryData contendo as chaves, similar ao Model::find()
+	 * @param array $result Dados do documento lido
+	 * @return mixed boolean false em erro/falha. Um array de resultados em secesso.
+	 * @access public
+	 */
+	private function readResult($model, $queryData, $result){
 		if(isset($result[0][$model->alias]['_id'])){
 			if(isset($queryData['fields']) && $queryData['fields'] === true){
 				$result[0][0]['count'] = 1;
