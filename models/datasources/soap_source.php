@@ -56,7 +56,7 @@ class SoapSource extends DataSource {
  * @var array
  * @access protected
  */
-	protected $_baseConfig = array(
+	public $_baseConfig = array(
 		'wsdl' => null,
 		'location' => '',
 		'uri' => '',
