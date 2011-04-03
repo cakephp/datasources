@@ -30,46 +30,32 @@ class ArraySource extends Datasource {
  * Description string for this Data Source.
  *
  * @var string
- * @access public
  */
-	var $description = 'Array Datasource';
+	public $description = 'Array Datasource';
 
 /**
  * List of requests ("queries")
  *
  * @var array
- * @access protected
  */
-	var $_requestsLog = array();
+	protected $_requestsLog = array();
 
 /**
  * Base Config
  *
  * @var array
- * @access protected
  */
-	var $_baseConfig = array(
+	protected $_baseConfig = array(
 		'driver' => '' // Just to avoid DebugKit warning
 	);
-
-/**
- * Default Constructor
- *
- * @param array $config options
- * @access public
- */
-	function __construct($config = array()) {
-		parent::__construct($config);
-	}
 
 /**
  * Returns a Model description (metadata) or null if none found.
  *
  * @param Model $model
  * @return array Show only id
- * @access public
  */
-	function describe(&$model) {
+	public function describe(&$model) {
 		return array('id' => array());
 	}
 
@@ -78,9 +64,8 @@ class ArraySource extends Datasource {
  *
  * @param mixed $data
  * @return boolean Always false. It's not supported
- * @access public
  */
-	function listSources($data = null) {
+	public function listSources($data = null) {
 		return false;
 	}
 
@@ -90,9 +75,8 @@ class ArraySource extends Datasource {
  * @param Model $model The model being read.
  * @param array $queryData An array of query data used to find the data you want
  * @return mixed
- * @access public
  */
-	function read(&$model, $queryData = array()) {
+	public function read(&$model, $queryData = array()) {
 		if (!isset($model->records) || !is_array($model->records) || empty($model->records)) {
 			$this->_requestsLog[] = array(
 				'query' => 'Model ' . $model->alias,
@@ -209,7 +193,16 @@ class ArraySource extends Datasource {
 		return $data;
 	}
 
-	function conditionsFilter(&$model, $record, $conditions, $or = false) {
+/**
+ * Conditions Filter
+ *
+ * @param Model $model 
+ * @param string $record 
+ * @param array $conditions 
+ * @param boolean $or 
+ * @return void
+ */
+	public function conditionsFilter(&$model, $record, $conditions, $or = false) {
 		foreach ($conditions as $field => $value) {
 			$return = null;
 			if ($value === '') {
@@ -283,9 +276,8 @@ class ArraySource extends Datasource {
  * @param string $type Lowercase name type, i.e. 'count' or 'max'
  * @param array $params Function parameters (any values must be quoted manually)
  * @return string Calculation method
- * @access public
  */
-	function calculate(&$model, $type, $params = array()) {
+	public function calculate(&$model, $type, $params = array()) {
 		return 'COUNT';
 	}
 
@@ -303,7 +295,7 @@ class ArraySource extends Datasource {
  * @param integer $recursive Number of levels of association
  * @param array $stack
  */
-	function queryAssociation(&$model, &$linkModel, $type, $association, $assocData, &$queryData, $external = false, &$resultSet, $recursive, $stack) {
+	public function queryAssociation(&$model, &$linkModel, $type, $association, $assocData, &$queryData, $external = false, &$resultSet, $recursive, $stack) {
 		$assocData = array_merge(array('conditions' => null, 'fields' => null, 'order' => null), $assocData);
 		if (isset($queryData['conditions'])) {
 			$assocData['conditions'] = array_merge((array)$queryData['conditions'], (array)$assocData['conditions']);
@@ -375,9 +367,8 @@ class ArraySource extends Datasource {
  * @param boolean $sorted Get the queries sorted by time taken, defaults to false.
  * @param boolean $clear Clear after return logs
  * @return array Array of queries run as an array
- * @access public
  */
-	function getLog($sorted = false, $clear = true) {
+	public function getLog($sorted = false, $clear = true) {
 		if ($sorted) {
 			$log = sortByKey($this->_requestsLog, 'took', 'desc', SORT_NUMERIC);
 		} else {
@@ -398,7 +389,7 @@ class ArraySource extends Datasource {
  * @param integer $numRows
  * @return void
  */
-	function _registerLog(&$model, &$queryData, $took, $numRows) {
+	public function _registerLog(&$model, &$queryData, $took, $numRows) {
 		if (!Configure::read()) {
 			return;
 		}
@@ -417,9 +408,8 @@ class ArraySource extends Datasource {
  * @param object $model Model
  * @param array $queryData Query data sended by find
  * @return string Pseudo query
- * @access protected
  */
-	function _pseudoSelect(&$model, &$queryData) {
+	protected function _pseudoSelect(&$model, &$queryData) {
 		$out = '(symbolic) SELECT ';
 		if (empty($queryData['fields'])) {
 			$out .= '*';
