@@ -41,56 +41,50 @@ App::import('Xml');
  * @package datasources
  * @subpackage datasources.models.datasources
  */
-class AmazonAssociatesSource extends DataSource{
+class AmazonAssociatesSource extends DataSource {
 
 /**
  * Description of datasource
  *
  * @var string
- * @access public
  */
-	var $description = "AmazonAssociates Data Source";
+	public $description = 'AmazonAssociates Data Source';
 
 /**
  * Region / Locale
  * (ca,com,co,ul,de.fr,jp)
  *
  * @var string
- * @access public
  */
-	var $region = "com";
+	public $region = 'com';
 
 /**
  * Query array
  *
  * @var array
- * @access public
  */
-	var $query = null;
+	public $query = null;
   
 /**
  * Signed request string to pass to Amazon
  *
  * @var string
- * @access protected
  */
-	var $_request = null;
+	protected $_request = null;
 
 /**
  * HttpSocket object
  *
  * @var HttpSocket
- * @access public
  */
-	var $Http = null;
+	public $Http = null;
 
 /**
  * Request Logs
  *
  * @var array
- * @access private
  */
-	var $__requestLog = array();
+	private $__requestLog = array();
 	
 /**
  * Constructor
@@ -98,9 +92,8 @@ class AmazonAssociatesSource extends DataSource{
  * Creates new HttpSocket
  *
  * @param array $config Configuration array
- * @access public
  */
-	function __construct($config) {
+	public function __construct($config) {
 		parent::__construct($config);
 		App::import('HttpSocket');
 		$this->Http = new HttpSocket();
@@ -112,9 +105,8 @@ class AmazonAssociatesSource extends DataSource{
  * @param string $type (DVD, Book, Movie, etc...)
  * @param array $query (title search, etc...)
  * @return mixed array of the resulting request or false if unable to contact server
- * @access public
  */
-	function find($type = null, $query = array()) {
+	public function find($type = null, $query = array()) {
 		if ($type) {
 			$query['SearchIndex'] = $type;
 		}
@@ -147,9 +139,8 @@ class AmazonAssociatesSource extends DataSource{
  *
  * @param string $id of amazon product
  * @return mixed array of the resulting request or false if unable to contact server
- * @access public
  */
-	function findById($id){
+	public function findById($id) {
 		$this->query = array_merge(
 			array(
 				'Service'        => 'AWSECommerceService',
@@ -171,7 +162,7 @@ class AmazonAssociatesSource extends DataSource{
  * @param boolean clear will clear the log if set to true (default)
  * @return array of log requested
  */
-	function getLog($sorted = false, $clear = true){
+	public function getLog($sorted = false, $clear = true) {
 		$log = $this->__requestLog;
 		if($clear){
 			$this->__requestLog = array();
@@ -183,14 +174,12 @@ class AmazonAssociatesSource extends DataSource{
  * Perform the request to AWS
  *
  * @return mixed array of the resulting request or false if unable to contact server
- * @access private
  */
-	function __request(){
+	private function __request() {
 		$this->_request = $this->__signQuery();
 		$this->__requestLog[] = $this->_request;
 		$retval = $this->Http->get($this->_request);
-		$retval = Set::reverse(new Xml($retval));
-		return $retval;
+		return Set::reverse(new Xml($retval));
 	}
 
 /**
@@ -198,31 +187,30 @@ class AmazonAssociatesSource extends DataSource{
  * This is a required step for the new Amazon API
  *
  * @return string request signed string.
- * @access private
  */
-	function __signQuery(){
-		$method = "GET";
-		$host = "ecs.amazonaws.".$this->region;
-		$uri = "/onca/xml";
+	private function __signQuery() {
+		$method = 'GET';
+		$host = 'ecs.amazonaws.' . $this->region;
+		$uri = '/onca/xml';
 
 		ksort($this->query);
 		// create the canonicalized query
 		$canonicalized_query = array();
 		foreach ($this->query as $param=>$value) {
-			$param = str_replace("%7E", "~", rawurlencode($param));
-			$value = str_replace("%7E", "~", rawurlencode($value));
+			$param = str_replace('%7E', '~', rawurlencode($param));
+			$value = str_replace('%7E', '~', rawurlencode($value));
 			$canonicalized_query[] = $param."=".$value;
 		}
-		$canonicalized_query = implode("&", $canonicalized_query);
-		$string_to_sign = $method."\n".$host."\n".$uri."\n".$canonicalized_query;
+		$canonicalized_query = implode('&', $canonicalized_query);
+		$string_to_sign = implode("\n", array($method, $host, $uri, $canonicalized_query));
 
 		// calculate HMAC with SHA256 and base64-encoding
 		$signature = base64_encode(hash_hmac("sha256", $string_to_sign, $this->config['secret'], true));
 
 		// encode the signature for the request
-		$signature = str_replace("%7E", "~", rawurlencode($signature));
+		$signature = str_replace('%7E', '~', rawurlencode($signature));
 
 		// create request
-		return "http://" . $host . $uri . "?" . $canonicalized_query . "&Signature="  . $signature;
+		return sprintf('http://%s%s?%s&signature=%s', $host, $uri, $canonicalized_query, $signature);
 	}
 }
