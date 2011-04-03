@@ -95,7 +95,7 @@ class CsvSource extends DataSource {
  *
  * @var array
  */
-	private $__baseConfig = array(
+	protected $_baseConfig = array(
 		'datasource' => 'csv',
 		'path' => '.',
 		'extension' => 'csv',
