@@ -30,7 +30,6 @@ class SoapSource extends DataSource {
  * Description
  *
  * @var string
- * @access public
  */
 	public $description = 'Soap Client DataSource';
 
@@ -38,7 +37,6 @@ class SoapSource extends DataSource {
  * SoapClient instance
  *
  * @var SoapClient
- * @access public
  */
 	public $client = null;
 
@@ -46,7 +44,6 @@ class SoapSource extends DataSource {
  * Connection status
  *
  * @var boolean
- * @access public
  */
 	public $connected = false;
 
@@ -54,7 +51,6 @@ class SoapSource extends DataSource {
  * Default configuration
  *
  * @var array
- * @access protected
  */
 	public $_baseConfig = array(
 		'wsdl' => null,
@@ -68,7 +64,6 @@ class SoapSource extends DataSource {
  * Constructor
  *
  * @param array $config An array defining the configuration settings
- * @access public
  */
 	public function __construct($config) {
 		parent::__construct($config);
@@ -79,7 +74,6 @@ class SoapSource extends DataSource {
  * Setup Configuration options
  *
  * @return array Configuration options
- * @access protected
  */
 	protected function _parseConfig() {
 		if (!class_exists('SoapClient')) {
@@ -107,7 +101,6 @@ class SoapSource extends DataSource {
  *
  * @param array $config An array defining the new configuration settings
  * @return boolean True on success, false on failure
- * @access public
  */ 
 	public function connect() {
 		$options = $this->_parseConfig();
@@ -128,7 +121,6 @@ class SoapSource extends DataSource {
  * Sets the SoapClient instance to null
  *
  * @return boolean True
- * @access public
  */
 	public function close() {
 		$this->client = null;
@@ -140,7 +132,6 @@ class SoapSource extends DataSource {
  * Returns the available SOAP methods
  *
  * @return array List of SOAP methods
- * @access public
  */
 	public function listSources() {
 		return $this->client->__getFunctions();
@@ -150,7 +141,6 @@ class SoapSource extends DataSource {
  * Query the SOAP server with the given method and parameters
  *
  * @return mixed Returns the result on success, false on failure
- * @access public
  */
 	public function query() {
 		$this->error = false;
@@ -186,7 +176,6 @@ class SoapSource extends DataSource {
  * Returns the last SOAP response
  *
  * @return string The last SOAP response
- * @access public
  */
 	public function getResponse() {
 		return $this->client->__getLastResponse();
@@ -196,7 +185,6 @@ class SoapSource extends DataSource {
  * Returns the last SOAP request
  *
  * @return string The last SOAP request
- * @access public
  */
 	public function getRequest() {
 		return $this->client->__getLastRequest();
@@ -207,7 +195,6 @@ class SoapSource extends DataSource {
  *
  * @param string $result A SOAP result
  * @return string The last SOAP response
- * @access public
  */
 	public function showError($result = null) {
 		if (Configure::read() > 0) {
