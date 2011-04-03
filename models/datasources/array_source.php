@@ -45,7 +45,7 @@ class ArraySource extends Datasource {
  *
  * @var array
  */
-	protected $_baseConfig = array(
+	public $_baseConfig = array(
 		'driver' => '' // Just to avoid DebugKit warning
 	);
 
