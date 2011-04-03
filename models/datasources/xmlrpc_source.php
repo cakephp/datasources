@@ -31,33 +31,29 @@ class XmlrpcSource extends Datasource {
  * Description string for this Data Source.
  *
  * @var string
- * @access public
  */
-	var $description = 'XmlRpc Datasource';
+	public $description = 'XmlRpc Datasource';
 
 /**
  * HttpSocket Object
  *
  * @var object HttpSocket
- * @access public
  */
-	var $HttpSocket = null;
+	public $HttpSocket = null;
 
 /**
  * Cache for describe
  *
  * @var mixed Array with methods or false if not supported by server
- * @access protected
  */
-	var $_cacheDescribe = null;
+	protected $_cacheDescribe = null;
 
 /**
  * Configuration base
  *
  * @var array
- * @access protected
  */
-	var $_baseConfig = array(
+	protected $_baseConfig = array(
 		'host' => '127.0.0.1',
 		'port' => 80,
 		'url' => '/RPC2',
@@ -68,9 +64,8 @@ class XmlrpcSource extends Datasource {
  * Default Constructor
  *
  * @param array $config options
- * @access public
  */
-	function __construct($config = array()) {
+	public function __construct($config = array()) {
 		parent::__construct($config);
 	}
 
@@ -78,9 +73,8 @@ class XmlrpcSource extends Datasource {
  * Checks if the source is connected.
  *
  * @return boolean
- * @access public
  */
-	function isConnected() {
+	public function isConnected() {
 		return true;
 	}
 
@@ -91,9 +85,8 @@ class XmlrpcSource extends Datasource {
  * @param array $params List with XML-RPC parameters
  * @param Model $model Reference to model (unused)
  * @return mixed Response of XML-RPC Server. If return false, $this->error contain a error message.
- * @access public
  */
-	function query($method, $params = array(), &$model = null) {
+	public function query($method, $params = array(), &$model = null) {
 		if (!is_string($method)) {
 			return false;
 		}
@@ -105,9 +98,8 @@ class XmlrpcSource extends Datasource {
  *
  * @param Model $model
  * @return mixed Array with methods or false if not supported
- * @access public
  */
-	function describe($model = null) {
+	public function describe($model = null) {
 		if (!is_null($this->_cacheDescribe)) {
 			return $this->_cacheDescribe;
 		}
@@ -121,9 +113,8 @@ class XmlrpcSource extends Datasource {
  * @param string $method Name of method
  * @param array $params List of methods
  * @return mixed Response of XML-RPC Server
- * @access protected
  */
-	function _request($method, $params) {
+	protected function _request($method, $params) {
 		$xmlRequest = $this->generateXML($method, $params);
 		if (!$this->HttpSocket) {
 			$this->HttpSocket =& new HttpSocket(array('timeout' => $this->config['timeout']));
@@ -149,9 +140,8 @@ class XmlrpcSource extends Datasource {
  * @param string $method Name of method
  * @param array $params List of methods
  * @return string XML of request
- * @access protected
  */
-	function generateXML($method, $params = array()) {
+	public function generateXML($method, $params = array()) {
 		$query = array(
 			'methodCall' => array(
 				'methodName' => $method,
@@ -173,9 +163,8 @@ class XmlrpcSource extends Datasource {
  *
  * @param string $response XML from Server
  * @return mixed Response as PHP
- * @access protected
  */
-	function parseResponse($response) {
+	public function parseResponse($response) {
 		$xml = new Xml($response);
 		$data = $xml->toArray(false);
 		unset($xml);
@@ -194,9 +183,8 @@ class XmlrpcSource extends Datasource {
  *
  * @param mixed $param Parameter
  * @return array Parameter to XML Class
- * @access protected
  */
-	function _normalizeParam($param) {
+	protected function _normalizeParam($param) {
 		if (is_array($param)) {
 			if (empty($param) || isset($param[0])) { // Single consideration if is array or struct
 				// Is array
@@ -232,9 +220,8 @@ class XmlrpcSource extends Datasource {
  *
  * @param array $data Response as array of XML Class
  * @return boolean Always false
- * @access private
  */
-	function __parseResponseError(&$data) {
+	private function __parseResponseError(&$data) {
 		foreach ($data['methodResponse']['fault']['value']['struct']['member'] as $member) {
 			if ($member['name'] === 'faultCode') {
 				if (isset($member['value']['int'])) {
@@ -254,9 +241,8 @@ class XmlrpcSource extends Datasource {
  *
  * @param array $value Value
  * @return mixed
- * @access private
  */
-	function __parseResponse($value) {
+	private function __parseResponse($value) {
 		$type = array_keys($value);
 		$type = $type[0];
 		$value = $value[$type];
@@ -301,9 +287,8 @@ class XmlrpcSource extends Datasource {
  * @param integer $number Number of error
  * @param string $text Description of error
  * @return boolean Always false
- * @access protected
  */
-	function _error($number, $text) {
+	protected function _error($number, $text) {
 		$this->errno = $number;
 		$this->error = $text;
 		return false;
