@@ -110,7 +110,7 @@ class CouchdbSource extends DataSource{
  * @return array Databases
  */
 	public function listSources() {
-		return $this->decode($this->Socket->get($this->uri('_all_dbs')), true);
+		return $this->__decode($this->Socket->get($this->uri('_all_dbs')), true);
 	}
 
 /**
@@ -139,7 +139,7 @@ class CouchdbSource extends DataSource{
 /**
  * Creates a new document in the database.
  * If the primaryKey is declared, creates the document with the specified ID.
- * To create a new database: $this->decode($this->Socket->put($this->uri('databaseName')));
+ * To create a new database: $this->__decode($this->Socket->put($this->uri('databaseName')));
  *
  * @param Model $model
  * @param array $fields An array of field names to insert. If null, $model->data will be used to generate the field names.
@@ -157,7 +157,7 @@ class CouchdbSource extends DataSource{
 			$params = $data[$model->primaryKey];
 		}
 
-		$result = $this->decode($this->Socket->post($this->uri($model, $params), $this->encode($data)));
+		$result = $this->__decode($this->Socket->post($this->uri($model, $params), $this->__encode($data)));
 
 		if ($this->__checkOk($result)) {
 			$model->id = $result->id;
@@ -203,7 +203,7 @@ class CouchdbSource extends DataSource{
 		}
 
 		$result = array();
-		$result[0][$model->alias] = $this->decode($this->Socket->get($this->uri($model, $params)), true);
+		$result[0][$model->alias] = $this->__decode($this->Socket->get($this->uri($model, $params)), true);
 		return $this->readResult($model, $queryData, $result);
 	}
 
@@ -266,7 +266,7 @@ class CouchdbSource extends DataSource{
 		}
 		$data['_rev'] = $model->rev;
 		if (!empty($id)) {
-			$result = $this->decode($this->Socket->put($this->uri($model, $id), $this->encode($data)));
+			$result = $this->__decode($this->Socket->put($this->uri($model, $id), $this->__encode($data)));
 			if ($this->__checkOk($result)) {
 				$model->rev = $result->rev;
 				return true;
@@ -288,7 +288,7 @@ class CouchdbSource extends DataSource{
 
 		if (!empty($id) && !empty($rev)) {
 			$id_rev = $id . '/?rev=' . $rev;
-			$result = $this->decode($this->Socket->delete($this->uri($model, $id_rev)));
+			$result = $this->__decode($this->Socket->delete($this->uri($model, $id_rev)));
 			return $this->__checkOk($result);
 		}
 		return false;
@@ -347,7 +347,7 @@ class CouchdbSource extends DataSource{
  * @return string JSON
  * @access private
  */
-	private function encode($data) {
+	private function __encode($data) {
 		return json_encode($data);
 	}
 
@@ -359,7 +359,7 @@ class CouchdbSource extends DataSource{
  * @return mixed Object or Array.
  * @access private
  */
-	private function decode($data, $assoc = false) {
+	private function __decode($data, $assoc = false) {
 		return json_decode($data, $assoc);
 	}
 
