@@ -159,7 +159,7 @@ class CouchdbSource extends DataSource{
 
 		$result = $this->decode($this->Socket->post($this->uri($model, $params), $this->encode($data)));
 
-		if ($this->checkOk($result)) {
+		if ($this->__checkOk($result)) {
 			$model->id = $result->id;
 			$model->rev = $result->rev;
 			return true;
@@ -267,7 +267,7 @@ class CouchdbSource extends DataSource{
 		$data['_rev'] = $model->rev;
 		if (!empty($id)) {
 			$result = $this->decode($this->Socket->put($this->uri($model, $id), $this->encode($data)));
-			if ($this->checkOk($result)) {
+			if ($this->__checkOk($result)) {
 				$model->rev = $result->rev;
 				return true;
 			}
@@ -289,7 +289,7 @@ class CouchdbSource extends DataSource{
 		if (!empty($id) && !empty($rev)) {
 			$id_rev = $id . '/?rev=' . $rev;
 			$result = $this->decode($this->Socket->delete($this->uri($model, $id_rev)));
-			return $this->checkOk($result);
+			return $this->__checkOk($result);
 		}
 		return false;
 	}
@@ -368,9 +368,8 @@ class CouchdbSource extends DataSource{
  *
  * @param object $object
  * @return boolean
- * @access private
  */
-	private function checkOk($object = null) {
+	private function __checkOk($object = null) {
 		return isset($object->ok) && $object->ok === true;
 	}
 }
