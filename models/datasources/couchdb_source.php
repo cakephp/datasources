@@ -1,76 +1,73 @@
 <?php
 /**
- * Couchdb DataSource
+ * CouchDB Datasource
  *
- * Usado para ler, escrever, atualiza e deletar documentos no Couchdb, atravé dos models.
+ * PHP version 5
  *
- * PHP Version 5.x
- * CAKEPHP Version 1.3.x
+ * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
- * Reference:
- * gwoo couchsource datasource (http://bin.cakephp.org/view/925615535#modify)
- * Trabalhando com o couchdb (http://www.botecounix.com.br/blog/?p=1375)
+ * Licensed under The MIT License
+ * Redistributions of files must retain the above copyright notice.
  *
- * Copyright 2010, Maury M. Marques http://github.com/maurymmarques/
- *
- * Disponibilizado sob licença MIT.
- * Redistribuições dos arquivos devem manter a nota de copyright acima.
- *
- * @package couchdb
- * @subpackage couchdb.models.datasources
- * @filesource
- * @copyright Copyright 2010, Maury M. Marques http://github.com/maurymmarques/
- * @license http://www.opensource.org/licenses/mit-license.php A licença MIT
- * @author Maury M. Marques - maurymmarques@google.com
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
+ * @package       datasources
+ * @subpackage    datasources.models.datasources
+ * @since         CakePHP Datasources v 0.3
+ * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 App::import('Core', 'HttpSocket');
+
+/**
+ * CouchDB Datasource
+ *
+ * @package datasources
+ * @subpackage datasources.models.datasources
+ */
 class CouchdbSource extends DataSource{
 
-	/**
-	 * Construtor.
-	 *
-	 * @param array $config Configuração de conexão com o couchdb.
-	 * @param integer $autoConnect Auto conexão.
-	 * @return boolean
-	 * @access public
-	 */
+/**
+ * Constructor
+ *
+ * @param array $config Connection setup for CouchDB.
+ * @param integer $autoConnect Autoconnect
+ * @return boolean
+ */
 	public function __construct($config = null, $autoConnect = true){
-		if(!isset($config['request'])){
+		if (!isset($config['request'])) {
 			$config['request']['uri'] = $config;
 			$config['request']['header']['Content-Type'] = 'application/json';
 		}
 		parent::__construct($config);
 		$this->fullDebug = Configure::read() > 1;
 
-		if($autoConnect){
+		if ($autoConnect) {
 			return $this->connect();
-		}else{
+		} else {
 			return true;
 		}
 	}
 
-	/**
-	 * Reconecta ao servidor de dados com as novas configurações opcionais.
-	 *
-	 * @param array $config Define as novas configurações
-	 * @return boolean true em sucesso, false em falha
-	 * @access public
-	 */
-	public function reconnect($config = null){
+/**
+ * Reconnects to the database with optional new settings
+ *
+ * @param array $config New settings
+ * @return boolean Success
+ */
+	public function reconnect($config = null) {
 		$this->disconnect();
 		$this->setConfig($config);
 		$this->_sources = null;
-
 		return $this->connect();
 	}
 
-	/**
-	 * Conecta ao banco de dados usando as opções do array determinado na configuração.
-	 *
-	 * @return boolean true se o banco estiver conectado, senão false
-	 * @access public
-	 */
-	public function connect(){
+/**
+ * Connects to the database. Options are specified in the $config instance variable
+ *
+ * @return boolean Connected
+ */
+	public function connect() {
 		if($this->connected !== true){
 			$this->Socket = new HttpSocket($this->config);
 			if(strpos($this->Socket->get(), 'couchdb') !== false){
@@ -80,158 +77,147 @@ class CouchdbSource extends DataSource{
 		return $this->connected;
 	}
 
-	/**
-	 * Disconecta da base de dados, mata a conexão e informa que a conexão está fechada,
-	 * e se o DEBUG estiver ligado(igual a 2) exibe o log dos dados armazenados.
-	 *
-	 * @return boolean true se a base de dados estiver desconectada, senão false
-	 * @access public
-	 */
-	public function close(){
-		if(Configure::read() > 1){
-			//$this->showLog();
+/**
+ * Disconnects from the database, kills the connection and advises that the
+ * connection is closed, and if DEBUG is turned on (equal to 2) displays the
+ * log of stored data.
+ *
+ * @return boolean Disconnected
+ */
+	public function close() {
+		if (Configure::read() > 1) {
+			// $this->showLog();
 		}
 		$this->disconnect();
 	}
 
-	/**
-	 * Disconecta da base de dados.
-	 *
-	 * @return boolean true se a base de dados estiver desconectada, senão false
-	 * @access public
-	 */
-	public function disconnect(){
-		if(isset($this->results) && is_resource($this->results)){
+/**
+ * Disconnect from the database
+ *
+ * @return boolean Disconnected
+ */
+	public function disconnect() {
+		if (isset($this->results) && is_resource($this->results)) {
 			$this->results = null;
 		}
 		$this->connected = false;
 		return !$this->connected;
 	}
 
-	/**
-	 * Lista de databases.
-	 *
-	 * @return array
-	 * @access public
-	 */
-	public function listSources(){
-		$databases = $this->decode($this->Socket->get($this->uri('_all_dbs')), true);
-		return $databases;
+/**
+ * List of databases
+ *
+ * @return array Databases
+ */
+	public function listSources() {
+		return $this->__decode($this->Socket->get($this->__uri('_all_dbs')), true);
 	}
 
-	/**
-	 * Conveniência método para DboSource::listSources().
-	 * Retorna os nomes das bases de dados em letras minúsculas.
-	 *
-	 * @return array
-	 * @access public
-	 */
+/**
+ * Convenience method for DboSource::listSources().
+ * Returns the names of databases in lowercase.
+ *
+ * @return array Lowercase databases
+ */
 	public function sources($reset = false){
-		if($reset === true){
+		if ($reset === true) {
 			$this->_sources = null;
 		}
 		return array_map('strtolower', $this->listSources());
 	}
 
-	/**
-	 * Retorna uma descrição do model(metadados).
-	 *
-	 * @param Model $model
-	 * @return array
-	 * @access public
-	 */
-	public function describe($model){
+/**
+ * Returns a description of the model (metadata)
+ *
+ * @param Model $model
+ * @return array
+ */
+	public function describe($model) {
 		return $model->schema;
 	}
 
-	/**
-	 * Cria um novo documento na base de dados.
-	 * Se a primaryKey estiver declarada, cria o documento com o id específicado.
-	 * Para criar uma nova database: $this->decode($this->Socket->put($this->uri('nomeDatabase')));
-	 *
-	 * @param Model $model
-	 * @param array $fields Um array com os nomes dos campos para inserir. Se null, $model->data será utilizado para gerar os nomes dos campos.
-	 * @param array $values Um array com valores chaves dos campos. Se null, $model->data será utilizado para gerar os nomes dos campos.
-	 * @return boolean
-	 * @access public
-	 */
-	public function create($model, $fields = null, $values = null){
+/**
+ * Creates a new document in the database.
+ * If the primaryKey is declared, creates the document with the specified ID.
+ * To create a new database: $this->__decode($this->Socket->put($this->__uri('databaseName')));
+ *
+ * @param Model $model
+ * @param array $fields An array of field names to insert. If null, $model->data will be used to generate the field names.
+ * @param array $values An array with key values of the fields. If null, $model->data will be used to generate the field names.
+ * @return boolean Success
+ */
+	public function create($model, $fields = null, $values = null) {
 		$data = $model->data;
-		if($fields !== null && $values !== null){
+		if ($fields !== null && $values !== null) {
 			$data = array_combine($fields, $values);
 		}
 
 		$params = null;
-		if(isset($data[$model->primaryKey]) && !empty($data[$model->primaryKey])){
+		if (isset($data[$model->primaryKey]) && !empty($data[$model->primaryKey])) {
 			$params = $data[$model->primaryKey];
 		}
 
-		$result = $this->decode($this->Socket->post($this->uri($model, $params), $this->encode($data)));
+		$result = $this->__decode($this->Socket->post($this->__uri($model, $params), $this->__encode($data)));
 
-		if($this->checkOk($result)){
+		if ($this->__checkOk($result)) {
 			$model->id = $result->id;
 			$model->rev = $result->rev;
 			return true;
-		}else{
-			return false;
 		}
+		return false;
 	}
 
-	/**
-	 * Lê os dados de um documento.
-	 *
-	 * @param Model $model
-	 * @param array $queryData um array de informações $queryData contendo as chaves, similar ao Model::find()
-	 * @param integer $recursive Número do nível de associações
-	 * @return mixed boolean false em erro/falha. Um array de resultados em secesso.
-	 * @access public
-	 */
-	public function read($model, $queryData = array(), $recursive = null){
-		if($recursive === null && isset($queryData['recursive'])){
+/**
+ * Reads data from a document.
+ *
+ * @param Model $model
+ * @param array $queryData An array of information containing $queryData keys, similar to Model::find()
+ * @param integer $recursive Level number of associations.
+ * @return mixed False if an error occurred, otherwise an array of results.
+ */
+	public function read($model, $queryData = array(), $recursive = null) {
+		if ($recursive === null && isset($queryData['recursive'])) {
 			$recursive = $queryData['recursive'];
 		}
-
-		if(!is_null($recursive)){
+		if (!is_null($recursive)) {
 			$model->recursive = $recursive;
 		}
 
 		$params = null;
 
-		if(empty($queryData['conditions'])){
+		if (empty($queryData['conditions'])) {
 			$params = $params . '_all_docs?include_docs=true';
-			if(!empty($queryData['limit'])){
+			if (!empty($queryData['limit'])) {
 				$params = $params . '&limit=' . $queryData['limit'];
 			}
-		}else{
-			if(isset($queryData['conditions'][$model->alias . '.' . $model->primaryKey])){
+		} else {
+			if (isset($queryData['conditions'][$model->alias . '.' . $model->primaryKey])) {
 				$params = $queryData['conditions'][$model->alias . '.' . $model->primaryKey];
-			}else{
+			} else {
 				$params = $queryData['conditions'][$model->primaryKey];
 			}
 
-			if($model->recursive > -1){
+			if ($model->recursive > -1) {
 				$params = $params . '?revs_info=true';
 			}
 		}
 
 		$result = array();
-		$result[0][$model->alias] = $this->decode($this->Socket->get($this->uri($model, $params)), true);
-
+		$result[0][$model->alias] = $this->__decode($this->Socket->get($this->__uri($model, $params)), true);
 		return $this->readResult($model, $queryData, $result);
 	}
 
-	/**
-	 * Aplica as regras ao documento lido.
-	 *
-	 * @param Model $model
-	 * @param array $queryData um array de informações $queryData contendo as chaves, similar ao Model::find()
-	 * @param array $result Dados do documento lido
-	 * @return mixed boolean false em erro/falha. Um array de resultados em secesso.
-	 * @access public
-	 */
-	private function readResult($model, $queryData, $result){
-		if(isset($result[0][$model->alias]['_id'])){
-			if(isset($queryData['fields']) && $queryData['fields'] === true){
+/**
+ * Applies the rules to the document read.
+ *
+ * @param Model $model
+ * @param array $queryData An array of information containing $queryData keys, similar to Model::find()
+ * @param array $result Data read from the document.
+ * @return mixed False if an error occurred, otherwise an array of results.
+ */
+	private function readResult($model, $queryData, $result) {
+		if (isset($result[0][$model->alias]['_id'])) {
+			if (isset($queryData['fields']) && $queryData['fields'] === true) {
 				$result[0][0]['count'] = 1;
 			}
 
@@ -242,9 +228,9 @@ class CouchdbSource extends DataSource{
 			unset($result[0][$model->alias]['_rev']);
 
 			return $result;
-		}else if(isset($result[0][$model->alias]['rows'])){
+		} else if (isset($result[0][$model->alias]['rows'])) {
 			$docs = array();
-			foreach($result[0][$model->alias]['rows'] as $k => $doc){
+			foreach ($result[0][$model->alias]['rows'] as $k => $doc) {
 
 				$docs[$k][$model->alias]['id'] = $doc['doc']['_id'];
 				$docs[$k][$model->alias]['rev'] = $doc['doc']['_rev'];
@@ -254,150 +240,136 @@ class CouchdbSource extends DataSource{
 				unset($doc['doc']['id']);
 				unset($doc['doc']['rev']);
 
-				foreach($doc['doc'] as $field => $value){
+				foreach ($doc['doc'] as $field => $value) {
 					$docs[$k][$model->alias][$field] = $value;
 				}
 			}
 			return $docs;
-		}else{
-			return false;
-		}
-	}
-
-	/**
-	 * Gera e executa uma instrução UPDATE para um determinado model, campos e valores.
-	 *
-	 * @param Model $model
-	 * @param array $fields
-	 * @param array $values
-	 * @param mixed $conditions
-	 * @return boolean true em sucesso, false em falha
-	 * @access public
-	 */
-	public function update($model, $fields = null, $values = null, $conditions = null){
-		$id = $model->id;
-		$data = $model->data[$model->alias];
-		if($fields !== null && $values !== null){
-			$data = array_combine($fields, $values);
-		}
-		$data['_rev'] = $model->rev;
-		if(!empty($id)){
-			$result = $this->decode($this->Socket->put($this->uri($model, $id), $this->encode($data)));
-			if($this->checkOk($result)){
-				$model->rev = $result->rev;
-				return true;
-			}else{
-				return false;
-			}
-		}else{
-			return false;
-		}
-	}
-
-	/**
-	 * Gera e executa uma instrução DELETE.
-	 *
-	 * @param Model $model
-	 * @param mixed $conditions
-	 * @return boolean true em sucesso, false em falha
-	 * @access public
-	 */
-	public function delete($model, $conditions = null){
-		$id = $model->id;
-		$rev = $model->rev;
-
-		if(!empty($id) && !empty($rev)){
-			$id_rev = $id . '/?rev=' . $rev;
-			$result = $this->decode($this->Socket->delete($this->uri($model, $id_rev)));
-			return $this->checkOk($result);
 		}
 		return false;
 	}
 
-	/**
-	 * Retorna uma instrução para contagem de dados. (em SQL, i.e. COUNT() ou MAX())
-	 *
-	 * @param model $model
-	 * @param string $func Lowercase name of SQL function, i.e. 'count' or 'max'
-	 * @param array $params Function parameters (any values must be quoted manually)
-	 * @return string An SQL calculation function
-	 * @access public
-	 */
-	public function calculate($model, $func, $params = array()){
+/**
+ * Generates and executes an UPDATE statement for a given model, fields and values.
+ *
+ * @param Model $model
+ * @param array $fields
+ * @param array $values
+ * @param mixed $conditions
+ * @return boolean Success
+ */
+	public function update($model, $fields = null, $values = null, $conditions = null) {
+		$id = $model->id;
+		$data = $model->data[$model->alias];
+		if ($fields !== null && $values !== null) {
+			$data = array_combine($fields, $values);
+		}
+		$data['_rev'] = $model->rev;
+		if (!empty($id)) {
+			$result = $this->__decode($this->Socket->put($this->__uri($model, $id), $this->__encode($data)));
+			if ($this->__checkOk($result)) {
+				$model->rev = $result->rev;
+				return true;
+			}
+		}
+		return false;
+	}
+
+/**
+ * Generates and executes a DELETE statement
+ *
+ * @param Model $model
+ * @param mixed $conditions
+ * @return boolean Success
+ */
+	public function delete($model, $conditions = null) {
+		$id = $model->id;
+		$rev = $model->rev;
+
+		if (!empty($id) && !empty($rev)) {
+			$id_rev = $id . '/?rev=' . $rev;
+			$result = $this->__decode($this->Socket->delete($this->__uri($model, $id_rev)));
+			return $this->__checkOk($result);
+		}
+		return false;
+	}
+
+/**
+ * Returns an instruction to count data. (SQL, i.e. COUNT() or MAX())
+ *
+ * @param model $model
+ * @param string $func Lowercase name of SQL function, i.e. 'count' or 'max'
+ * @param array $params Function parameters (any values must be quoted manually)
+ * @return string An SQL calculation function
+ */
+	public function calculate($model, $func, $params = array()) {
 		return true;
 	}
 
-	/**
-	 * Obtém nome da tabela completa, incluindo o prefixo
-	 *
-	 * @param mixed $model
-	 * @param boolean $quote
-	 * @return string Nome da tabela completo
-	 * @access public
-	 */
-	public function fullTableName($model = null, $quote = true){
+/**
+ * Gets full table name including prefix
+ *
+ * @param mixed $model
+ * @param boolean $quote
+ * @return string Full name of table
+ */
+	public function fullTableName($model = null, $quote = true) {
 		$table = null;
-		if(is_object($model)){
+		if (is_object($model)) {
 			$table = $model->tablePrefix . $model->table;
-		}elseif(isset($this->config['prefix'])){
+		} else if (isset($this->config['prefix'])) {
 			$table = $this->config['prefix'] . strval($model);
-		}else{
+		} else {
 			$table = strval($model);
 		}
 		return $table;
 	}
 
-	/**
-	 * Pega a uri
-	 *
-	 * @param mixed $model
-	 * @param string $params
-	 * @return string uri
-	 * @access private
-	 */
-	private function uri($model = null, $params = null){
-		if(!is_null($params)){
+/**
+ * Get a URI
+ *
+ * @param mixed $model
+ * @param string $params
+ * @return string URI
+ * @access private
+ */
+	private function __uri($model = null, $params = null) {
+		if (!is_null($params)) {
 			$params = '/' . $params;
 		}
 		return '/' . $this->fullTableName($model) . $params;
 	}
 
-	/**
-	 * JSON encode
-	 *
-	 * @param string json $data
-	 * @return string JSON
-	 * @access private
-	 */
-	private function encode($data){
+/**
+ * JSON encode
+ *
+ * @param string json $data
+ * @return string JSON
+ * @access private
+ */
+	private function __encode($data) {
 		return json_encode($data);
 	}
 
-	/**
-	 * JSON decode
-	 *
-	 * @param string json $data
-	 * @param boolean $assoc Se false retorna object, se true retorna array
-	 * @return mixed object ou array
-	 * @access private
-	 */
-	private function decode($data, $assoc = false){
+/**
+ * JSON decode
+ *
+ * @param string json $data
+ * @param boolean $assoc If true, returns array. If false, returns object.
+ * @return mixed Object or Array.
+ * @access private
+ */
+	private function __decode($data, $assoc = false) {
 		return json_decode($data, $assoc);
 	}
 
-	/**
-	 * Verifica se o resultado retornou ok = true
-	 *
-	 * @param object $object
-	 * @return boolean
-	 * @access private
-	 */
-	private function checkOk($object = null){
-		if(isset($object->ok) && $object->ok === true){
-			return true;
-		}else{
-			return false;
-		}
+/**
+ * Checks if the result returned ok = true
+ *
+ * @param object $object
+ * @return boolean
+ */
+	private function __checkOk($object = null) {
+		return isset($object->ok) && $object->ok === true;
 	}
 }
-?>
