@@ -53,7 +53,7 @@ class XmlrpcSource extends Datasource {
  *
  * @var array
  */
-	protected $_baseConfig = array(
+	public $_baseConfig = array(
 		'host' => '127.0.0.1',
 		'port' => 80,
 		'url' => '/RPC2',
