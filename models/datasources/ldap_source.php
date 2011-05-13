@@ -31,74 +31,183 @@
  * @subpackage datasources.models.datasources
  */
 class LdapSource extends DataSource {
+
+/**
+ * Datasource description
+ *
+ * @var string
+ * @access public
+ */
 	var $description = "Ldap Data Source";
+
+/**
+ * Cache Sources
+ *
+ * @var boolean
+ * @access public
+ */
 	var $cacheSources = true;
+
+/**
+ * Schema Results
+ *
+ * @var boolean
+ * @access public
+ */
 	var $SchemaResults = false;
+
+/**
+ * Database
+ *
+ * @var mixed
+ * @access public
+ */
 	var $database = false;
+
+/**
+ * Count
+ *
+ * @var integer
+ * @access public
+ */
 	var $count = 0;
+
+/**
+ * Model
+ *
+ * @var mixed
+ * @access public
+ */
 	var $model;
+
+/**
+ * Operational Attributes
+ *
+ * @var mixed
+ * @access public
+ */
 	var $OperationalAttributes;
+
+/**
+ * Schema DN
+ *
+ * @var string
+ * @access public
+ */
 	var $SchemaDN;
+
+/**
+ * Schema Attributes
+ *
+ * @var string
+ * @access public
+ */
 	var $SchemaAtributes;
+
+/**
+ * Schema Filter
+ *
+ * @var string
+ * @access public
+ */
 	var $SchemaFilter;
 
-	//for formal querys
+/**
+ * Result for formal queries
+ *
+ * @var mixed
+ * @access protected
+ */
 	var $_result = false;
-	
+
+/**
+ * Base configuration
+ *
+ * @var array
+ * @access protected
+ */
 	var $_baseConfig = array (
 		'host' => 'localhost',
 		'port' => 389,
 		'version' => 3
 	);
-	
+
+/**
+ * MultiMaster Use
+ *
+ * @var integer
+ * @access protected
+ */
 	var $_multiMasterUse = 0;
+
+/**
+ * Descriptions
+ *
+ * @var array
+ * @access private
+ */
 	var $__descriptions = array();
-	
-	// Lifecycle --------------------------------------------------------------
-	/**
-	 * Constructor
-	 */
+
+/**
+ * Constructor
+ *
+ * @param array $config Configuration 
+ * @access public
+ */
 	function __construct($config = null) {
-		$this->debug = Configure :: read() > 0;
-		$this->fullDebug = Configure :: read() > 1;
+		$this->debug = Configure::read() > 0;
+		$this->fullDebug = Configure::read() > 1;
 		parent::__construct($config);
 		$link =  $this->connect();
-	//People Have been asking for this forever.
-	if(isset($config['type']) && !empty($config['type']) ){
-		switch($config['type']){
-			case 'Netscape':
-				$this->setNetscapeEnv();
-				break;
-			case 'OpenLDAP':
-				$this->setOpenLDAPEnv();
-				break;
-			case 'ActiveDirectory':
-				$this->setActiveDirectoryEnv();
-				break;
-			default:
-				$this->setNetscapeEnv();
-				break;
+
+		// People Have been asking for this forever.
+		if (isset($config['type']) && !empty($config['type'])) {
+			switch($config['type']){
+				case 'Netscape':
+					$this->setNetscapeEnv();
+					break;
+				case 'OpenLDAP':
+					$this->setOpenLDAPEnv();
+					break;
+				case 'ActiveDirectory':
+					$this->setActiveDirectoryEnv();
+					break;
+				default:
+					$this->setNetscapeEnv();
+					break;
+			}
 		}
-	}
-	$this->setSchemaPath();
-				
+
+		$this->setSchemaPath();
 		return $link;
 	}
-	
-	/**
-	 * Destructor. Closes connection to the database.
-	 *
-	 */
+
+/**
+ * Destructor
+ *
+ * Closes connection to the server
+ *
+ * @return void
+ * @access public
+ */
 	function __destruct() {
 		$this->close();
-		parent :: __destruct();
+		parent::__destruct();
 	}
-	
-	// I know this looks funny, and for other data sources this is necessary but for LDAP, we just return the name of the field we're passed as an argument
-	function name( $field ) {
+
+/**
+ * Field name
+ *
+ * This looks weird, but for LDAP we just return the name of the field thats passed as an argument.
+ *
+ * @param string $field Field name
+ * @return string Field name
+ * @author Graham Weldon
+ */
+	function name($field) {
 		return $field;
 	}
-	
+
 	// Connection --------------------------------------------------------------
 	function connect($bindDN = null, $passwd = null) {
 		$config = $this->config;
@@ -177,7 +286,7 @@ class LdapSource extends DataSource {
 	 *
 	 */
 	function close() {
-		if ($this->fullDebug && Configure :: read() > 1) {
+		if ($this->fullDebug && Configure::read() > 1) {
 			$this->showLog();
 		}
 		$this->disconnect();
@@ -362,7 +471,7 @@ class LdapSource extends DataSource {
 					if ($model->useDbConfig == $linkModel->useDbConfig) {
 						$db = & $this;
 					} else {
-						$db = & ConnectionManager :: getDataSource($linkModel->useDbConfig);
+						$db = & ConnectionManager::getDataSource($linkModel->useDbConfig);
 					}
 	
 					if (isset ($db) && $db != null) {
@@ -547,7 +656,7 @@ class LdapSource extends DataSource {
 	function queryAssociation(& $model, & $linkModel, $type, $association, $assocData, & $queryData, $external = false, & $resultSet, $recursive, $stack) {
 					
 		if (!isset ($resultSet) || !is_array($resultSet)) {
-			if (Configure :: read() > 0) {
+			if (Configure::read() > 0) {
 				e('<div style = "font: Verdana bold 12px; color: #FF0000">SQL Error in model ' . $model->name . ': ');
 				if (isset ($this->error) && $this->error != null) {
 					e($this->error);
@@ -577,7 +686,7 @@ class LdapSource extends DataSource {
 									if ($linkModel->useDbConfig == $deepModel->useDbConfig) {
 										$db = & $this;
 									} else {
-										$db = & ConnectionManager :: getDataSource($deepModel->useDbConfig);
+										$db = & ConnectionManager::getDataSource($deepModel->useDbConfig);
 									}
 									$queryData = array();
 									$db->queryAssociation($linkModel, $deepModel, $type1, $assoc1, $assocData1, $queryData, true, $fetch, $recursive -1, $tmpStack);
@@ -1146,7 +1255,7 @@ class LdapSource extends DataSource {
 	function __mergeAssociation(& $data, $merge, $association, $type) {
 				
 		if (isset ($merge[0]) && !isset ($merge[0][$association])) {
-			$association = Inflector :: pluralize($association);
+			$association = Inflector::pluralize($association);
 		}
 
 		if ($type == 'belongsTo' || $type == 'hasOne') {
