@@ -143,7 +143,7 @@ class ArraySource extends Datasource {
 		// Filter fields
 		if (!empty($queryData['fields'])) {
 			$listOfFields = array();
-			foreach ($queryData['fields'] as $field) {
+			foreach ((array)$queryData['fields'] as $field) {
 				if (strpos($field, '.') !== false) {
 					list($alias, $field) = explode('.', $field, 2);
 					if ($alias !== $model->alias) {
@@ -196,10 +196,10 @@ class ArraySource extends Datasource {
 /**
  * Conditions Filter
  *
- * @param Model $model 
- * @param string $record 
- * @param array $conditions 
- * @param boolean $or 
+ * @param Model $model
+ * @param string $record
+ * @param array $conditions
+ * @param boolean $or
  * @return void
  */
 	public function conditionsFilter(&$model, $record, $conditions, $or = false) {
