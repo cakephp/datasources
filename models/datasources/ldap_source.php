@@ -182,103 +182,116 @@ class LdapSource extends DataSource {
 		return $link;
 	}
 
-/**
- * Destructor
- *
- * Closes connection to the server
- *
- * @return void
- * @access public
- */
+    /**
+    * Destructor
+    *
+    * Closes connection to the server
+    *
+    * @return void
+    * @access public
+    */
 	function __destruct() {
 		$this->close();
 		parent::__destruct();
 	}
 
-/**
- * Field name
- *
- * This looks weird, but for LDAP we just return the name of the field thats passed as an argument.
- *
- * @param string $field Field name
- * @return string Field name
- * @author Graham Weldon
- */
+    /**
+    * Field name
+    *
+    * This looks weird, but for LDAP we just return the name of the field thats passed as an argument.
+    *
+    * @param string $field Field name
+    * @return string Field name
+    * @author Graham Weldon
+    */
 	function name($field) {
 		return $field;
 	}
 
-	// Connection --------------------------------------------------------------
+	/**
+    * connect([$bindDN], [$passwd])  create the actual connection to the ldap server
+    * This function supports failover, so if your config['host'] is an array it will try the first one, if it fails,
+    * jumps to the next and attempts to connect and so on.  If will also check try to setup any special connection options
+    * needed like referal chasing and tls support
+    *
+    * @param string the users dn to bind with
+    * @param string the password for the previously state bindDN
+    * @return boolean the status of the connection
+    */
 	function connect($bindDN = null, $passwd = null) {
-		$config = $this->config;
+		$config = am($this->_baseConfig, $this->config);
 		$this->connected = false;
 		$hasFailover = false;
-	if(isset($config['host']) && is_array($config['host']) ){
-		$config['host'] = $config['host'][$this->_multiMasterUse];
-		if(count($this->config['host']) > (1 + $this->_multiMasterUse) ) {
-			$hasFailOver = true;
-		}
-	}
-	$bindDN	 =  (empty($bindDN)) ? $config['login'] : $bindDN;
-	$bindPasswd =  (empty($passwd)) ? $config['password'] : $passwd;
-	$this->database = @ldap_connect($config['host']);
-	if(!$this->database){
-		//Try Next Server Listed
-		if($hasFailover){
-		$this->log('Trying Next LDAP Server in list:'.$this->config['host'][$this->_multiMasterUse],'ldap.error');
-		$this->_multiMasterUse++;
-		$this->connect($bindDN, $passwd);
-		if($this->connected){
-			return $this->connected;
-		}
-		}
-	}
+        if(isset($config['host']) && is_array($config['host']) ){
+            $config['host'] = $config['host'][$this->_multiMasterUse];
+            if(count($this->config['host']) > (1 + $this->_multiMasterUse) ) {
+                $hasFailOver = true;
+            }
+        }
+        $bindDN	 =  (empty($bindDN)) ? $config['login'] : $bindDN;
+        $bindPasswd =  (empty($passwd)) ? $config['password'] : $passwd;
+        $this->database = @ldap_connect($config['host']);
+        if(!$this->database){
+            //Try Next Server Listed
+            if($hasFailover){
+                $this->log('Trying Next LDAP Server in list:'.$this->config['host'][$this->_multiMasterUse],'ldap.error');
+                $this->_multiMasterUse++;
+                $this->connect($bindDN, $passwd);
+                if($this->connected){
+                    return $this->connected;
+                }
+            }
+        }
 
-	//Set our protocol version usually version 3
-	ldap_set_option($this->database, LDAP_OPT_PROTOCOL_VERSION, $config['version']);		
-	// From Filipee, to allow the user to specify in the db config to use TLS
-	// 'tls'=> true in config/database.php
-	if ($config['tls']) {
-		if (!ldap_start_tls($this->database)) {
-			$this->log("Ldap_start_tls failed", 'ldap.error');
-			fatal_error("Ldap_start_tls failed");
-		}
-	}
-	//So little known fact, if your php-ldap lib is built against openldap like pretty much every linux
-	//distro out their like redhat, suse etc. The connect doesn't acutally happen when you call ldap_connect
-	//it happens when you call ldap_bind.  So if you are using failover then you have to test here also.
-	$bind_result = @ldap_bind($this->database, $bindDN, $bindPasswd);
+        //Set our protocol version usually version 3
+        ldap_set_option($this->database, LDAP_OPT_PROTOCOL_VERSION, $config['version']);		
+
+        if ($config['tls']) {
+            if (!ldap_start_tls($this->database)) {
+                $this->log("Ldap_start_tls failed", 'ldap.error');
+                fatal_error("Ldap_start_tls failed");
+            }
+        }
+        //So little known fact, if your php-ldap lib is built against openldap like pretty much every linux
+        //distro out their like redhat, suse etc. The connect doesn't acutally happen when you call ldap_connect
+        //it happens when you call ldap_bind.  So if you are using failover then you have to test here also.
+        $bind_result = @ldap_bind($this->database, $bindDN, $bindPasswd);
 		if (!$bind_result){
-		if(ldap_errno($this->database) == 49){
-			$this->log("Auth failed for '$bindDN'!",'ldap.error');
-		}else{
-			$this->log('Trying Next LDAP Server in list:'.$this->config['host'][$this->_multiMasterUse],'ldap.error');
-			$this->_multiMasterUse++;
-			$this->connect($bindDN, $passwd);
-			if($this->connected){
-				return $this->connected;
-			}
-		}
+            if(ldap_errno($this->database) == 49){
+                $this->log("Auth failed for '$bindDN'!",'ldap.error');
+            }else{
+                $this->log('Trying Next LDAP Server in list:'.$this->config['host'][$this->_multiMasterUse],'ldap.error');
+                $this->_multiMasterUse++;
+                $this->connect($bindDN, $passwd);
+                if($this->connected){
+                    return $this->connected;
+                }
+            }
 
-	}else{
-		 $this->connected = true;
-	}
+        }else{
+            $this->connected = true;
+        }
 		return $this->connected;
 	}
 
 	/**
+     * auth($dn, $passwd)
 	 * Test if the dn/passwd combo is valid
+     * This may actually belong in the component code, will look into that
+     *
+     * @param string bindDN to connect as
+     * @param string password for the bindDN
+     * @param boolean or string on error
 	 */
 	function auth( $dn, $passwd ){
-	$this->connect($dn, $passwd);
-		if ($this->connected){
-		return true;
-	}else{
-		$this->log("Auth Error: for '$dn': ".$this->lastError(),'ldap.error');
-		return $this->lastError();
+        $this->connect($dn, $passwd);
+        if ($this->connected){
+            return true;
+        }else{
+            $this->log("Auth Error: for '$dn': ".$this->lastError(),'ldap.error');
+            return $this->lastError();
+        }
 	}
-	}
-
 	
 	/**
 	 * Disconnects database, kills the connection and says the connection is closed,
@@ -292,10 +305,15 @@ class LdapSource extends DataSource {
 		$this->disconnect();
 	}
 	
+    /**
+    * disconnect  close connection and release any remaining results in the buffer
+    *
+    */
 	function disconnect() {
 		@ldap_free_result($this->results);
-		$this->connected = !@ldap_unbind($this->database);
-		return !$this->connected;
+        @ldap_unbind($this->database);
+		$this->connected = false;
+		return $this->connected;
 	}
 	
 	/**
@@ -321,7 +339,7 @@ class LdapSource extends DataSource {
 		return $this->connect();
 	}
 
-	// CRUD --------------------------------------------------------------
+	//Crud Functions follow
 	/**
 	 * The "C" in CRUD
 	 *
@@ -616,7 +634,7 @@ class LdapSource extends DataSource {
 		return( @ldap_delete( $this->database, $_dn ) );
 	}
 		
-	// Public --------------------------------------------------------------	
+	//Here are the functions that try to do model associations
 	function generateAssociationQuery(& $model, & $linkModel, $type, $association = null, $assocData = array (), & $queryData, $external = false, & $resultSet) {
 		$this->__scrubQueryData($queryData);
 		
@@ -1407,6 +1425,19 @@ class LdapSource extends DataSource {
 		return(explode(' ', $fields));
 	}
 
+    /**
+    * debugLDAPConnection debugs the current connection to check the settings
+    *
+    */
+    function debugLDAPConnection(){
+        $opts = array('LDAP_OPT_DEREF', 'LDAP_OPT_SIZELIMIT', 'LDAP_OPT_TIMELIMIT','LDAP_OPT_NETWORK_TIMEOUT','LDAP_OPT_PROTOCOL_VERSION','LDAP_OPT_ERROR_NUMBER','LDAP_OPT_REFERRALS','LDAP_OPT_RESTART','LDAP_OPT_HOST_NAME','LDAP_OPT_ERROR_STRING','LDAP_OPT_MATCHED_DN','LDAP_OPT_SERVER_CONTROLS','LDAP_OPT_CLIENT_CONTROLS');
+        foreach($opts as $opt){
+            $ve = '';
+            ldap_get_option($this->database,constant($opt), $ve);
+            $this->log("Option={$opt}, Value=".print_r($ve,1),'debug');
+        }
+    }
+
 	/**
 	* If you want to pull everything from a netscape stype ldap server 
 	* iPlanet, Redhat-DS, Project-389 etc you need to ask for specific 
@@ -1420,13 +1451,15 @@ class LdapSource extends DataSource {
 	}
 
 	function setActiveDirectoryEnv(){
-				$this->OperationalAttributes = ' + ';
+        //Need to disable referals for AD
+        ldap_set_option($this->database, LDAP_OPT_REFERRALS, 0);
+        $this->OperationalAttributes = ' + ';
 		$this->SchemaFilter = '(objectClass=subschema)';
-		$this->SchemaAttributes = 'objectClasses attributeTypes ldapSyntaxes matchingRules matchingRuleUse createTimestamp modifyTimestamp';
+		$this->SchemaAttributes = 'objectClasses attributeTypes ldapSyntaxes matchingRules matchingRuleUse createTimestamp modifyTimestamp subschemaSubentry';
 	}
 
 	function setOpenLDAPEnv(){
-				$this->OperationalAttributes = ' + ';
+        $this->OperationalAttributes = ' + ';
 	}
 
 	function setSchemaPath(){
