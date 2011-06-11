@@ -503,7 +503,6 @@ class CouchdbTestCase extends CakeTestCase {
 		$this->assertEqual(0, count($result));
 	}
 
-
 /**
  * Remove all documents from database
  *
