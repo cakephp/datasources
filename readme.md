@@ -1,15 +1,36 @@
-## CakePHP datasources plugin
+## CakePHP datasources plugin - 2.0 dev branch
 
 This plugin contains various datasources contributed by the core CakePHP team and the community.
-The datasources plugin is compatible with CakePHP 1.3+.
+The datasources plugin for CakePHP 2.0 is still in development. Refer to the following lists which Datasources are already fixed for the 2.0 branch.
+
+### Already compatible Datasources:
+
+* AmazonAssociatesSource
+* ArraySource
+* CsvSource
+* XmlrpcSource
+
+### Still Incompatible Datasources:
+
+* CouchdbSource
+* LdapSource
+* SoapSource
+* Database/Adodb
+* Database/Db2
+* Database/Firebird
+* Database/MysqlLog
+* Database/Odbc
+* Database/Sqlite3
+* Database/Sqlsrv
+* Database/Sybase
 
 ### Using the datasources plugin
 
-First download the repository and place it in `app/plugins/datasources` or on one of your plugin paths. You can then import and use the datasources in your App classes.
+First download the repository and place it in `app/Plugin/Datasources` or on one of your plugin paths. You can then import and use the datasources in your App classes.
 
 ### Model validation
 
-Datasource plugin datasources can be used either through App::import of by defining them in your database configuration
+Datasource plugin datasources can be used either through App::uses of by defining them in your database configuration
 
 	class DATABASE_CONFIG {
 		var $mySource = array(
@@ -21,13 +42,13 @@ Datasource plugin datasources can be used either through App::import of by defin
 
 or
 
-	App::import('Datasource', 'Datasources.XmlrpcSource');
+	App::uses('XmlrpcSource', 'Datasources.Model/Datasource');
 
 or, if using one of the pdo extended datasources,
 
 	class DATABASE_CONFIG {
 		var $mySource = array(
-			'driver' => 'Datasources.DboSqlite3',
+			'driver' => 'Datasources.Database/Firebird',
 			...
 			);
 		}
