@@ -33,7 +33,9 @@
  * Import XML, required library
  *
  */
-App::import('Xml');
+App::uses('Xml', 'Utility');
+App::uses('DataSource', 'Model/Datasource');
+App::uses('HttpSocket', 'Network/Http');
 
 /**
  * Amazon Associates Datasource
@@ -107,11 +109,11 @@ class AmazonAssociatesSource extends DataSource {
  * @return mixed array of the resulting request or false if unable to contact server
  */
 	public function find($type = null, $query = array()) {
-		if ($type) {
-			$query['SearchIndex'] = $type;
-		}
 		if (!is_array($query)) {
 			$query = array('Title' => $query);
+		}
+		if ($type) {
+			$query['SearchIndex'] = $type;
 		}
 		foreach ($query as $key => $val) {
 			if (preg_match('/^[a-z]/', $key)) {
@@ -211,6 +213,6 @@ class AmazonAssociatesSource extends DataSource {
 		$signature = str_replace('%7E', '~', rawurlencode($signature));
 
 		// create request
-		return sprintf('http://%s%s?%s&signature=%s', $host, $uri, $canonicalized_query, $signature);
+		return sprintf('http://%s%s?%s&Signature=%s', $host, $uri, $canonicalized_query, $signature);
 	}
 }

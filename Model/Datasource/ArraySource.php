@@ -17,14 +17,14 @@
  * @since         CakePHP Datasources v 0.3
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-App::import('Core', 'Set');
-
+App::uses('Set', 'Utility');
+App::uses('ConnectionManager', 'Model');
 /**
  * ArraySource
  *
  * Datasource by Array
  */
-class ArraySource extends Datasource {
+class ArraySource extends DataSource {
 
 /**
  * Description string for this Data Source.
@@ -87,7 +87,7 @@ class ArraySource extends Datasource {
 			);
 			return array($model->alias => array());
 		}
-		$startTime = getMicrotime();
+		$startTime = microtime(true);
 		$data = array();
 		$i = 0;
 		$limit = false;
@@ -113,7 +113,7 @@ class ArraySource extends Datasource {
 			}
 		}
 		if ($queryData['fields'] === 'COUNT') {
-			$this->_registerLog($model, $queryData, getMicrotime() - $startTime, 1);
+			$this->_registerLog($model, $queryData, microtime(true) - $startTime, 1);
 			if ($limit !== false) {
 				$data = array_slice($data, ($queryData['page'] - 1) * $queryData['limit'], $queryData['limit'], false);
 			}
@@ -160,7 +160,7 @@ class ArraySource extends Datasource {
 				}
 			}
 		}
-		$this->_registerLog($model, $queryData, getMicrotime() - $startTime, count($data));
+		$this->_registerLog($model, $queryData, microtime(true) - $startTime, count($data));
 		$_associations = $model->__associations;
 		if ($queryData['recursive'] > -1) {
 			foreach ($_associations as $type) {

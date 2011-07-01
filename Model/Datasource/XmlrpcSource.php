@@ -18,14 +18,16 @@
  * @since         CakePHP Datasources v 0.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-App::import('Core', array('HttpSocket', 'Xml'));
+App::uses('DataSource', 'Model/Datasource');
+App::uses('Xml', 'Utility');
+App::uses('HttpSocket', 'Network/Http');
 
 /**
  * XmlrpcSource
  *
  * Datasource for XML-RPC
  */
-class XmlrpcSource extends Datasource {
+class XmlrpcSource extends DataSource {
 
 /**
  * Description string for this Data Source.
@@ -124,13 +126,18 @@ class XmlrpcSource extends Datasource {
 			'port' => $this->config['port'],
 			'path' => $this->config['url']
 		);
-		$response = $this->HttpSocket->post($uri, $xmlRequest, array('header' => array('Content-Type' => 'text/xml')));
+		try {
+			$response = $this->HttpSocket->post($uri, $xmlRequest, array('header' => array('Content-Type' => 'text/xml')));			
+		} catch (Exception $e) {
+			return $this->_error(-32300, $e->getMessage());
+		}
 		if (!$this->HttpSocket->response['status']['code']) {
 			return $this->_error(-32300, __('Transport error - could not open socket', true));
 		}
 		if ($this->HttpSocket->response['status']['code'] != 200) {
 			return $this->_error(-32300, __('Transport error - HTTP status code was not 200', true));
 		}
+
 		return $this->parseResponse($response);
 	}
 
@@ -154,8 +161,8 @@ class XmlrpcSource extends Datasource {
 				$query['methodCall']['params']['param'][] = $this->_normalizeParam($param);
 			}
 		}
-		$xml = new Xml($query, array('format' => 'tags', 'tags' => array('methodCall' => array('name' => 'methodCall'))));
-		return $xml->toString(array('cdata' => false, 'header' => true));
+		$Xml = Xml::fromArray($query, array('format' => 'tags'));
+		return $Xml->asXml();
 	}
 
 /**
@@ -165,9 +172,9 @@ class XmlrpcSource extends Datasource {
  * @return mixed Response as PHP
  */
 	public function parseResponse($response) {
-		$xml = new Xml($response);
-		$data = $xml->toArray(false);
-		unset($xml);
+		$Xml = Xml::build(strval($response));
+		$data = Xml::toArray($Xml);
+		unset($Xml);
 		if (isset($data['methodResponse']['fault'])) {
 			return $this->__parseResponseError($data);
 		}
