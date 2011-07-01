@@ -22,7 +22,7 @@
  * Import required classes
  *
  */
-App::uses('CsvSource', 'Datasource.Model/Datasource');
+App::uses('CsvSource', 'Datasources.Model/Datasource');
 
 /**
  * Test Model for users.csv
@@ -108,8 +108,8 @@ class CsvSourceTestCase extends CakeTestCase {
  */
 	function startTest() {
 		$this->config = array(
-			'datasource' => 'Datasource.CsvSource',
-			'path' => App::pluginPath('Datasource') . 'Test' . DS . 'File',
+			'datasource' => 'Datasources.CsvSource',
+			'path' => App::pluginPath('Datasources') . 'Test' . DS . 'File',
 			'extension' => 'csv',
 			'readonly' => true,
 			'recursive' => false

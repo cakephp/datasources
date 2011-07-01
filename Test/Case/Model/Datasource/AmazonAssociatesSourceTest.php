@@ -22,13 +22,7 @@
  * Import Required libraries
  *
  */
-App::uses('AmazonAssociatesSource', 'Datasource.Model/Datasource');
-
-/**
- * Generate Mock for AmazonAssociatesSource requests
- *
- */
-class MockAmazonAssociatesSource extends AmazonAssociatesSource {}
+App::uses('AmazonAssociatesSource', 'Datasources.Model/Datasource');
 
 /**
  * AmazonAssociatesTestCase

@@ -18,7 +18,7 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-App::uses('XmlrpcSource', 'Datasource.Model/Datasource');
+App::uses('XmlrpcSource', 'Datasources.Model/Datasource');
 
 /**
  * XML RPC Testing Model
