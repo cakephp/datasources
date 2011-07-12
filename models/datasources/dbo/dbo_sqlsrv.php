@@ -68,6 +68,7 @@ class DboSqlsrv extends DboSource {
 		'port' => '1433',
 		'mars' => false,
 		'charset' => SQLSRV_ENC_CHAR,
+                'ReturnDatesAsStrings' => true,
 	);
 
 /**
