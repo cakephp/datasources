@@ -136,7 +136,8 @@ class DboSqlsrv extends DboSource {
 		$params = array(
 			'Database' => $this->config['database'],
 			'CharacterSet' => $this->config['charset'],
-			'MultipleActiveResultSets' => $this->config['mars']);
+			'MultipleActiveResultSets' => $this->config['mars']
+                        'ReturnDatesAsStrings' => $this->config['ReturnDatesAsStrings']);
 
 		// Windows vs SQL authentication
 		if (!empty($this->config['login']) && !empty($this->config['password'])) {
