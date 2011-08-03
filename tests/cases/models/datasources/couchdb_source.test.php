@@ -93,8 +93,8 @@ class CouchdbTestCase extends CakeTestCase {
 		'persistent' => false,
 		'host' => 'localhost',
 		'port' => '5984',
-		'user' => '',
-		'pass' => '',
+		'login' => '',
+		'password' => '',
 		'database' => null
 	);
 
