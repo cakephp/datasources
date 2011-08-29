@@ -248,7 +248,7 @@ class ArraySource extends Datasource {
 						break;
 					case 'LIKE':
 						$value = preg_replace(array('#(^|[^\\\\])_#', '#(^|[^\\\\])%#'), array('$1.', '$1.*'), $value);
-						$return = (isset($record[$field]) && preg_match('#^' . $value . '$#', $record[$field]));
+						$return = (isset($record[$field]) && preg_match('#^' . $value . '$#i', $record[$field]));
 						break;
 					case 'IN':
 						$items = array();
