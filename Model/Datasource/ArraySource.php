@@ -157,7 +157,7 @@ class ArraySource extends DataSource {
 		// Filter fields
 		if (!empty($queryData['fields'])) {
 			$listOfFields = array();
-			foreach ($queryData['fields'] as $field) {
+			foreach ((array)$queryData['fields'] as $field) {
 				if (strpos($field, '.') !== false) {
 					list($alias, $field) = explode('.', $field, 2);
 					if ($alias !== $model->alias) {
@@ -210,10 +210,10 @@ class ArraySource extends DataSource {
 /**
  * Conditions Filter
  *
- * @param Model $model 
- * @param string $record 
- * @param array $conditions 
- * @param boolean $or 
+ * @param Model $model
+ * @param string $record
+ * @param array $conditions
+ * @param boolean $or
  * @return void
  */
 	public function conditionsFilter(&$model, $record, $conditions, $or = false) {
@@ -262,7 +262,7 @@ class ArraySource extends DataSource {
 						break;
 					case 'LIKE':
 						$value = preg_replace(array('#(^|[^\\\\])_#', '#(^|[^\\\\])%#'), array('$1.', '$1.*'), $value);
-						$return = (isset($record[$field]) && preg_match('#^' . $value . '$#', $record[$field]));
+						$return = (isset($record[$field]) && preg_match('#^' . $value . '$#i', $record[$field]));
 						break;
 					case 'IN':
 						$items = array();

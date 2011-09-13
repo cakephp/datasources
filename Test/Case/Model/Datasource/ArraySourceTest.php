@@ -226,6 +226,26 @@ class ArraySourceTest extends CakeTestCase {
 	}
 
 /**
+ * testField
+ *
+ * @return void
+ * @access public
+ */
+	function testField() {
+		$expected = 2;
+		$result = $this->Model->field('id', array('name' => 'Brazil'));
+		$this->assertEqual($result, $expected);
+
+		$expected = 'Germany';
+		$result = $this->Model->field('name', array('relate_id' => 2));
+		$this->assertEqual($result, $expected);
+
+		$expected = 'USA';
+		$result = $this->Model->field('name', array('relate_id' => 1));
+		$this->assertEqual($result, $expected);
+	}
+
+/**
  * testFindLimit
  *
  * @return void
@@ -308,6 +328,13 @@ class ArraySourceTest extends CakeTestCase {
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name LIKE _r%')));
+		$this->assertEqual($result, $expected);
+		
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name LIKE %b%')));
+		$this->assertEqual($result, $expected);
+		
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name LIKE %a%')));
+		$expected = array(array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)), array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)), array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)));
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name' => array('USA', 'Germany'))));
