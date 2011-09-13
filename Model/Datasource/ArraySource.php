@@ -50,6 +50,20 @@ class ArraySource extends DataSource {
 	);
 
 /**
+ * Start quote
+ *
+ * @var string
+ */
+	public $startQuote = null;
+
+/**
+ * End quote
+ *
+ * @var string
+ */
+	public $endQuote = null;
+
+/**
  * Returns a Model description (metadata) or null if none found.
  *
  * @param Model $model
