@@ -17,14 +17,14 @@
  * @since         CakePHP Datasources v 0.3
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-App::import('Core', 'Set');
-
+App::uses('Set', 'Utility');
+App::uses('ConnectionManager', 'Model');
 /**
  * ArraySource
  *
  * Datasource by Array
  */
-class ArraySource extends Datasource {
+class ArraySource extends DataSource {
 
 /**
  * Description string for this Data Source.

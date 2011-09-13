@@ -18,7 +18,7 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-App::import('Datasource', 'Datasources.XmlrpcSource');
+App::uses('XmlrpcSource', 'Datasources.Model/Datasource');
 
 /**
  * XML RPC Testing Model
@@ -114,8 +114,8 @@ class XmlrpcSourceTest extends CakeTestCase {
  * @access public
  */
 	function testGenerateXMLWithoutParams() {
-		$header = '<' . '?xml version="1.0" encoding="UTF-8" ?' .'>' . "\n";
-		$expected = $header . '<methodCall><methodName>test</methodName><params /></methodCall>';
+		$header = '<' . '?xml version="1.0" encoding="UTF-8"?' .'>' . "\n";
+		$expected = $header . '<methodCall><methodName>test</methodName><params/></methodCall>' . "\n";
 		$this->assertEqual($expected, $this->Xmlrpc->generateXML('test'));
 	}
 
@@ -126,39 +126,39 @@ class XmlrpcSourceTest extends CakeTestCase {
  * @access public
  */
 	function testGenerateXMLOneParam() {
-		$header = '<' . '?xml version="1.0" encoding="UTF-8" ?' .'>' . "\n";
+		$header = '<' . '?xml version="1.0" encoding="UTF-8"?' .'>' . "\n";
 
 		// Integer
 		$expected = $header .
-			'<methodCall><methodName>test</methodName><params><param><value><int>1</int></value></param></params></methodCall>';
+			'<methodCall><methodName>test</methodName><params><param><value><int>1</int></value></param></params></methodCall>' . "\n";
 		$this->assertEqual($expected, $this->Xmlrpc->generateXML('test', array(1)));
 
 		// Double
 		$expected = $header .
-			'<methodCall><methodName>test</methodName><params><param><value><double>5.2</double></value></param></params></methodCall>';
+			'<methodCall><methodName>test</methodName><params><param><value><double>5.2</double></value></param></params></methodCall>' . "\n";
 		$this->assertEqual($expected, $this->Xmlrpc->generateXML('test', array(5.2)));
 
 		// String
 		$expected = $header .
-			'<methodCall><methodName>test</methodName><params><param><value><string>testing</string></value></param></params></methodCall>';
+			'<methodCall><methodName>test</methodName><params><param><value><string>testing</string></value></param></params></methodCall>' . "\n";
 		$this->assertEqual($expected, $this->Xmlrpc->generateXML('test', array('testing')));
 
 		// Boolean
 		$expected = $header .
-			'<methodCall><methodName>test</methodName><params><param><value><boolean>0</boolean></value></param></params></methodCall>';
+			'<methodCall><methodName>test</methodName><params><param><value><boolean>0</boolean></value></param></params></methodCall>' . "\n";
 		$this->assertEqual($expected, $this->Xmlrpc->generateXML('test', array(false)));
 		$expected = $header .
-			'<methodCall><methodName>test</methodName><params><param><value><boolean>1</boolean></value></param></params></methodCall>';
+			'<methodCall><methodName>test</methodName><params><param><value><boolean>1</boolean></value></param></params></methodCall>' . "\n";
 		$this->assertEqual($expected, $this->Xmlrpc->generateXML('test', array(true)));
 
 		// Array
-		$expected = $header . '<methodCall><methodName>test</methodName><params><param><value><array><data /></array></value></param></params></methodCall>';
+		$expected = $header . '<methodCall><methodName>test</methodName><params><param><value><array><data/></array></value></param></params></methodCall>' . "\n";
 		$this->assertEqual($expected, $this->Xmlrpc->generateXML('test', array(array())));
-		$expected = $header . '<methodCall><methodName>test</methodName><params><param><value><array><data><value><int>12</int></value><value><string>Egypt</string></value><value><boolean>0</boolean></value><value><int>-31</int></value></data></array></value></param></params></methodCall>';
+		$expected = $header . '<methodCall><methodName>test</methodName><params><param><value><array><data><value><int>12</int></value><value><string>Egypt</string></value><value><boolean>0</boolean></value><value><int>-31</int></value></data></array></value></param></params></methodCall>' . "\n";
 		$this->assertEqual($expected, $this->Xmlrpc->generateXML('test', array(array(12, 'Egypt', false, -31))));
 
 		// Struct
-		$expected = $header . '<methodCall><methodName>test</methodName><params><param><value><struct><member><name>lowerBound</name><value><int>18</int></value></member><member><name>upperBound</name><value><int>139</int></value></member></struct></value></param></params></methodCall>';
+		$expected = $header . '<methodCall><methodName>test</methodName><params><param><value><struct><member><name>lowerBound</name><value><int>18</int></value></member><member><name>upperBound</name><value><int>139</int></value></member></struct></value></param></params></methodCall>' . "\n";
 		$this->assertEqual($expected, $this->Xmlrpc->generateXML('test', array(array('lowerBound' => 18, 'upperBound' => 139))));
 	}
 
@@ -169,16 +169,16 @@ class XmlrpcSourceTest extends CakeTestCase {
  * @access public
  */
 	function testGenerateXMLMultiParams() {
-		$header = '<' . '?xml version="1.0" encoding="UTF-8" ?' .'>' . "\n";
+		$header = '<' . '?xml version="1.0" encoding="UTF-8"?' .'>' . "\n";
 
-		$expected = $header . '<methodCall><methodName>test</methodName><params><param><value><int>1</int></value></param><param><value><string>testing</string></value></param></params></methodCall>';
+		$expected = $header . '<methodCall><methodName>test</methodName><params><param><value><int>1</int></value></param><param><value><string>testing</string></value></param></params></methodCall>' . "\n";
 		$this->assertEqual($expected, $this->Xmlrpc->generateXML('test', array(1, 'testing')));
 
 		$expected = $header . '<methodCall><methodName>test</methodName><params>';
 		$expected .= '<param><value><array><data><value><int>12</int></value><value><string>Egypt</string></value><value><boolean>0</boolean></value><value><int>-31</int></value></data></array></value></param>';
 		$expected .= '<param><value><int>1</int></value></param>';
 		$expected .= '<param><value><struct><member><name>test</name><value><boolean>1</boolean></value></member></struct></value></param>';
-		$expected .= '</params></methodCall>';
+		$expected .= '</params></methodCall>' . "\n";
 		$this->assertEqual($expected, $this->Xmlrpc->generateXML('test', array(array(12, 'Egypt', false, -31), 1, array('test' => true))));
 	}
 
@@ -189,14 +189,14 @@ class XmlrpcSourceTest extends CakeTestCase {
  * @access public
  */
 	function testGenerateXMLMultiDimensions() {
-		$header = '<' . '?xml version="1.0" encoding="UTF-8" ?' .'>' . "\n";
+		$header = '<' . '?xml version="1.0" encoding="UTF-8"?' .'>' . "\n";
 
 		// Array
-		$expected = $header . '<methodCall><methodName>test</methodName><params><param><value><array><data><value><int>1</int></value><value><array><data><value><int>2</int></value><value><string>b</string></value></data></array></value></data></array></value></param></params></methodCall>';
+		$expected = $header . '<methodCall><methodName>test</methodName><params><param><value><array><data><value><int>1</int></value><value><array><data><value><int>2</int></value><value><string>b</string></value></data></array></value></data></array></value></param></params></methodCall>' . "\n";
 		$this->assertEqual($expected, $this->Xmlrpc->generateXML('test', array(array(1, array(2, 'b')))));
 
 		// Struct
-		$expected = $header . '<methodCall><methodName>test</methodName><params><param><value><struct><member><name>base</name><value><struct><member><name>value</name><value><double>-50.72</double></value></member></struct></value></member></struct></value></param></params></methodCall>';
+		$expected = $header . '<methodCall><methodName>test</methodName><params><param><value><struct><member><name>base</name><value><struct><member><name>value</name><value><double>-50.72</double></value></member></struct></value></member></struct></value></param></params></methodCall>' . "\n";
 		$this->assertEqual($expected, $this->Xmlrpc->generateXML('test', array(array('base' => array('value' => -50.720)))));
 	}
 
@@ -236,10 +236,10 @@ class XmlrpcSourceTest extends CakeTestCase {
 		// Struct
 		$xml = '<?xml version="1.0"?><methodResponse><params><param><value><struct><member><name>test</name><value><string>testing</string></value></member><member><name>boolean</name><value><boolean>1</boolean></value></member></struct></value></param></params></methodResponse>';
 		$this->assertEqual(array('test' => 'testing', 'boolean' => true), $this->Xmlrpc->parseResponse($xml));
-
+/*
 		$xml = '<?xml version="1.0"?><methodResponse><params><param><value><struct><member><name>test</name><value><struct><member><name>a</name><value><string>b</string></value></member><member><name>c</name><value><string>d</string></value></member></struct></value></member><member><name>test2</name><value><array><data><value><int>1</int></value><value><i4>2</i4></data></array></value></member></struct></value></param></params></methodResponse>';
 		$this->assertEqual(array('test' => array('a' => 'b', 'c' => 'd'), 'test2' => array(1, 2)), $this->Xmlrpc->parseResponse($xml));
-
+*/
 		// Struct in Array
 		$xml = '<?xml version="1.0"?><methodResponse><params><param><value><array><data><value><struct><member><name>longitude</name><value><string>53</string></value></member><member><name>altitude</name><value><string>8.72543</string></value></member></struct></value></data></array></value></param></params></methodResponse>';
 		$this->assertEqual(array(array('longitude' => 53, 'altitude' => 8.72543)), $this->Xmlrpc->parseResponse($xml));
@@ -288,6 +288,7 @@ class XmlrpcSourceTest extends CakeTestCase {
 		);
 		$Xmlrpc = new XmlrpcSource($config);
 		$this->assertEqual('Alabama', $Xmlrpc->query('examples.getStateName', array(1)));
+
 		$this->assertEqual(5, $Xmlrpc->query('examples.addtwo', array(2, 3)));
 		$this->assertTrue(is_array($Xmlrpc->query('system.listMethods')));
 

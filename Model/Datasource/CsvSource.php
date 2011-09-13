@@ -28,9 +28,9 @@
  *     'recursive' => false // Only false is supported at the moment
  *   );
  */
-
+App::uses('DataSource', 'Model/Datasource');
 if (!class_exists('Folder')) {
-	App::import('Core', 'Folder');
+	App::uses('Folder', 'Utility');
 }
 
 /**
@@ -215,7 +215,7 @@ class CsvSource extends DataSource {
  */
 	public function close() {
 		if ($this->connected) {
-			if ($this->handle) {
+			if (!empty($this->handle)) {
 				foreach($this->handle as $h) {
 				  @fclose($h);
 				}
@@ -234,6 +234,7 @@ class CsvSource extends DataSource {
  * @return mixed
  */
 	public function read(&$model, $queryData = array(), $recursive = null) {
+		$this->describe($model);
 		$config = $this->config;
 		$filename = $config['path'] . DS . $model->table . '.' . $config['extension'];
 		if (!Set::extract($this->handle, $model->table)) {
@@ -241,6 +242,7 @@ class CsvSource extends DataSource {
 		} else {
 			fseek($this->handle[$model->table], 0, SEEK_SET) ;
 		}
+
 		$queryData = $this->__scrubQueryData($queryData);
 
 		if (isset($queryData['limit']) && !empty($queryData['limit'])) {
@@ -286,7 +288,8 @@ class CsvSource extends DataSource {
 
 				$record = array();
 				$i = 0;
-				foreach($this->fields as $field) {
+
+				foreach((array) $this->fields as $field) {
 					$record[$model->alias][$field] = $data[$i++];
 				}
 
@@ -361,8 +364,17 @@ class CsvSource extends DataSource {
 				$cond = $value;
 				$result = false;
 				foreach ($cond as $name => $value) {
-					if (Set::matches($this->__createRule($name, $value), $record[$alias])) {
-						return true;
+					list($condAlias, $name) = pluginSplit($name);
+					if (is_array($value)) {
+						foreach ($value as $val) {
+							if (Set::matches($this->__createRule($name, $val), $record[$alias])) {
+								$result = true;
+							}
+						}
+					} else {
+						if (Set::matches($this->__createRule($name, $value), $record[$alias])) {
+							$result = true;
+						}
 					}
 				}
 			} else {

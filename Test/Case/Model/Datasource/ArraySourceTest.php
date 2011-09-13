@@ -18,7 +18,8 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-App::import('Datasource', 'Datasources.ArraySource');
+App::uses('ArraySource', 'Datasources.Model/Datasource');
+App::uses('ConnectionManager', 'Model');
 
 // Add new db config
 ConnectionManager::create('test_array', array('datasource' => 'Datasources.ArraySource'));
