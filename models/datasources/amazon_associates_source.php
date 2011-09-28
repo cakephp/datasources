@@ -190,7 +190,7 @@ class AmazonAssociatesSource extends DataSource {
  */
 	private function __signQuery() {
 		$method = 'GET';
-		$host = 'ecs.amazonaws.' . $this->region;
+		$host = 'ecs.amazonaws.' . (empty($this->config['locale']) ? $this->region : $this->config['locale']);
 		$uri = '/onca/xml';
 
 		ksort($this->query);
@@ -211,6 +211,6 @@ class AmazonAssociatesSource extends DataSource {
 		$signature = str_replace('%7E', '~', rawurlencode($signature));
 
 		// create request
-		return sprintf('http://%s%s?%s&signature=%s', $host, $uri, $canonicalized_query, $signature);
+		return sprintf('http://%s%s?%s&Signature=%s', $host, $uri, $canonicalized_query, $signature);
 	}
 }
