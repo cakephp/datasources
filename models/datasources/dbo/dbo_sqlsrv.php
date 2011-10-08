@@ -77,7 +77,7 @@ class DboSqlsrv extends DboSource {
  */
 	var $columns = array(
 		'primary_key' => array('name' => 'IDENTITY (1, 1) NOT NULL'),
-		'string'	=> array('name' => 'nvarchar', 'limit' => '6000'), // ICC this limit doesn't seem to matter, I set it to 6000 anyway which is equivalent to nvarchar(3000)
+		'string'      => array('name' => 'nvarchar', 'limit' => '6000'), // ICC this limit doesn't seem to matter, I set it to 6000 anyway which is equivalent to nvarchar(3000)
 		'text'        => array('name' => 'text'),
 		'integer'     => array('name' => 'int', 'formatter' => 'intval'),
 		'float'       => array('name' => 'numeric', 'formatter' => 'floatval'),
