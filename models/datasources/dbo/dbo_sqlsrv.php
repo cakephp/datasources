@@ -683,15 +683,20 @@ class DboSqlsrv extends DboSource {
 		if ($row = sqlsrv_fetch_array($this->results, SQLSRV_FETCH_NUMERIC)) {
 			$resultRow = array();
 			$i = 0;
+			
 			foreach ($row as $index => $field) {
-				$a = $this->map[$index];
-				list($table, $column) = $a;
+				list($table, $column) = $this->map[$index];
+				if (is_a($row[$index], 'DateTime')) {
+					$dateTimeObj = $row[$index];
+					$row[$index] = $dateTimeObj->format('Y-m-d H:i:s');
+				}
 				$resultRow[$table][$column] = $row[$index];
 				$i++;
 			}
 			return $resultRow;
+		} else {
+			return false;
 		}
-		return false;
 	}
 
 /**
