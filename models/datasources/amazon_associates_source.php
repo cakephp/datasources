@@ -126,7 +126,7 @@ class AmazonAssociatesSource extends DataSource {
 				'Service'        => 'AWSECommerceService',
 				'AWSAccessKeyId' => $this->config['key'],
 				'Timestamp'      => gmdate("Y-m-d\TH:i:s\Z"),
-				'AccociateTag'   => $this->config['tag'],
+				'AssociateTag'   => $this->config['tag'],
 				'Operation'      => 'ItemSearch',
 				'Version'        => '2009-03-31',
 			),
