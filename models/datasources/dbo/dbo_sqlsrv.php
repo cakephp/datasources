@@ -77,7 +77,7 @@ class DboSqlsrv extends DboSource {
  */
 	var $columns = array(
 		'primary_key' => array('name' => 'IDENTITY (1, 1) NOT NULL'),
-		'string'      => array('name' => 'varchar', 'limit' => '255'),
+		'string'      => array('name' => 'nvarchar', 'limit' => '6000'), // ICC this limit doesn't seem to matter, I set it to 6000 anyway which is equivalent to nvarchar(3000)
 		'text'        => array('name' => 'text'),
 		'integer'     => array('name' => 'int', 'formatter' => 'intval'),
 		'float'       => array('name' => 'numeric', 'formatter' => 'floatval'),
@@ -296,6 +296,9 @@ class DboSqlsrv extends DboSource {
 
 		if (in_array($column, array('integer', 'float', 'binary')) && is_numeric($data)) {
 			return $data;
+		} else if ($column == 'string') { 
+			// ICC we are assuming all string data is unicode now
+			return "N'" . $data . "'";
 		}
 		return "'" . $data . "'";
 	}
@@ -680,15 +683,20 @@ class DboSqlsrv extends DboSource {
 		if ($row = sqlsrv_fetch_array($this->results, SQLSRV_FETCH_NUMERIC)) {
 			$resultRow = array();
 			$i = 0;
+			
 			foreach ($row as $index => $field) {
-				$a = $this->map[$index];
-				list($table, $column) = $a;
+				list($table, $column) = $this->map[$index];
+				if (is_a($row[$index], 'DateTime')) {
+					$dateTimeObj = $row[$index];
+					$row[$index] = $dateTimeObj->format('Y-m-d H:i:s');
+				}
 				$resultRow[$table][$column] = $row[$index];
 				$i++;
 			}
 			return $resultRow;
+		} else {
+			return false;
 		}
-		return false;
 	}
 
 /**

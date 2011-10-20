@@ -3,6 +3,8 @@
 This plugin contains various datasources contributed by the core CakePHP team and the community.
 The datasources plugin is compatible with CakePHP 1.3+.
 
+ICC - for this plugin I have modifed the sqlsrv driver to allow UTF-8 characters and make it more compatible with CakePHP v1.2.
+
 ### Using the datasources plugin
 
 First download the repository and place it in `app/plugins/datasources` or on one of your plugin paths. You can then import and use the datasources in your App classes.
