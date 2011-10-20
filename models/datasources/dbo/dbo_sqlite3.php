@@ -73,7 +73,7 @@ class DboSqlite3 extends DboSource {
  * @access public
  */
 	var $columns = array(
-		'primary_key' => array('name' => 'integer primary key autoincrement'),
+		'primary_key' => array('name' => 'primary key'),
 		'string' => array('name' => 'varchar', 'limit' => '255'),
 		'text' => array('name' => 'text'),
 		'integer' => array('name' => 'integer', 'limit' => null, 'formatter' => 'intval'),
@@ -239,7 +239,7 @@ class DboSqlite3 extends DboSource {
 			return $cache;
 		}
 		
-		$result = $this->fetchAll("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;", false);
+		$result = $this->fetchAll("SELECT name FROM sqlite_master WHERE type='table' AND name <> 'sqlite_sequence' ORDER BY name;", false);
 
 		if (!$result || empty($result)) {
 			return array();
@@ -280,12 +280,13 @@ class DboSqlite3 extends DboSource {
 				'length'	=> $this->length($column[0]['type'])
 			);
 			if($column[0]['pk'] == 1) {
+                $colLength = $this->length($column[0]['type']);
 				$fields[$column[0]['name']] = array(
 					'type'		=> $fields[$column[0]['name']]['type'],
 					'null'		=> false,
 					'default'	=> $column[0]['dflt_value'],
 					'key'		=> $this->index['PRI'],
-					'length'	=> 11
+					'length'	=> ($colLength != null) ? $colLength : 11
 				);
 			}
 		}
@@ -489,7 +490,7 @@ class DboSqlite3 extends DboSource {
 		if (in_array($col, array('text', 'integer', 'float', 'boolean', 'timestamp', 'date', 'datetime', 'time'))) {
 			return $col;
 		}
-		if (strpos($col, 'varchar') !== false) {
+		if (strpos($col, 'char') !== false) {
 			return 'string';
 		}
 		if (in_array($col, array('blob', 'clob'))) {
@@ -625,7 +626,7 @@ class DboSqlite3 extends DboSource {
 
 		$real = $this->columns[$type];
 		$out = $this->name($name) . ' ' . $real['name'];
-		if (isset($column['key']) && $column['key'] == 'primary' && $type == 'integer') {
+		if (isset($column['key']) && $column['key'] == 'primary') {
 			return $this->name($name) . ' ' . $this->columns['primary_key']['name'];
 		}
 		return parent::buildColumn($column);
