@@ -97,6 +97,7 @@ class AmazonAssociatesSource extends DataSource {
 		parent::__construct($config);
 		App::import('HttpSocket');
 		$this->Http = new HttpSocket();
+		$this->region = empty($this->config['locale']) ? $this->region : $this->config['locale'];
 	}
 
 /**
@@ -125,7 +126,7 @@ class AmazonAssociatesSource extends DataSource {
 				'Service'        => 'AWSECommerceService',
 				'AWSAccessKeyId' => $this->config['key'],
 				'Timestamp'      => gmdate("Y-m-d\TH:i:s\Z"),
-				'AccociateTag'   => $this->config['tag'],
+				'AssociateTag'   => $this->config['tag'],
 				'Operation'      => 'ItemSearch',
 				'Version'        => '2009-03-31',
 			),
@@ -211,6 +212,6 @@ class AmazonAssociatesSource extends DataSource {
 		$signature = str_replace('%7E', '~', rawurlencode($signature));
 
 		// create request
-		return sprintf('http://%s%s?%s&signature=%s', $host, $uri, $canonicalized_query, $signature);
+		return sprintf('http://%s%s?%s&Signature=%s', $host, $uri, $canonicalized_query, $signature);
 	}
 }
