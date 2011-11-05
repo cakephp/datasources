@@ -73,7 +73,7 @@ class DboSqlite3 extends DboSource {
  * @access public
  */
 	var $columns = array(
-		'primary_key' => array('name' => 'primary key'),
+		'primary_key' => array('name' => 'integer primary key autoincrement'),
 		'string' => array('name' => 'varchar', 'limit' => '255'),
 		'text' => array('name' => 'text'),
 		'integer' => array('name' => 'integer', 'limit' => null, 'formatter' => 'intval'),
