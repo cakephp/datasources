@@ -532,6 +532,32 @@ class CouchdbTestCase extends CakeTestCase {
 	}
 
 /**
+ * Test delete without revision
+ *
+ * @return void
+ */
+	public function testDeleteWithoutRevision() {
+		$data = array(
+			'title' => 'My first post',
+			'description' => 'My first post'
+		);
+
+		$this->Post->create();
+		$saveResult = $this->Post->save($data);
+
+		$result = $this->Post->find('all');
+		$this->assertEqual(1, count($result));
+
+		unset($result['Post']['rev']);
+		unset($this->Post->rev);
+
+		$this->Post->delete();
+
+		$result = $this->Post->find('all');
+		$this->assertEqual(0, count($result));
+	}
+
+/**
  * Tests query method.
  *
  * @return void

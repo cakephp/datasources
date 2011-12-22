@@ -351,7 +351,8 @@ class CouchdbSource extends DataSource {
 		$id = $model->id;
 		$rev = $model->rev;
 
-		if (!empty($id) && !empty($rev)) {
+		if (!empty($id)) {
+			if (empty($rev)) $rev = $this->__lastRevision($model, $id);
 			$id_rev = $id . '/?rev=' . $rev;
 			$result = $this->__decode($this->Socket->delete($this->__uri($model, $id_rev)));
 			return $this->__checkOk($result);
