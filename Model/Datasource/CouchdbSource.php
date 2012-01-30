@@ -26,7 +26,7 @@ App::uses('DataSource', 'Model/Datasource');
  * @package datasources
  * @subpackage datasources.models.datasources
  */
-class CouchdbSource extends DataSource {
+class CouchDBSource extends DataSource {
 
 /**
  * Start quote

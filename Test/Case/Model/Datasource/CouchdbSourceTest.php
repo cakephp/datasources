@@ -1,6 +1,6 @@
 <?php
 /**
- * Couchdb DataSource Test file
+ * CouchDB DataSource Test file
  * PHP version 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
@@ -71,19 +71,19 @@ class Post extends AppModel {
 }
 
 /**
- * CouchdbTestCase
+ * CouchDBTestCase
  *
  * @package       datasources
  * @subpackage    datasources.tests.cases.models.datasources
  */
-class CouchdbTestCase extends CakeTestCase {
+class CouchDBTestCase extends CakeTestCase {
 
 /**
  * CouchDB Datasource object
  *
  * @var object
  */
-	public $Couchdb = null;
+	public $CouchDB = null;
 
 /**
  * Configuration
@@ -91,7 +91,7 @@ class CouchdbTestCase extends CakeTestCase {
  * @var array
  */
 	protected $config = array(
-		'datasource' 	=> 'CouchdbSource',
+		'datasource' 	=> 'CouchDBSource',
 		'persistent' 	=> false,
 		'host'		 	=> 'localhost',
 		'port' 	  	 	=> '5984',
@@ -125,13 +125,13 @@ class CouchdbTestCase extends CakeTestCase {
  * @return void
  */
 	public function testConnection() {
-		$this->Couchdb = new CouchdbSource($this->config);
-		$this->Couchdb =& ConnectionManager::getDataSource($this->Post->useDbConfig);
+		$this->CouchDB = new CouchDBSource($this->config);
+		$this->CouchDB =& ConnectionManager::getDataSource($this->Post->useDbConfig);
 
-		$reconnect = $this->Couchdb->reconnect($this->config);
+		$reconnect = $this->CouchDB->reconnect($this->config);
 		$this->assertIdentical($reconnect, true, __('Not reconnected'));
 
-		$disconnect = $this->Couchdb->disconnect();
+		$disconnect = $this->CouchDB->disconnect();
 		$this->assertIdentical($disconnect, true, __('Not disconnect'));
 	}
 
@@ -612,7 +612,7 @@ class CouchdbTestCase extends CakeTestCase {
 	public function endTest() {
 		$this->removeAllDocuments();
 		unset($this->Post);
-		unset($this->Couchdb);
+		unset($this->CouchDB);
 		ClassRegistry::flush();
 	}
 }
