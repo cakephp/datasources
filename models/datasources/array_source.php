@@ -56,8 +56,8 @@ class ArraySource extends Datasource {
  * @return string SQL field
  */
 	public function name($name) {
-		if (is_object($data) && isset($data->type)) {
-			return $data->value;
+		if (is_object($name) && isset($name->type)) {
+			return $name->value;
 		}
 		return $name;
 	}
