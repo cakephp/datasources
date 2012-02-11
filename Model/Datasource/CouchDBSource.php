@@ -373,6 +373,20 @@ class CouchDBSource extends DataSource {
 	}
 
 /**
+ * Returns an object to represent a database expression in a query.  Expression objects
+ * are not sanitized or escaped.
+ *
+ * @param string $expression An arbitrary expression to be inserted into a query.
+ * @return stdClass An object representing a database expression to be used in a query
+ */
+	public function expression($expression) {
+		$obj = new stdClass();
+		$obj->type = 'expression';
+		$obj->value = $expression;
+		return $obj;
+	}
+
+/**
  * Gets full table name including prefix.
  *
  * @param mixed $model
