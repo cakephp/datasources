@@ -261,7 +261,13 @@ class DboSqlite3 extends DboSource {
 			return $cache;
 		}
 		
-		$result = $this->fetchAll("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;", false);
+               /**
+               * Bug fix in which SQL views are ignored
+               * To reproduce: create a new SQL view in the usual way. Then try to use it with your model.
+               * Result: Cakephp complains that there is no table for the selected model.
+               * System tested on: OSX 10.6, php 5.3.4, cake 1.3.12.
+               */
+		$result = $this->fetchAll("SELECT name FROM sqlite_master WHERE type='table' OR type='view' ORDER BY name;", false);
 
 		if (!$result || empty($result)) {
 			return array();
