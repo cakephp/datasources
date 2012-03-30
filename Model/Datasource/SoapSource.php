@@ -93,6 +93,12 @@ class SoapSource extends DataSource {
 			$options['password'] = $this->config['password'];
 			$options['authentication'] = $this->config['authentication'];
 		}
+		if(!empty($this->config['proxy_host'])) {
+			$options['proxy_host'] = $this->config['proxy_host'];
+		}
+		if(!empty($this->config['proxy_port'])) {
+			$options['proxy_port'] = $this->config['proxy_port'];
+		}
 		return $options;
 	}
 
