@@ -166,16 +166,34 @@ class SoapSource extends DataSource {
 		$args = func_get_args();
 		$method = null;
 		$queryData = null;
+		$options = null;
+		$headerData = null;
 
 		if (count($args) == 2) {
 			$method = $args[0];
 			$queryData = $args[1];
+		} elseif(count($args) == 4 && !empty($args[2]) && !empty($this->config['headers'])) {
+			$method = $args[0];
+			$queryData = $args[1];
+			$options = $args[2];
+			$headerData = $args[3];
+		} else if (count($args) == 3 && !empty($args[2])) {
+			$method = $args[0];
+			$queryData = $args[1];
+			$options = $args[2];					
 		} elseif (count($args) > 2 && !empty($args[1])) {
 			$method = $args[0];
 			$queryData = $args[1][0];
 		} else {
 			return false;
 		}
+		
+
+		if (!empty($headerData)) {
+			$header = new SoapHeader($this->config['headers']['ns'], $this->config['headers']['container'], $headerData);
+			$this->client->__setSoapHeaders($header);
+		}
+		
 		
 		try {
 			$result = $this->client->__soapCall($method, $queryData);
