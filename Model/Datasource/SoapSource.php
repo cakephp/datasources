@@ -56,6 +56,8 @@ class SoapSource extends DataSource {
 		'wsdl' => null,
 		'location' => '',
 		'uri' => '',
+		'style' => '',
+		'use' => '',
 		'login' => '',
 		'password' => '',
 		'authentication' => 'SOAP_AUTHENTICATION_BASIC');
@@ -99,6 +101,13 @@ class SoapSource extends DataSource {
 		if(!empty($this->config['proxy_port'])) {
 			$options['proxy_port'] = $this->config['proxy_port'];
 		}
+		if(!empty($this->config['style'])) {
+			$options['style'] = $this->config['style'];
+		}
+		if(!empty($this->config['use'])) {
+			$options['use'] = $this->config['use'];
+		}
+		
 		return $options;
 	}
 
