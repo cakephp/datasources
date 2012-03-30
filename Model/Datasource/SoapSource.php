@@ -58,6 +58,7 @@ class SoapSource extends DataSource {
 		'uri' => '',
 		'style' => '',
 		'use' => '',
+		'soapaction_separator' => '',
 		'login' => '',
 		'password' => '',
 		'authentication' => 'SOAP_AUTHENTICATION_BASIC');
@@ -188,6 +189,13 @@ class SoapSource extends DataSource {
 			return false;
 		}
 		
+		if (!empty($this->config['soapaction_separator']) && 
+			$this->config['soapaction_separator'] != '#') {
+			if (!is_array($options)) {
+				$options = array();
+			}
+			$options['soapaction'] = $this->config['uri'].$this->config['soapaction_separator'].$method;
+		}
 
 		if (!empty($headerData)) {
 			$header = new SoapHeader($this->config['headers']['ns'], $this->config['headers']['container'], $headerData);
@@ -196,7 +204,7 @@ class SoapSource extends DataSource {
 		
 		
 		try {
-			$result = $this->client->__soapCall($method, $queryData);
+			$result = $this->client->__soapCall($method, $queryData, $options);
 		} catch (SoapFault $fault) {
 			$this->error = $fault->faultstring;
 			$this->showError();
