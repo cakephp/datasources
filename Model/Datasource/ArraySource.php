@@ -296,6 +296,15 @@ class ArraySource extends DataSource {
 	}
 
 /**
+ * Implemented to make the datasource work with Model::find('count').
+ *
+ * @return boolean Always false;
+ */
+	public function expression() {
+		return false;
+	}
+
+/**
  * Queries associations. Used to fetch results on recursive models.
  *
  * @param Model $model Primary Model object
