@@ -96,16 +96,16 @@ class SoapSource extends DataSource {
 			$options['password'] = $this->config['password'];
 			$options['authentication'] = $this->config['authentication'];
 		}
-		if(!empty($this->config['proxy_host'])) {
+		if (!empty($this->config['proxy_host'])) {
 			$options['proxy_host'] = $this->config['proxy_host'];
 		}
-		if(!empty($this->config['proxy_port'])) {
+		if (!empty($this->config['proxy_port'])) {
 			$options['proxy_port'] = $this->config['proxy_port'];
 		}
-		if(!empty($this->config['style'])) {
+		if (!empty($this->config['style'])) {
 			$options['style'] = $this->config['style'];
 		}
-		if(!empty($this->config['use'])) {
+		if (!empty($this->config['use'])) {
 			$options['use'] = $this->config['use'];
 		}
 		
@@ -173,12 +173,12 @@ class SoapSource extends DataSource {
 		if (count($args) == 2) {
 			$method = $args[0];
 			$queryData = $args[1];
-		} elseif(count($args) == 4 && !empty($args[2]) && !empty($this->config['headers'])) {
+		} elseif (count($args) == 4 && !empty($args[2]) && !empty($this->config['headers'])) {
 			$method = $args[0];
 			$queryData = $args[1];
 			$options = $args[2];
 			$headerData = $args[3];
-		} else if (count($args) == 3 && !empty($args[2])) {
+		} elseif (count($args) == 3 && !empty($args[2])) {
 			$method = $args[0];
 			$queryData = $args[1];
 			$options = $args[2];					
@@ -238,7 +238,7 @@ class SoapSource extends DataSource {
  * @return string The last SOAP response
  */
 	public function showError($result = null) {
-		if (Configure::read() > 0) {
+		if (Configure::read('debug') > 0) {
 			if ($this->error) {
 				trigger_error('<span style = "color:Red;text-align:left"><b>SOAP Error:</b> ' . $this->error . '</span>', E_USER_WARNING);
 			}
