@@ -17,7 +17,7 @@
  * @since         CakePHP Datasources v 0.3
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
+App::uses('DataSource', 'Model/Datasource');
 /**
  * SoapSource
  *
@@ -25,7 +25,7 @@
  * @subpackage datasources.models.datasources
  */
 class SoapSource extends DataSource {
-    
+
 /**
  * Description
  *
@@ -52,32 +52,62 @@ class SoapSource extends DataSource {
  *
  * @var array
  */
-	public $_baseConfig = array(
+	protected $_baseConfig = array(
 		'wsdl' => null,
 		'location' => '',
 		'uri' => '',
+		'style' => '',
+		'use' => '',
+		'soapaction_separator' => '',
 		'login' => '',
 		'password' => '',
-		'authentication' => 'SOAP_AUTHENTICATION_BASIC');
+		'authentication' => 'SOAP_AUTHENTICATION_BASIC',
+	    'soap_client_class' => 'SoapClient');
+
+/**
+ * Auto connect when Soap Client Class is changed
+ * 
+ * @var boolean
+ */
+	public $autoConnect = true;
 
 /**
  * Constructor
  *
  * @param array $config An array defining the configuration settings
  */
-	public function __construct($config) {
+	public function __construct($config, $autoConnect = true) {
 		parent::__construct($config);
-		$this->connect();
-	}
 
+		$this->autoConnect = $autoConnect;
+		if ($this->autoConnect) {
+			$this->connect();
+		}
+	}
+/**
+ * Set the name of the SoapClient to use.
+ * 
+ * Used if extending the SoapClient
+ * 
+ * @param string $soapClientClass
+ */
+	public function setSoapClientClass($soapClientClass) {
+		if ($this->connected) {
+			$this->close();
+		}
+		$this->config['soap_client_class'] = $soapClientClass;
+		if ($this->autoConnect) {
+			$this->connect();
+		}
+	}
 /**
  * Setup Configuration options
  *
  * @return array Configuration options
  */
 	protected function _parseConfig() {
-		if (!class_exists('SoapClient')) {
-			$this->error = 'Class SoapClient not found, please enable Soap extensions';
+		if (!class_exists($this->config['soap_client_class'])) {
+			$this->error = 'Class ' . $this->config['soap_client_class'] . ' not found, please enable Soap extensions';
 			$this->showError();
 			return false;
 		}
@@ -85,14 +115,27 @@ class SoapSource extends DataSource {
 		if (!empty($this->config['location'])) {
 			$options['location'] = $this->config['location'];
 		}
-        if (!empty($this->config['uri'])) {
-			$options['uri'] = $this->config['uri'];
+		if (!empty($this->config['uri'])) {
+            $options['uri'] = $this->config['uri'];
 		}
-		if (!empty($this->config['login'])){
+		if (!empty($this->config['login'])) {
 			$options['login'] = $this->config['login'];
 			$options['password'] = $this->config['password'];
 			$options['authentication'] = $this->config['authentication'];
 		}
+		if (!empty($this->config['proxy_host'])) {
+			$options['proxy_host'] = $this->config['proxy_host'];
+		}
+		if (!empty($this->config['proxy_port'])) {
+			$options['proxy_port'] = $this->config['proxy_port'];
+		}
+		if (!empty($this->config['style'])) {
+			$options['style'] = $this->config['style'];
+		}
+		if (!empty($this->config['use'])) {
+			$options['use'] = $this->config['use'];
+		}
+
 		return $options;
 	}
 
@@ -101,11 +144,11 @@ class SoapSource extends DataSource {
  *
  * @param array $config An array defining the new configuration settings
  * @return boolean True on success, false on failure
- */ 
+ */
 	public function connect() {
 		$options = $this->_parseConfig();
 		try {
-			$this->client = new SoapClient($this->config['wsdl'], $options);
+			$this->client = new $this->config['soap_client_class']($this->config['wsdl'], $options);
 		} catch(SoapFault $fault) {
 			$this->error = $fault->faultstring;
 			$this->showError();
@@ -136,10 +179,13 @@ class SoapSource extends DataSource {
 	public function listSources() {
 		return $this->client->__getFunctions();
 	}
-	
+
 /**
  * Query the SOAP server with the given method and parameters
  *
+ * @param string method
+ * @param Array params
+ * @param Model object
  * @return mixed Returns the result on success, false on failure
  */
 	public function query() {
@@ -150,20 +196,49 @@ class SoapSource extends DataSource {
 
 		$args = func_get_args();
 		$method = null;
-		$queryData = null;
+		$queryData = array();
+		$options = null;
+		$headerData = null;
 
-		if (count($args) == 2) {
+		if (count($args) == 1) {
+			$method = $args[0];
+		} elseif (count($args) == 2) {
+			// usually only happens on a direct call to query()
 			$method = $args[0];
 			$queryData = $args[1];
-		} elseif (count($args) > 2 && !empty($args[1])) {
+		} elseif (count($args) == 3) {
+			// happens with in indirect call i..e $model->method(arguments, options, headers)
 			$method = $args[0];
-			$queryData = $args[1][0];
+			if (is_array($args[1])) {
+				if (isset($args[1][0])) {
+					$queryData = $args[1][0];
+				}
+				if (isset($args[1][1])) {
+					$options = $args[1][1];
+				}
+				if (isset ($args[1][2])) {
+					$headerData = $args[1][2];
+				}
+			}
 		} else {
 			return false;
 		}
-		
+
+		if (!empty($this->config['soapaction_separator']) && $this->config['soapaction_separator'] != '#') {
+			if (!is_array($options)) {
+				$options = array();
+			}
+			$options['soapaction'] = $this->config['uri'] . $this->config['soapaction_separator'] . $method;
+		}
+
+		if (!empty($headerData)) {
+			$header = new SoapHeader($this->config['headers']['ns'], $this->config['headers']['container'], $headerData);
+		} else {
+			$header = null;
+		}
+
 		try {
-			$result = $this->client->__soapCall($method, $queryData);
+			$result = $this->client->__soapCall($method, $queryData, $options, $header);
 		} catch (SoapFault $fault) {
 			$this->error = $fault->faultstring;
 			$this->showError();
@@ -197,7 +272,7 @@ class SoapSource extends DataSource {
  * @return string The last SOAP response
  */
 	public function showError($result = null) {
-		if (Configure::read() > 0) {
+		if (Configure::read('debug') > 0) {
 			if ($this->error) {
 				trigger_error('<span style = "color:Red;text-align:left"><b>SOAP Error:</b> ' . $this->error . '</span>', E_USER_WARNING);
 			}
