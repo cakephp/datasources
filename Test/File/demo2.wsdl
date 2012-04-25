@@ -1,0 +1,391 @@
+<?xml version="1.0"?>
+<definitions name="demoService"
+			targetNamespace="http://www.4s4c.com/wsdl/demo.wsdl"
+			xmlns="http://schemas.xmlsoap.org/wsdl/"
+			xmlns:xsd="http://www.w3.org/1999/XMLSchema"
+			xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+			xmlns:tns="http://www.4s4c.com/wsdl/demo.wsdl"
+			xmlns:ns1="http://www.4s4c.com/wsdl/demo.xsd"
+			xmlns:itf="http://www.4s4c.com/wsdl/demo.wsdl">
+
+<types>
+<schema targetNamespace="http://www.4s4c.com/wsdl/demo.xsd" xmlns="http://www.w3.org/1999/XMLSchema">
+  <complexType name="phoneStruct">
+    <sequence>
+      <element name="areaCode" type="xsd:int"/>
+      <element name="exchange" type="xsd:string"/>
+      <element name="number" type="xsd:string"/>
+    </sequence>
+  </complexType>
+  <complexType name="addressStruct">
+    <sequence>
+      <element name="streetNum" type="xsd:int"/>
+      <element name="streetName" type="xsd:string"/>
+      <element name="city" type="xsd:string"/>
+      <element name="state" type="xsd:string"/>
+      <element name="zip" type="xsd:int"/>
+      <element name="phoneNumber" type="ns1:phoneStruct"/>
+    </sequence>
+  </complexType>
+  <complexType name="ArrayOfint" base="soap:Array">
+    <sequence>
+      <element name="item" type="xsd:int" minOccurs='0' maxOccurs='*'/>
+    </sequence>
+  </complexType>
+  <complexType name="ArrayOfstring" base="soap:Array">
+    <sequence>
+      <element name="item" type="xsd:string" minOccurs='0' maxOccurs='*'/>
+    </sequence>
+  </complexType>
+  <complexType name="PersonStruct">
+    <sequence>
+      <element name="fName" type="xsd:string"/>
+      <element name="lName" type="xsd:string"/>
+      <element name="EmailAddrs" type="ns1:ArrayOfstring"/>
+    </sequence>
+  </complexType>
+  <complexType name="ArrayOfPersonStruct" base="soap:Array">
+    <sequence>
+      <element name="item" type="ns1:PersonStruct" minOccurs='0' maxOccurs='*'/>
+    </sequence>
+  </complexType>
+  <complexType name="CompanyStruct">
+    <sequence>
+      <element name="Name" type="xsd:string"/>
+      <element name="URL" type="xsd:string"/>
+      <element name="Employees" type="ns1:ArrayOfPersonStruct"/>
+    </sequence>
+  </complexType>
+</schema>
+</types>
+
+<message name="getAddressFromNameRequest">
+  <part name="Name" type="xsd:string"/>
+</message>
+<message name="getAddressFromNameResponse">
+  <part name="address" type="ns1:addressStruct"/>
+</message>
+<message name="addEntryRequest">
+  <part name="AddressToRegister" type="xsd:string"/>
+  <part name="address" type="ns1:addressStruct"/>
+</message>
+<message name="addEntryResponse"/>
+<message name="doErrorRequest"/>
+<message name="doErrorResponse">
+  <part name="foo" type="xsd:string"/>
+</message>
+<message name="addRequest">
+  <part name="a" type="xsd:int"/>
+  <part name="b" type="xsd:int"/>
+</message>
+<message name="addResponse">
+  <part name="added" type="xsd:int"/>
+</message>
+<message name="add2Request">
+  <part name="a" type="xsd:int"/>
+  <part name="b" type="xsd:int"/>
+  <part name="c" type="xsd:int"/>
+</message>
+<message name="add2Response">
+  <part name="added" type="xsd:int"/>
+  <part name="c" type="xsd:int"/>
+</message>
+<message name="add3Request">
+  <part name="nums" type="ns1:ArrayOfint"/>
+</message>
+<message name="add3Response">
+  <part name="added" type="xsd:int"/>
+</message>
+<message name="add4Request">
+  <part name="a" type="xsd:float"/>
+  <part name="b" type="xsd:float"/>
+</message>
+<message name="add4Response">
+  <part name="d" type="xsd:float"/>
+  <part name="b" type="xsd:float"/>
+  <part name="c" type="xsd:float"/>
+</message>
+<message name="doublerRequest">
+  <part name="nums" type="ns1:ArrayOfint"/>
+</message>
+<message name="doublerResponse">
+  <part name="nums" type="ns1:ArrayOfint"/>
+</message>
+<message name="someStringRequest"/>
+<message name="someStringResponse">
+  <part name="string" type="xsd:string"/>
+</message>
+<message name="concatRequest">
+  <part name="chunks" type="ns1:ArrayOfstring"/>
+</message>
+<message name="concatResponse">
+  <part name="concated" type="xsd:string"/>
+</message>
+<message name="splitRequest">
+  <part name="theString" type="xsd:string"/>
+</message>
+<message name="splitResponse">
+  <part name="chunks" type="ns1:ArrayOfstring"/>
+</message>
+<message name="GetPersonRequest">
+  <part name="idx" type="xsd:int"/>
+</message>
+<message name="GetPersonResponse">
+  <part name="Person" type="ns1:PersonStruct"/>
+</message>
+<message name="GetPersonsRequest"/>
+<message name="GetPersonsResponse">
+  <part name="persons" type="ns1:ArrayOfPersonStruct"/>
+</message>
+<message name="PutPersonRequest">
+  <part name="newPerson" type="ns1:PersonStruct"/>
+</message>
+<message name="PutPersonResponse"/>
+<message name="GetCompanyRequest"/>
+<message name="GetCompanyResponse">
+  <part name="Company" type="ns1:CompanyStruct"/>
+</message>
+<message name="PutCompanyRequest">
+  <part name="newCompany" type="ns1:CompanyStruct"/>
+</message>
+<message name="PutCompanyResponse"/>
+<message name="imageRequest"/>
+<message name="imageResponse">
+  <part name="imageData" type="ns1:ArrayOfint"/>
+</message>
+<message name="DateAddRequest">
+  <part name="dateToConvert" type="xsd:timeInstant"/>
+  <part name="HrsOffset" type="xsd:int"/>
+</message>
+<message name="DateAddResponse">
+  <part name="newDate" type="xsd:timeInstant"/>
+</message>
+<message name="image_matchRequest">
+  <part name="imageData" type="ns1:ArrayOfint"/>
+</message>
+<message name="image_matchResponse">
+  <part name="bMatch" type="xsd:boolean"/>
+</message>
+<portType name="abookPortType">
+  <operation name="getAddressFromName">
+    <input  message="tns:getAddressFromNameRequest" name="getAddressFromName"/>
+    <output message="tns:getAddressFromNameResponse" name="getAddressFromNameResponse"/>
+  </operation>
+  <operation name="addEntry">
+    <input  message="tns:addEntryRequest" name="addEntry"/>
+    <output message="tns:addEntryResponse" name="addEntryResponse"/>
+  </operation>
+</portType>
+<portType name="IcalcPortType">
+  <operation name="doError">
+    <input  message="tns:doErrorRequest" name="doError"/>
+    <output message="tns:doErrorResponse" name="doErrorResponse"/>
+  </operation>
+  <operation name="add">
+    <input  message="tns:addRequest" name="add"/>
+    <output message="tns:addResponse" name="addResponse"/>
+  </operation>
+  <operation name="add2">
+    <input  message="tns:add2Request" name="add2"/>
+    <output message="tns:add2Response" name="add2Response"/>
+  </operation>
+  <operation name="add3">
+    <input  message="tns:add3Request" name="add3"/>
+    <output message="tns:add3Response" name="add3Response"/>
+  </operation>
+  <operation name="add4">
+    <input  message="tns:add4Request" name="add4"/>
+    <output message="tns:add4Response" name="add4Response"/>
+  </operation>
+  <operation name="doubler">
+    <input  message="tns:doublerRequest" name="doubler"/>
+    <output message="tns:doublerResponse" name="doublerResponse"/>
+  </operation>
+</portType>
+<portType name="dualPortType">
+  <operation name="someString">
+    <input  message="tns:someStringRequest" name="someString"/>
+    <output message="tns:someStringResponse" name="someStringResponse"/>
+  </operation>
+</portType>
+<portType name="IStringsPortType">
+  <operation name="concat">
+    <input  message="tns:concatRequest" name="concat"/>
+    <output message="tns:concatResponse" name="concatResponse"/>
+  </operation>
+  <operation name="split">
+    <input  message="tns:splitRequest" name="split"/>
+    <output message="tns:splitResponse" name="splitResponse"/>
+  </operation>
+</portType>
+<portType name="structsPortType">
+  <operation name="GetPerson">
+    <input  message="tns:GetPersonRequest" name="GetPerson"/>
+    <output message="tns:GetPersonResponse" name="GetPersonResponse"/>
+  </operation>
+  <operation name="GetPersons">
+    <input  message="tns:GetPersonsRequest" name="GetPersons"/>
+    <output message="tns:GetPersonsResponse" name="GetPersonsResponse"/>
+  </operation>
+  <operation name="PutPerson">
+    <input  message="tns:PutPersonRequest" name="PutPerson"/>
+    <output message="tns:PutPersonResponse" name="PutPersonResponse"/>
+  </operation>
+  <operation name="GetCompany">
+    <input  message="tns:GetCompanyRequest" name="GetCompany"/>
+    <output message="tns:GetCompanyResponse" name="GetCompanyResponse"/>
+  </operation>
+  <operation name="PutCompany">
+    <input  message="tns:PutCompanyRequest" name="PutCompany"/>
+    <output message="tns:PutCompanyResponse" name="PutCompanyResponse"/>
+  </operation>
+</portType>
+<portType name="typesPortType">
+  <operation name="image">
+    <input  message="tns:imageRequest" name="image"/>
+    <output message="tns:imageResponse" name="imageResponse"/>
+  </operation>
+  <operation name="DateAdd">
+    <input  message="tns:DateAddRequest" name="DateAdd"/>
+    <output message="tns:DateAddResponse" name="DateAddResponse"/>
+  </operation>
+  <operation name="image_match">
+    <input  message="tns:image_matchRequest" name="image_match"/>
+    <output message="tns:image_matchResponse" name="image_matchResponse"/>
+  </operation>
+</portType>
+
+<binding name="abookBinding" type="itf:abookPortType">
+  <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+  <operation name="getAddressFromName">
+    <soap:operation soapAction="urn:demoService#getAddressFromName"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/addressbook" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/addressbook" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+  <operation name="addEntry">
+    <soap:operation soapAction="urn:demoService#addEntry"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/addressbook" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/addressbook" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+</binding>
+<binding name="IcalcBinding" type="itf:IcalcPortType">
+  <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+  <operation name="doError">
+    <soap:operation soapAction="urn:demoService#doError"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/calc" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/calc" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+  <operation name="add">
+    <soap:operation soapAction="urn:demoService#add"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/calc" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/calc" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+  <operation name="add2">
+    <soap:operation soapAction="urn:demoService#add2"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/calc" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/calc" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+  <operation name="add3">
+    <soap:operation soapAction="urn:demoService#add3"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/calc" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/calc" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+  <operation name="add4">
+    <soap:operation soapAction="urn:demoService#add4"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/calc" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/calc" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+  <operation name="doubler">
+    <soap:operation soapAction="urn:demoService#doubler"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/calc" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/calc" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+</binding>
+<binding name="dualBinding" type="itf:dualPortType">
+  <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+  <operation name="someString">
+    <soap:operation soapAction="urn:demoService#someString"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/dual" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/dual" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+</binding>
+<binding name="IStringsBinding" type="itf:IStringsPortType">
+  <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+  <operation name="concat">
+    <soap:operation soapAction="urn:demoService#concat"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/strings" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/strings" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+  <operation name="split">
+    <soap:operation soapAction="urn:demoService#split"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/strings" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/strings" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+</binding>
+<binding name="structsBinding" type="itf:structsPortType">
+  <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+  <operation name="GetPerson">
+    <soap:operation soapAction="urn:demoService#GetPerson"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/structs" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/structs" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+  <operation name="GetPersons">
+    <soap:operation soapAction="urn:demoService#GetPersons"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/structs" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/structs" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+  <operation name="PutPerson">
+    <soap:operation soapAction="urn:demoService#PutPerson"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/structs" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/structs" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+  <operation name="GetCompany">
+    <soap:operation soapAction="urn:demoService#GetCompany"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/structs" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/structs" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+  <operation name="PutCompany">
+    <soap:operation soapAction="urn:demoService#PutCompany"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/structs" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/structs" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+</binding>
+<binding name="typesBinding" type="itf:typesPortType">
+  <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+  <operation name="image">
+    <soap:operation soapAction="urn:demoService#image"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/trickyTypes" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/trickyTypes" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+  <operation name="DateAdd">
+    <soap:operation soapAction="urn:demoService#DateAdd"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/trickyTypes" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/trickyTypes" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+  <operation name="image_match">
+    <soap:operation soapAction="urn:demoService#image_match"/>
+    <input><soap:body use="encoded" namespace="http://simon.fell.com/trickyTypes" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+    <output><soap:body use="encoded" namespace="http://simon.fell.com/trickyTypes" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+  </operation>
+</binding>
+<service name="demoService">
+  <port name="abookPort" binding="tns:abookBinding">
+    <soap:address location="http://soap.4s4c.com:80/ssss4c/soap.asp"/>
+  </port>
+  <port name="IcalcPort" binding="tns:IcalcBinding">
+    <soap:address location="http://soap.4s4c.com:80/ssss4c/soap.asp"/>
+  </port>
+  <port name="dualPort" binding="tns:dualBinding">
+    <soap:address location="http://soap.4s4c.com:80/ssss4c/soap.asp"/>
+  </port>
+  <port name="IStringsPort" binding="tns:IStringsBinding">
+    <soap:address location="http://soap.4s4c.com:80/ssss4c/soap.asp"/>
+  </port>
+  <port name="structsPort" binding="tns:structsBinding">
+    <soap:address location="http://soap.4s4c.com:80/ssss4c/soap.asp"/>
+  </port>
+  <port name="typesPort" binding="tns:typesBinding">
+    <soap:address location="http://soap.4s4c.com:80/ssss4c/soap.asp"/>
+  </port>
+</service>
+</definitions>
