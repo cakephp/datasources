@@ -25,7 +25,7 @@ App::uses('DataSource', 'Model/Datasource');
  * @subpackage datasources.models.datasources
  */
 class SoapSource extends DataSource {
-    
+
 /**
  * Description
  *
@@ -52,7 +52,7 @@ class SoapSource extends DataSource {
  *
  * @var array
  */
-	public $_baseConfig = array(
+	protected $_baseConfig = array(
 		'wsdl' => null,
 		'location' => '',
 		'uri' => '',
@@ -68,9 +68,9 @@ class SoapSource extends DataSource {
  * Auto connect when Soap Client Class is changed
  * 
  * @var boolean
- */	
+ */
 	public $autoConnect = true;
-	
+
 /**
  * Constructor
  *
@@ -78,7 +78,7 @@ class SoapSource extends DataSource {
  */
 	public function __construct($config, $autoConnect = true) {
 		parent::__construct($config);
-		
+
 		$this->autoConnect = $autoConnect;
 		if ($this->autoConnect) {
 			$this->connect();
@@ -99,7 +99,6 @@ class SoapSource extends DataSource {
 		if ($this->autoConnect) {
 			$this->connect();
 		}
-		
 	}
 /**
  * Setup Configuration options
@@ -107,7 +106,6 @@ class SoapSource extends DataSource {
  * @return array Configuration options
  */
 	protected function _parseConfig() {
-		
 		if (!class_exists($this->config['soap_client_class'])) {
 			$this->error = 'Class ' . $this->config['soap_client_class'] . ' not found, please enable Soap extensions';
 			$this->showError();
@@ -117,10 +115,10 @@ class SoapSource extends DataSource {
 		if (!empty($this->config['location'])) {
 			$options['location'] = $this->config['location'];
 		}
-        if (!empty($this->config['uri'])) {
-			$options['uri'] = $this->config['uri'];
+		if (!empty($this->config['uri'])) {
+            $options['uri'] = $this->config['uri'];
 		}
-		if (!empty($this->config['login'])){
+		if (!empty($this->config['login'])) {
 			$options['login'] = $this->config['login'];
 			$options['password'] = $this->config['password'];
 			$options['authentication'] = $this->config['authentication'];
@@ -137,7 +135,7 @@ class SoapSource extends DataSource {
 		if (!empty($this->config['use'])) {
 			$options['use'] = $this->config['use'];
 		}
-		
+
 		return $options;
 	}
 
@@ -146,7 +144,7 @@ class SoapSource extends DataSource {
  *
  * @param array $config An array defining the new configuration settings
  * @return boolean True on success, false on failure
- */ 
+ */
 	public function connect() {
 		$options = $this->_parseConfig();
 		try {
@@ -181,7 +179,7 @@ class SoapSource extends DataSource {
 	public function listSources() {
 		return $this->client->__getFunctions();
 	}
-	
+
 /**
  * Query the SOAP server with the given method and parameters
  *
@@ -196,7 +194,7 @@ class SoapSource extends DataSource {
 			return false;
 		}
 
-		$args = func_get_args(); 
+		$args = func_get_args();
 		$method = null;
 		$queryData = array();
 		$options = null;
@@ -209,29 +207,28 @@ class SoapSource extends DataSource {
 			$method = $args[0];
 			$queryData = $args[1];
 		} elseif (count($args) == 3) {
-			// happens with in indirect call i..e $model->method(arguments, options, headers) 
+			// happens with in indirect call i..e $model->method(arguments, options, headers)
 			$method = $args[0];
 			if (is_array($args[1])) {
 				if (isset($args[1][0])) {
 					$queryData = $args[1][0];
-				}				
+				}
 				if (isset($args[1][1])) {
 					$options = $args[1][1];
 				}
 				if (isset ($args[1][2])) {
 					$headerData = $args[1][2];
 				}
-			}			
+			}
 		} else {
 			return false;
 		}
-		
-		if (!empty($this->config['soapaction_separator']) && 
-			$this->config['soapaction_separator'] != '#') {
+
+		if (!empty($this->config['soapaction_separator']) && $this->config['soapaction_separator'] != '#') {
 			if (!is_array($options)) {
 				$options = array();
 			}
-			$options['soapaction'] = $this->config['uri'].$this->config['soapaction_separator'].$method;
+			$options['soapaction'] = $this->config['uri'] . $this->config['soapaction_separator'] . $method;
 		}
 
 		if (!empty($headerData)) {
@@ -239,8 +236,7 @@ class SoapSource extends DataSource {
 		} else {
 			$header = null;
 		}
-		
-		
+
 		try {
 			$result = $this->client->__soapCall($method, $queryData, $options, $header);
 		} catch (SoapFault $fault) {
