@@ -50,6 +50,19 @@ class ArraySource extends Datasource {
 	);
 
 /**
+ * Imitation of DboSource method.
+ * @param mixed $data Either a string with a column to quote. An array of columns to quote or an
+ *   object from DboSource::expression() or DboSource::identifier()
+ * @return string SQL field
+ */
+	public function name($name) {
+		if (is_object($name) && isset($name->type)) {
+			return $name->value;
+		}
+		return $name;
+	}
+
+/**
  * Returns a Model description (metadata) or null if none found.
  *
  * @param Model $model
