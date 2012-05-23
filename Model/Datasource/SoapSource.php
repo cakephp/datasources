@@ -93,6 +93,9 @@ class SoapSource extends DataSource {
 			$options['password'] = $this->config['password'];
 			$options['authentication'] = $this->config['authentication'];
 		}
+	  	if(!empty($this->config['features'])){
+            		$options['features'] = $this->config['features'];
+        	}	
 		return $options;
 	}
 
