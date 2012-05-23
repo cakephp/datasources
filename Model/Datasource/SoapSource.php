@@ -58,21 +58,7 @@ class SoapSource extends DataSource {
 		'uri' => '',
 		'login' => '',
 		'password' => '',
-		'authentication' => 'SOAP_AUTHENTICATION_BASIC'
-	);
-
-    /**
-     * EndQuote
-     * @var string 
-     */
-    public $startQuote = null;
-
-    /**
-     * End Quote
-     * @var type 
-     */
-    public $endQuote = null;
-
+		'authentication' => 'SOAP_AUTHENTICATION_BASIC');
 
 /**
  * Constructor
