@@ -169,6 +169,14 @@ class UserModel extends CakeTestModel {
 class ArraySourceTest extends CakeTestCase {
 
 /**
+ * List of fixtures
+ *
+ * @var array
+ * @access public
+ */
+	public $fixtures = array('plugin.datasources.user');
+
+/**
  * Array Source Instance
  *
  * @var ArraySource
@@ -442,32 +450,6 @@ class ArraySourceTest extends CakeTestCase {
 		$result = $this->Model->read(array('name'), 2);
 		$expected = array('ArrayModel' => array('name' => 'Brazil'));
 		$this->assertEqual($result, $expected);
-	}
-}
-
-/**
- * Interact with Dbo Test
- *
- */
-class IntractModelTest extends CakeTestCase {
-
-/**
- * List of fixtures
- *
- * @var array
- * @access public
- */
-	public $fixtures = array('plugin.datasources.user');
-
-/**
- * skip
- *
- * @return void
- * @access public
- */
-	public function skip() {
-		$db =& ConnectionManager::getDataSource('test');
-		$this->skipUnless(is_subclass_of($db, 'DboSource'), '%s because database test not extends one DBO driver.');
 	}
 
 /**
