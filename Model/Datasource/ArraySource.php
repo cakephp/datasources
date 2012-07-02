@@ -146,7 +146,9 @@ class ArraySource extends DataSource {
 					if (strpos($field, ' ') !== false) {
 						list($field, $sort) = explode(' ', $field, 2);
 					}
-					$data = Set::sort($data, '{n}.' . $model->alias . '.' . $field, $sort);
+					if ($data) {
+						$data = Set::sort($data, '{n}.' . $model->alias . '.' . $field, $sort);
+					}
 				}
 			}
 		}
@@ -353,7 +355,7 @@ class ArraySource extends DataSource {
 						'recursive' => $recursive
 					));
 					$find = array(
-						$association => Set::extract('{n}.' . $association, $find)
+						$association => (array) Set::extract('{n}.' . $association, $find)
 					);
 				}
 			} elseif ($type === 'hasAndBelongsToMany' && array_key_exists($model->primaryKey, $result[$model->alias])) {
@@ -400,7 +402,7 @@ class ArraySource extends DataSource {
 		if ($clear) {
 			$this->_requestsLog = array();
 		}
-		return array('log' => $log, 'count' => count($log), 'time' => array_sum(Set::extract('{n}.took', $log)));
+		return array('log' => $log, 'count' => count($log), 'time' => array_sum((array) Set::extract('{n}.took', $log)));
 	}
 
 /**

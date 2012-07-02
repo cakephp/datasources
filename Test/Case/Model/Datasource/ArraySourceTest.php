@@ -568,7 +568,7 @@ class ArraySourceTest extends CakeTestCase {
 	public function testDboToArrayHasOne() {
 		ClassRegistry::config(array());
 		$model = ClassRegistry::init('UserModel');
-		$model->unBindModel(array('hasMany' => array('Relate')), false);
+		$model->unBindModel(array('hasMany' => array('Relate'), 'belongsTo' => array('Born')), false);
 		$model->bindModel(array('hasOne' => array('Relate' => array('className' => 'ArrayModel', 'foreignKey' => 'relate_id'))), false);
 
 		$result = $model->find('all', array('recursive' => 1));
@@ -657,9 +657,11 @@ class ArraySourceTest extends CakeTestCase {
 	public function testArrayToArrayBelongsToWithoutForeignKey() {
 		ClassRegistry::config(array());
 		$model = ClassRegistry::init('ArrayModel');
+		$model->bindModel(array('belongsTo' => array('Relate' => array('className' => 'ArrayModel', 'foreignKey' => 'relate_id'))), false);
 
 		$result = $model->find('all', array(
-			'fields' => array('ArrayModel.id', 'ArrayModel.name')
+			'fields' => array('ArrayModel.id', 'ArrayModel.name'),
+			'recursive' => 0
 		));
 		$expected = array(
 			array(
