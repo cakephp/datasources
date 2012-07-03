@@ -169,6 +169,14 @@ class UserModel extends CakeTestModel {
 class ArraySourceTest extends CakeTestCase {
 
 /**
+ * List of fixtures
+ *
+ * @var array
+ * @access public
+ */
+	public $fixtures = array('plugin.datasources.user');
+
+/**
  * Array Source Instance
  *
  * @var ArraySource
@@ -443,32 +451,6 @@ class ArraySourceTest extends CakeTestCase {
 		$expected = array('ArrayModel' => array('name' => 'Brazil'));
 		$this->assertEqual($result, $expected);
 	}
-}
-
-/**
- * Interact with Dbo Test
- *
- */
-class IntractModelTest extends CakeTestCase {
-
-/**
- * List of fixtures
- *
- * @var array
- * @access public
- */
-	public $fixtures = array('plugin.datasources.user');
-
-/**
- * skip
- *
- * @return void
- * @access public
- */
-	public function skip() {
-		$db =& ConnectionManager::getDataSource('test');
-		$this->skipUnless(is_subclass_of($db, 'DboSource'), '%s because database test not extends one DBO driver.');
-	}
 
 /**
  * testDboToArrayBelongsTo
@@ -586,7 +568,7 @@ class IntractModelTest extends CakeTestCase {
 	public function testDboToArrayHasOne() {
 		ClassRegistry::config(array());
 		$model = ClassRegistry::init('UserModel');
-		$model->unBindModel(array('hasMany' => array('Relate')), false);
+		$model->unBindModel(array('hasMany' => array('Relate'), 'belongsTo' => array('Born')), false);
 		$model->bindModel(array('hasOne' => array('Relate' => array('className' => 'ArrayModel', 'foreignKey' => 'relate_id'))), false);
 
 		$result = $model->find('all', array('recursive' => 1));
@@ -675,9 +657,11 @@ class IntractModelTest extends CakeTestCase {
 	public function testArrayToArrayBelongsToWithoutForeignKey() {
 		ClassRegistry::config(array());
 		$model = ClassRegistry::init('ArrayModel');
+		$model->bindModel(array('belongsTo' => array('Relate' => array('className' => 'ArrayModel', 'foreignKey' => 'relate_id'))), false);
 
 		$result = $model->find('all', array(
-			'fields' => array('ArrayModel.id', 'ArrayModel.name')
+			'fields' => array('ArrayModel.id', 'ArrayModel.name'),
+			'recursive' => 0
 		));
 		$expected = array(
 			array(
