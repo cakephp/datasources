@@ -90,7 +90,7 @@ class ArraySource extends DataSource {
  * @param array $queryData An array of query data used to find the data you want
  * @return mixed
  */
-	public function read(Model $model, $queryData = array()) {
+	public function read(Model $model, $queryData = array(), $recursive = null) {
 		if (!isset($model->records) || !is_array($model->records) || empty($model->records)) {
 			$this->_requestsLog[] = array(
 				'query' => 'Model ' . $model->alias,
@@ -105,8 +105,12 @@ class ArraySource extends DataSource {
 		$data = array();
 		$i = 0;
 		$limit = false;
-		if (!isset($queryData['recursive'])) {
-			$queryData['recursive'] = $model->recursive;
+		if ($recursive === null && isset($queryData['recursive'])) {
+			$recursive = $queryData['recursive'];
+		}
+		if (!is_null($recursive)) {
+			$_recursive = $model->recursive;
+			$model->recursive = $recursive;
 		}
 		if (is_integer($queryData['limit']) && $queryData['limit'] > 0) {
 			$limit = $queryData['page'] * $queryData['limit'];
@@ -178,7 +182,7 @@ class ArraySource extends DataSource {
 		}
 		$this->_registerLog($model, $queryData, microtime(true) - $startTime, count($data));
 		$_associations = $model->_associations;
-		if ($queryData['recursive'] > -1) {
+		if ($model->recursive > -1) {
 			foreach ($_associations as $type) {
 				foreach ($model->{$type} as $assoc => $assocData) {
 					$linkModel =& $model->{$assoc};
@@ -192,7 +196,7 @@ class ArraySource extends DataSource {
 					if (isset($db)) {
 						if (method_exists($db, 'queryAssociation')) {
 							$stack = array($assoc);
-							$db->queryAssociation($model, $linkModel, $type, $assoc, $assocData, $queryData, true, $data, $queryData['recursive'] - 1, $stack);
+							$db->queryAssociation($model, $linkModel, $type, $assoc, $assocData, $queryData, true, $data, $model->recursive - 1, $stack);
 						}
 						unset($db);
 					}
