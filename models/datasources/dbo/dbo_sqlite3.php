@@ -518,9 +518,9 @@ class DboSqlite3 extends DboSource {
 		//	so try to figure it out based on the querystring
 		$querystring = $results->queryString;
 		if (stripos($querystring, 'SELECT') === 0) {
-			$last = stripos($querystring, 'FROM');
+			$last = stripos($querystring, ' FROM ');
 			if ($last !== false) {
-				$selectpart = substr($querystring, 7, $last - 8);
+				$selectpart = substr($querystring, 7, $last - 7);
 				$selects = explode(',', $selectpart);
 			}
 		} elseif (strpos($querystring, 'PRAGMA table_info') === 0) {
