@@ -239,10 +239,10 @@ class ArraySource extends DataSource {
 			} else {
 				if (is_array($value)) {
 					$type = 'IN';
-				} elseif (preg_match('/^(\w+\.?\w+)\s+(=|!=|LIKE|IN)$/i', $field, $matches)) {
+				} elseif (preg_match('/^(\w+\.?\w+)\s+(=|!=|LIKE|IN|<|<=|>|>=)$/i', $field, $matches)) {
 					$field = $matches[1];
 					$type = strtoupper($matches[2]);
-				} elseif (preg_match('/^(\w+\.?\w+)\s+(=|!=|LIKE|IN)\s+(.*)$/i', $value, $matches)) {
+				} elseif (preg_match('/^(\w+\.?\w+)\s+(=|!=|LIKE|IN|<|<=|>|>=)\s+(.*)$/i', $value, $matches)) {
 					$field = $matches[1];
 					$type = strtoupper($matches[2]);
 					$value = $matches[3];
@@ -256,8 +256,20 @@ class ArraySource extends DataSource {
 					}
 				}
 				switch ($type) {
+					case '<':
+						$return = (isset($record[$field]) && $record[$field] < $value);
+						break;
+					case '<=':
+						$return = (isset($record[$field]) && $record[$field] <= $value);
+						break;
 					case '=':
 						$return = (isset($record[$field]) && $record[$field] == $value);
+						break;
+					case '>':
+						$return = (isset($record[$field]) && $record[$field] > $value);
+						break;
+					case '>=':
+						$return = (isset($record[$field]) && $record[$field] >= $value);
 						break;
 					case '!=':
 						$return = (!isset($record[$field]) || $record[$field] != $value);

@@ -357,6 +357,24 @@ class ArraySourceTest extends CakeTestCase {
 		$this->assertIdentical($result, $expected);
 	}
 
+	public function testFindConditionsWithComparisonOperators() {
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.id <' => 2)));
+		$expected = array(array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)));
+		$this->assertIdentical($result, $expected);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.id <=' => 2)));
+		$expected = array(array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)), array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)));
+		$this->assertIdentical($result, $expected);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.id >' => 2)));
+		$expected = array(array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)));
+		$this->assertIdentical($result, $expected);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.id >=' => 2)));
+		$expected = array(array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)), array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)));
+		$this->assertIdentical($result, $expected);
+	}
+
 /**
  * testFindconditionsRecursive
  *
