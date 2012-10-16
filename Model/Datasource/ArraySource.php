@@ -69,7 +69,7 @@ class ArraySource extends DataSource {
  * @param Model $model
  * @return array Show only id
  */
-	public function describe(&$model) {
+	public function describe($model) {
 		return array('id' => array());
 	}
 
@@ -90,7 +90,7 @@ class ArraySource extends DataSource {
  * @param array $queryData An array of query data used to find the data you want
  * @return mixed
  */
-	public function read(&$model, $queryData = array()) {
+	public function read(Model $model, $queryData = array(), $recursive = null) {
 		if (!isset($model->records) || !is_array($model->records) || empty($model->records)) {
 			$this->_requestsLog[] = array(
 				'query' => 'Model ' . $model->alias,
