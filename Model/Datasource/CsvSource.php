@@ -146,7 +146,7 @@ class CsvSource extends DataSource {
  *
  * @return array of available CSV files
  */
-	public function listSources() {
+	public function listSources($data = null) {
 		$this->config['database'] = 'csv';
 		$cache = parent::listSources();
 		if ($cache !== null) {
@@ -233,7 +233,7 @@ class CsvSource extends DataSource {
  * @param integer $recursive Number of levels of association
  * @return mixed
  */
-	public function read(&$model, $queryData = array(), $recursive = null) {
+	public function read(Model $model, $queryData = array(), $recursive = null) {
 		$this->describe($model);
 		$config = $this->config;
 		$filename = $config['path'] . DS . $model->table . '.' . $config['extension'];
@@ -403,9 +403,9 @@ class CsvSource extends DataSource {
 /**
  * Calculate
  *
- * @param Model $model 
- * @param mixed $func 
- * @param array $params 
+ * @param Model $model
+ * @param mixed $func
+ * @param array $params
  * @return array
  */
 	public function calculate(&$model, $func, $params = array()) {
