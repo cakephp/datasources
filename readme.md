@@ -56,7 +56,7 @@ or, if using one of the pdo extended datasources,
 
 ## Contributing to datasources
 
-If you have a datasource, or an idea for a datasource that could benefit the CakePHP community, please for the project on github. Once you have forked the project you can commit your datasource class (and any test cases). Once you have pushed your changes back to github you can send a pull request, and your changes will be reviewed and merged in or feedback will be given.
+If you have a datasource, or an idea for a datasource that could benefit the CakePHP community, please fork the project on github. Once you have forked the project you can commit your datasource class (and any test cases). Once you have pushed your changes back to github you can send a pull request, and your changes will be reviewed and merged in or feedback will be given.
 
 ## Issues with datasources
 
