@@ -192,7 +192,7 @@ class ArraySourceTest extends CakeTestCase {
  */
 	public function setUp() {
 		parent::setUp();
-		$this->Model =& ClassRegistry::init('ArrayModel');
+		$this->Model = ClassRegistry::init('ArrayModel');
 	}
 
 /**

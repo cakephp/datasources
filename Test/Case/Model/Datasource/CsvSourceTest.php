@@ -36,7 +36,7 @@ class UserTest extends CakeTestModel {
  * Table to use
  *
  * @var string
- */	
+ */
 	var $useTable = 'User';
 
 /**
@@ -58,7 +58,7 @@ class BlogTest extends CakeTestModel {
  * Table to use
  *
  * @var string
- */	
+ */
 	var $useTable = 'Blog';
 
 /**
@@ -106,7 +106,7 @@ class CsvSourceTestCase extends CakeTestCase {
  * @return void
  * @access public
  */
-	function startTest() {
+	function startTest($method) {
 		$this->config = array(
 			'datasource' => 'Datasources.CsvSource',
 			'path' => App::pluginPath('Datasources') . 'Test' . DS . 'File',
@@ -114,7 +114,7 @@ class CsvSourceTestCase extends CakeTestCase {
 			'readonly' => true,
 			'recursive' => false
 		);
-		$this->Csv =& new CsvSource($this->config);
+		$this->Csv = new CsvSource($this->config);
 	}
 
 /**
@@ -134,7 +134,7 @@ class CsvSourceTestCase extends CakeTestCase {
  * @access public
  */
 	function testNoAutoConnect() {
-		$this->Csv =& new CsvSource($this->config, false);
+		$this->Csv = new CsvSource($this->config, false);
 		$this->assertTrue(is_a($this->Csv, 'CsvSource'));
 		$this->assertFalse($this->Csv->connected);
 	}
@@ -165,7 +165,7 @@ class CsvSourceTestCase extends CakeTestCase {
  */
 	function testRecursiveSources() {
 		$config = array_merge($this->config, array('recursive' => true));
-		$this->Csv =& new CsvSource($config);
+		$this->Csv = new CsvSource($config);
 		$expected = array('Blog', 'Post', 'User', 'SecondLevel' . DS . 'Thing');
 		$result = $this->Csv->listSources();
 		$this->assertIdentical($expected, $result);
@@ -272,7 +272,7 @@ class CsvSourceTestCase extends CakeTestCase {
 		$result = $model->find('all', array('conditions' => array(
 			'OR' => array(
 				'BlogTest.key' => array('myblog', '1st')
-			), 
+			),
 		)));
 		$this->assertEqual($result, $expected);
 
@@ -280,7 +280,7 @@ class CsvSourceTestCase extends CakeTestCase {
 			'OR' => array(
 				'BlogTest.key' => 'myblog',
 				'BlogTest.title' => '1st Blog',
-			), 
+			),
 		)));
 		$this->assertEqual($result, $expected);
 
@@ -296,7 +296,7 @@ class CsvSourceTestCase extends CakeTestCase {
 			'OR' => array(
 				'BlogTest.key' => 'myblog',
 				'BlogTest.title' => 'Not found',
-			), 
+			),
 		)));
 		$this->assertEqual($result, $expected);
 
@@ -316,7 +316,7 @@ class CsvSourceTestCase extends CakeTestCase {
  * @return void
  * @author Predominant
  */
-	function endTest() {
+	function endTest($method) {
 		$this->Csv = null;
 	}
 }

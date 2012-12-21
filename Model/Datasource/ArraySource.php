@@ -181,12 +181,12 @@ class ArraySource extends DataSource {
 		if ($queryData['recursive'] > -1) {
 			foreach ($_associations as $type) {
 				foreach ($model->{$type} as $assoc => $assocData) {
-					$linkModel =& $model->{$assoc};
+					$linkModel = $model->{$assoc};
 
 					if ($model->useDbConfig == $linkModel->useDbConfig) {
-						$db =& $this;
+						$db = $this;
 					} else {
-						$db =& ConnectionManager::getDataSource($linkModel->useDbConfig);
+						$db = ConnectionManager::getDataSource($linkModel->useDbConfig);
 					}
 
 					if (isset($db)) {
@@ -293,7 +293,7 @@ class ArraySource extends DataSource {
  * @param array $params Function parameters (any values must be quoted manually)
  * @return string Calculation method
  */
-	public function calculate(&$model, $type, $params = array()) {
+	public function calculate(Model $model, $type, $params = array()) {
 		return 'COUNT';
 	}
 
