@@ -103,7 +103,7 @@ class CouchdbTestCase extends CakeTestCase {
  *
  * @return void
  */
-	public function startTest() {
+	public function startTest($method) {
 		$config = new DATABASE_CONFIG();
 
 		if (isset($config->couchdb_test)) {
@@ -521,7 +521,7 @@ class CouchdbTestCase extends CakeTestCase {
  *
  * @return void
  */
-	public function endTest() {
+	public function endTest($method) {
 		$this->removeAllDocuments();
 		unset($this->Post);
 		unset($this->Couchdb);

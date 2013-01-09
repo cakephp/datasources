@@ -463,26 +463,35 @@ class ArraySourceTest extends CakeTestCase {
 		$model = ClassRegistry::init('UserModel');
 
 		$result = $model->find('all', array('recursive' => 0));
+		// unset primaryKey, wich can be integer/serial or hash value
+		foreach($result as &$row) {
+			unset($row['UserModel'][$model->primaryKey]);
+		}
 		$expected = array(
-			array('UserModel' => array('id' => 1, 'born_id' => 1, 'name' => 'User 1'), 'Born' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
-			array('UserModel' => array('id' => 2, 'born_id' => 2, 'name' => 'User 2'), 'Born' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)),
-			array('UserModel' => array('id' => 3, 'born_id' => 1, 'name' => 'User 3'), 'Born' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
-			array('UserModel' => array('id' => 4, 'born_id' => 3, 'name' => 'User 4'), 'Born' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2))
+			array('UserModel' => array('born_id' => 1, 'name' => 'User 1'), 'Born' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
+			array('UserModel' => array('born_id' => 2, 'name' => 'User 2'), 'Born' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)),
+			array('UserModel' => array('born_id' => 1, 'name' => 'User 3'), 'Born' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
+			array('UserModel' => array('born_id' => 3, 'name' => 'User 4'), 'Born' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2))
 		);
 		$this->assertEqual($result, $expected);
 
 		$model->belongsTo['Born']['fields'] = array('name');
 		$result = $model->find('all', array('recursive' => 0));
+		// unset primaryKey, wich can be integer/serial or hash value
+		foreach($result as &$row) {
+			unset($row['UserModel'][$model->primaryKey]);
+		}
 		$expected = array(
-			array('UserModel' => array('id' => 1, 'born_id' => 1, 'name' => 'User 1'), 'Born' => array('name' => 'USA')),
-			array('UserModel' => array('id' => 2, 'born_id' => 2, 'name' => 'User 2'), 'Born' => array('name' => 'Brazil')),
-			array('UserModel' => array('id' => 3, 'born_id' => 1, 'name' => 'User 3'), 'Born' => array('name' => 'USA')),
-			array('UserModel' => array('id' => 4, 'born_id' => 3, 'name' => 'User 4'), 'Born' => array('name' => 'Germany'))
+			array('UserModel' => array('born_id' => 1, 'name' => 'User 1'), 'Born' => array('name' => 'USA')),
+			array('UserModel' => array('born_id' => 2, 'name' => 'User 2'), 'Born' => array('name' => 'Brazil')),
+			array('UserModel' => array('born_id' => 1, 'name' => 'User 3'), 'Born' => array('name' => 'USA')),
+			array('UserModel' => array('born_id' => 3, 'name' => 'User 4'), 'Born' => array('name' => 'Germany'))
 		);
 		$this->assertEqual($result, $expected);
 
 		$result = $model->read(null, 1);
-		$expected = array('UserModel' => array('id' => 1, 'born_id' => 1, 'name' => 'User 1'), 'Born' => array('name' => 'USA'));
+		unset($result['UserModel'][$model->primaryKey]);
+		$expected = array('UserModel' => array('born_id' => 1, 'name' => 'User 1'), 'Born' => array('name' => 'USA'));
 		$this->assertEqual($result, $expected);
 	}
 
@@ -500,21 +509,25 @@ class ArraySourceTest extends CakeTestCase {
 			'fields' => array('UserModel.id', 'UserModel.name'),
 			'recursive' => 0
 		));
+		// unset primaryKey, wich can be integer/serial or hash value
+		foreach($result as &$row) {
+			unset($row['UserModel'][$model->primaryKey]);
+		}
 		$expected = array(
 			array(
-				'UserModel' => array('id' => 1, 'name' => 'User 1'),
+				'UserModel' => array( 'name' => 'User 1'),
 				'Born' => array()
 			),
 			array(
-				'UserModel' => array('id' => 2, 'name' => 'User 2'),
+				'UserModel' => array('name' => 'User 2'),
 				'Born' => array()
 			),
 			array(
-				'UserModel' => array('id' => 3, 'name' => 'User 3'),
+				'UserModel' => array('name' => 'User 3'),
 				'Born' => array()
 			),
 			array(
-				'UserModel' => array('id' => 4, 'name' => 'User 4'),
+				'UserModel' => array('name' => 'User 4'),
 				'Born' => array()
 			)
 		);
@@ -534,24 +547,28 @@ class ArraySourceTest extends CakeTestCase {
 		$model->bindModel(array('hasMany' => array('Relate' => array('className' => 'ArrayModel', 'foreignKey' => 'relate_id'))), false);
 
 		$result = $model->find('all', array('recursive' => 1));
+		// unset primaryKey, wich can be integer/serial or hash value
+		foreach($result as &$row) {
+			unset($row['UserModel'][$model->primaryKey]);
+		}
 		$expected = array(
 			array(
-				'UserModel' => array('id' => 1, 'name' => 'User 1', 'born_id' => 1),
+				'UserModel' => array('name' => 'User 1', 'born_id' => 1),
 				'Relate' => array(
 					array('id' => 1, 'name' => 'USA', 'relate_id' => 1),
 					array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)
 				),
 			),
-			array('UserModel' => array('id' => 2, 'name' => 'User 2', 'born_id' => 2),
+			array('UserModel' => array('name' => 'User 2', 'born_id' => 2),
 				'Relate' => array(
 					array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)
 				),
 			),
-			array('UserModel' => array('id' => 3, 'name' => 'User 3', 'born_id' => 1),
+			array('UserModel' => array('name' => 'User 3', 'born_id' => 1),
 				'Relate' => array(
 				),
 			),
-			array('UserModel' => array('id' => 4, 'name' => 'User 4', 'born_id' => 3),
+			array('UserModel' => array('name' => 'User 4', 'born_id' => 3),
 				'Relate' => array(
 				),
 			)
@@ -572,20 +589,24 @@ class ArraySourceTest extends CakeTestCase {
 		$model->bindModel(array('hasOne' => array('Relate' => array('className' => 'ArrayModel', 'foreignKey' => 'relate_id'))), false);
 
 		$result = $model->find('all', array('recursive' => 1));
+		// unset primaryKey, wich can be integer/serial or hash value
+		foreach($result as &$row) {
+			unset($row['UserModel'][$model->primaryKey]);
+		}
 		$expected = array(
 			array(
-				'UserModel' => array('id' => 1, 'name' => 'User 1', 'born_id' => 1),
+				'UserModel' => array('name' => 'User 1', 'born_id' => 1),
 				'Relate' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1),
 			),
-			array('UserModel' => array('id' => 2, 'name' => 'User 2', 'born_id' => 2),
+			array('UserModel' => array('name' => 'User 2', 'born_id' => 2),
 				'Relate' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2),
 			),
 			array(
-				'UserModel' => array('id' => 3, 'name' => 'User 3', 'born_id' => 1),
+				'UserModel' => array('name' => 'User 3', 'born_id' => 1),
 				'Relate' => array()
 			),
 			array(
-				'UserModel' => array('id' => 4, 'name' => 'User 4', 'born_id' => 3),
+				'UserModel' => array('name' => 'User 4', 'born_id' => 3),
 				'Relate' => array()
 			)
 		);
