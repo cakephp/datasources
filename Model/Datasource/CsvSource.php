@@ -194,15 +194,20 @@ class CsvSource extends DataSource {
 		$line = rtrim(fgets($handle));
 		$data_comma = explode(',', $line);
 		$data_semicolon = explode(';', $line);
+		$data_tab = explode("\t", $line);
 
 		if (count($data_comma) > count($data_semicolon)) {
 			$this->delimiter = ',';
 			$this->fields = $data_comma;
 			$this->maxCol = count($data_comma);
-		} else {
+		} else if (count($data_semicolon) > count($data_tab)) {
 			$this->delimiter = ';';
 			$this->fields = $data_semicolon;
 			$this->maxCol = count($data_semicolon);
+		} else {
+			$this->delimiter = "\t";
+			$this->fields = $data_tab;
+			$this->maxCol = count($data_tab);
 		}
 		fclose($handle);
 		return true;
