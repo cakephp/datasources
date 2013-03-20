@@ -141,17 +141,18 @@ class AmazonAssociatesSource extends DataSource {
  * @param string $id of amazon product
  * @return mixed array of the resulting request or false if unable to contact server
  */
-	public function findById($id) {
+	public function findById($id, $query = array()) {
 		$this->query = array_merge(
 			array(
 				'Service'        => 'AWSECommerceService',
 				'AWSAccessKeyId' => $this->config['key'],
 				'Timestamp'      => gmdate("Y-m-d\TH:i:s\Z"),
-				'AccociateTag'   => $this->config['tag'],
+				'AssociateTag'   => $this->config['tag'],
 				'Version'        => '2009-03-31',
 				'Operation'      => 'ItemLookup',
 			),
-     		array('ItemId' => $id)
+			array('ItemId' => $id),
+			$query
 		);
 		return $this->__request();
 	}
