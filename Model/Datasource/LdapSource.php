@@ -458,7 +458,7 @@ class LdapSource extends DataSource {
 				$queryData['order'] = array($model->primaryKey);
 					
 		// Associations links --------------------------
-		foreach ($model->__associations as $type) {
+		foreach ($model->_associations as $type) {
 			foreach ($model->{$type} as $assoc => $assocData) {
 				if ($model->recursive > -1) {
 					$linkModel = & $model->{$assoc};
@@ -480,7 +480,7 @@ class LdapSource extends DataSource {
 		
 		// Query on linked models  ----------------------
 		if ($model->recursive > 0) {
-			foreach ($model->__associations as $type) {
+			foreach ($model->_associations as $type) {
 	
 				foreach ($model->{$type} as $assoc => $assocData) {
 					$db = null;
@@ -695,7 +695,7 @@ class LdapSource extends DataSource {
 			
 			if (!empty ($fetch) && is_array($fetch)) {
 					if ($recursive > 0) {
-						foreach ($linkModel->__associations as $type1) {
+						foreach ($linkModel->_associations as $type1) {
 							foreach ($linkModel-> {$type1 } as $assoc1 => $assocData1) {
 								$deepModel = & $linkModel->{$assocData1['className']};
 								if ($deepModel->alias != $model->name) {
