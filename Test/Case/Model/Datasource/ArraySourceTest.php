@@ -31,13 +31,6 @@ ConnectionManager::create('test_array', array('datasource' => 'Datasources.Array
 class ArrayModel extends CakeTestModel {
 
 /**
- * Name of Model
- *
- * @var string
- */
-	public $name = 'ArrayModel';
-
-/**
  * Database Configuration
  *
  * @var string
@@ -82,13 +75,6 @@ class ArrayModel extends CakeTestModel {
 class ArraysRelateModel extends CakeTestModel {
 
 /**
- * Name of Model
- *
- * @var string
- */
-	public $name = 'ArraysRelateModel';
-
-/**
  * Database Configuration
  *
  * @var string
@@ -116,13 +102,6 @@ class ArraysRelateModel extends CakeTestModel {
  *
  */
 class UserModel extends CakeTestModel {
-
-/**
- * Name of model
- *
- * @var string
- */
-	public $name = 'UserModel';
 
 /**
  * Use DB Config
