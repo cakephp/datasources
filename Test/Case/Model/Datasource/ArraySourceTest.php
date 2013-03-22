@@ -363,6 +363,40 @@ class ArraySourceTest extends CakeTestCase {
 	}
 
 /**
+ * testFindConditionsWithComparisonOperators
+ *
+ * @return void
+ * @access public
+ */
+	public function testFindConditionsWithComparisonOperators() {
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.id <' => 2)));
+		$expected = array(
+			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1))
+		);
+		$this->assertSame($expected, $result);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.id <=' => 2)));
+		$expected = array(
+			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
+			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1))
+		);
+		$this->assertSame($expected, $result);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.id >' => 2)));
+		$expected = array(
+			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2))
+		);
+		$this->assertSame($expected, $result);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.id >=' => 2)));
+		$expected = array(
+			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)),
+			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2))
+		);
+		$this->assertSame($expected, $result);
+	}
+
+/**
  * testFindFirst
  *
  * @return void
