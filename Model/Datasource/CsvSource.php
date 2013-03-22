@@ -179,7 +179,7 @@ class CsvSource extends DataSource {
  * @return mixed
  */
 	public function describe($model) {
-		$this->__getDescriptionFromFirstLine($model);
+		$this->_getDescriptionFromFirstLine($model);
 		return $this->fields;
 	}
 
@@ -189,7 +189,7 @@ class CsvSource extends DataSource {
  * @param Model $model
  * @return boolean True, Success
  */
-	private function __getDescriptionFromFirstLine($model) {
+	protected function _getDescriptionFromFirstLine($model) {
 		$filename = $model->table . '.' . $this->config['extension'];
 		$handle = fopen($this->config['path'] . DS . $filename, 'r');
 		$line = rtrim(fgets($handle));
@@ -244,7 +244,7 @@ class CsvSource extends DataSource {
 			fseek($this->handle[$model->table], 0, SEEK_SET);
 		}
 
-		$queryData = $this->__scrubQueryData($queryData);
+		$queryData = $this->_scrubQueryData($queryData);
 
 		if (isset($queryData['limit']) && !empty($queryData['limit'])) {
 			$this->limit = $queryData['limit'];
@@ -294,7 +294,7 @@ class CsvSource extends DataSource {
 					$record[$model->alias][$field] = $data[$i++];
 				}
 
-				if ($this->__checkConditions($record, $queryData['conditions'], $model)) {
+				if ($this->_checkConditions($record, $queryData['conditions'], $model)) {
 					// Compute the virtual pagenumber
 					$_page = floor($findCount / $this->limit) + 1;
 					if ($this->page <= $_page) {
@@ -331,7 +331,7 @@ class CsvSource extends DataSource {
  * @param array $data Data
  * @return array Cleaned Data
  */
-	private function __scrubQueryData($data) {
+	protected function _scrubQueryData($data) {
 		foreach (array('conditions', 'fields', 'joins', 'order', /*'limit', 'offset',*/ 'group') as $key) {
 			if (!isset($data[$key]) || empty($data[$key])) {
 				$data[$key] = array();
@@ -353,7 +353,7 @@ class CsvSource extends DataSource {
  * @param array $conditions
  * @return bool
  */
-	private function __checkConditions($record, $conditions, $model) {
+	protected function _checkConditions($record, $conditions, $model) {
 		$result = true;
 		foreach ($conditions as $name => $value) {
 			$alias = $model->alias;
@@ -368,18 +368,18 @@ class CsvSource extends DataSource {
 					list($condAlias, $name) = pluginSplit($name);
 					if (is_array($value)) {
 						foreach ($value as $val) {
-							if (Set::matches($this->__createRule($name, $val), $record[$alias])) {
+							if (Set::matches($this->_createRule($name, $val), $record[$alias])) {
 								$result = true;
 							}
 						}
 					} else {
-						if (Set::matches($this->__createRule($name, $value), $record[$alias])) {
+						if (Set::matches($this->_createRule($name, $value), $record[$alias])) {
 							$result = true;
 						}
 					}
 				}
 			} else {
-				if (!Set::matches($this->__createRule($name, $value), $record[$alias])) {
+				if (!Set::matches($this->_createRule($name, $value), $record[$alias])) {
 					return false;
 				}
 			}
@@ -394,7 +394,7 @@ class CsvSource extends DataSource {
  * @param string $value
  * @return string
  */
-	private function __createRule($name, $value) {
+	protected function _createRule($name, $value) {
 		if (strpos($name, ' ') !== false) {
 			return array(str_replace(' ', '', $name) . $value);
 		}
