@@ -59,7 +59,7 @@ class AmazonAssociatesTestCase extends CakeTestCase {
  * @return void
  * @access public
  */
-	function startTest(){
+	function startTest($method){
 		$this->Amazon = $this->getMock('AmazonAssociatesSource', array('_request'), array($this->config));
 	}
 
@@ -139,7 +139,7 @@ class AmazonAssociatesTestCase extends CakeTestCase {
  * @return void
  * @access public
  */
-	function endTest(){
+	function endTest($method){
 		unset($this->Amazon);
 	}
 }
