@@ -133,7 +133,7 @@ class CsvSource extends DataSource {
 			$mode = 0777;
 		}
 
-		$this->connection =& new Folder($this->config['path'], $create, $mode);
+		$this->connection = new Folder($this->config['path'], $create, $mode);
 		if ($this->connection) {
 			$this->handle = array();
 			$this->connected = true;
@@ -408,7 +408,7 @@ class CsvSource extends DataSource {
  * @param array $params
  * @return array
  */
-	public function calculate(&$model, $func, $params = array()) {
+	public function calculate(Model $model, $func, $params = array()) {
 		return array('count' => true);
 	}
 }

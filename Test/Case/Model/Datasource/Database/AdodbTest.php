@@ -213,7 +213,7 @@ class DboAdodbTest extends CakeTestCase {
  *
  * @access public
  */
-	function startTest() {
+	function startTest($method) {
 		$db = ConnectionManager::getDataSource('test_suite');
 		$this->db = new DboAdoTestDb($db->config);
 		$this->model = new AdodbTestModel();
