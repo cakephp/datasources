@@ -31,13 +31,6 @@ ConnectionManager::create('test_array', array('datasource' => 'Datasources.Array
 class ArrayModel extends CakeTestModel {
 
 /**
- * Name of Model
- *
- * @var string
- */
-	public $name = 'ArrayModel';
-
-/**
  * Database Configuration
  *
  * @var string
@@ -82,13 +75,6 @@ class ArrayModel extends CakeTestModel {
 class ArraysRelateModel extends CakeTestModel {
 
 /**
- * Name of Model
- *
- * @var string
- */
-	public $name = 'ArraysRelateModel';
-
-/**
  * Database Configuration
  *
  * @var string
@@ -116,13 +102,6 @@ class ArraysRelateModel extends CakeTestModel {
  *
  */
 class UserModel extends CakeTestModel {
-
-/**
- * Name of model
- *
- * @var string
- */
-	public $name = 'UserModel';
 
 /**
  * Use DB Config
@@ -360,6 +339,40 @@ class ArraySourceTest extends CakeTestCase {
 			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2))
 		);
 		$this->assertIdentical($result, $expected);
+	}
+
+/**
+ * testFindConditionsWithComparisonOperators
+ *
+ * @return void
+ * @access public
+ */
+	public function testFindConditionsWithComparisonOperators() {
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.id <' => 2)));
+		$expected = array(
+			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1))
+		);
+		$this->assertSame($expected, $result);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.id <=' => 2)));
+		$expected = array(
+			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
+			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1))
+		);
+		$this->assertSame($expected, $result);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.id >' => 2)));
+		$expected = array(
+			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2))
+		);
+		$this->assertSame($expected, $result);
+
+		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.id >=' => 2)));
+		$expected = array(
+			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)),
+			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2))
+		);
+		$this->assertSame($expected, $result);
 	}
 
 /**
