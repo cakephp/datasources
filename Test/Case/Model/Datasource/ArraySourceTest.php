@@ -34,7 +34,6 @@ class ArrayModel extends CakeTestModel {
  * Name of Model
  *
  * @var string
- * @access public
  */
 	public $name = 'ArrayModel';
 
@@ -42,7 +41,6 @@ class ArrayModel extends CakeTestModel {
  * Database Configuration
  *
  * @var string
- * @access public
  */
 	public $useDbConfig = 'test_array';
 
@@ -50,7 +48,6 @@ class ArrayModel extends CakeTestModel {
  * Set recursive
  *
  * @var integer
- * @access public
  */
 	public $recursive = -1;
 
@@ -58,7 +55,6 @@ class ArrayModel extends CakeTestModel {
  * Records
  *
  * @var array
- * @access public
  */
 	public $records = array(
 		array(
@@ -89,7 +85,6 @@ class ArraysRelateModel extends CakeTestModel {
  * Name of Model
  *
  * @var string
- * @access public
  */
 	public $name = 'ArraysRelateModel';
 
@@ -97,7 +92,6 @@ class ArraysRelateModel extends CakeTestModel {
  * Database Configuration
  *
  * @var string
- * @access public
  */
 	public $useDbConfig = 'test_array';
 
@@ -105,7 +99,6 @@ class ArraysRelateModel extends CakeTestModel {
  * Records
  *
  * @var array
- * @access public
  */
 	public $records = array(
 		array('array_model_id' => 1, 'relate_id' => 1),
@@ -128,7 +121,6 @@ class UserModel extends CakeTestModel {
  * Name of model
  *
  * @var string
- * @access public
  */
 	public $name = 'UserModel';
 
@@ -136,7 +128,6 @@ class UserModel extends CakeTestModel {
  * Use DB Config
  *
  * @var string
- * @access public
  */
 	public $useDbConfig = 'test';
 
@@ -144,7 +135,6 @@ class UserModel extends CakeTestModel {
  * Use Table
  *
  * @var string
- * @access public
  */
 	public $useTable = 'users';
 
@@ -152,7 +142,6 @@ class UserModel extends CakeTestModel {
  * Belongs To
  *
  * @var array
- * @access public
  */
 	public $belongsTo = array(
 		'Born' => array(
@@ -172,7 +161,6 @@ class ArraySourceTest extends CakeTestCase {
  * List of fixtures
  *
  * @var array
- * @access public
  */
 	public $fixtures = array('plugin.datasources.user');
 
@@ -180,7 +168,6 @@ class ArraySourceTest extends CakeTestCase {
  * Array Source Instance
  *
  * @var ArraySource
- * @access public
  */
 	public $Model = null;
 
@@ -188,7 +175,6 @@ class ArraySourceTest extends CakeTestCase {
  * Set up for Tests
  *
  * @return void
- * @access public
  */
 	public function setUp() {
 		parent::setUp();
@@ -199,7 +185,6 @@ class ArraySourceTest extends CakeTestCase {
  * testFindAll
  *
  * @return void
- * @access public
  */
 	public function testFindAll() {
 		$result = $this->Model->find('all');
@@ -215,7 +200,6 @@ class ArraySourceTest extends CakeTestCase {
  * testFindFields
  *
  * @return void
- * @access public
  */
 	public function testFindFields() {
 		$expected = array(
@@ -237,7 +221,6 @@ class ArraySourceTest extends CakeTestCase {
  * testField
  *
  * @return void
- * @access public
  */
 	public function testField() {
 		$expected = 2;
@@ -257,7 +240,6 @@ class ArraySourceTest extends CakeTestCase {
  * testFindLimit
  *
  * @return void
- * @access public
  */
 	public function testFindLimit() {
 		$result = $this->Model->find('all', array('limit' => 2));
@@ -278,7 +260,6 @@ class ArraySourceTest extends CakeTestCase {
  * testFindOrder
  *
  * @return void
- * @access public
  */
 	public function testFindOrder() {
 		$result = $this->Model->find('all', array('order' => 'ArrayModel.name'));
@@ -308,7 +289,6 @@ class ArraySourceTest extends CakeTestCase {
  * testFindConditions
  *
  * @return void
- * @access public
  */
 	public function testFindConditions() {
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name' => 'USA')));
@@ -361,7 +341,6 @@ class ArraySourceTest extends CakeTestCase {
  * testFindconditionsRecursive
  *
  * @return void
- * @access public
  */
 	public function testFindConditionsRecursive() {
 		$result = $this->Model->find('all', array('conditions' => array('AND' => array('ArrayModel.name' => 'USA', 'ArrayModel.id' => 2))));
@@ -387,7 +366,6 @@ class ArraySourceTest extends CakeTestCase {
  * testFindFirst
  *
  * @return void
- * @access public
  */
 	public function testFindFirst() {
 		$result = $this->Model->find('first');
@@ -403,7 +381,6 @@ class ArraySourceTest extends CakeTestCase {
  * testFindCount
  *
  * @return void
- * @access public
  */
 	public function testFindCount() {
 		$result = $this->Model->find('count');
@@ -423,7 +400,6 @@ class ArraySourceTest extends CakeTestCase {
  * testFindList
  *
  * @return void
- * @access public
  */
 	public function testFindList() {
 		$result = $this->Model->find('list');
@@ -440,7 +416,6 @@ class ArraySourceTest extends CakeTestCase {
  * testRead
  *
  * @return void
- * @access public
  */
 	public function testRead() {
 		$result = $this->Model->read(null, 1);
@@ -456,7 +431,6 @@ class ArraySourceTest extends CakeTestCase {
  * testDboToArrayBelongsTo
  *
  * @return void
- * @access public
  */
 	public function testDboToArrayBelongsTo() {
 		ClassRegistry::config(array());
@@ -464,7 +438,7 @@ class ArraySourceTest extends CakeTestCase {
 
 		$result = $model->find('all', array('recursive' => 0));
 		// unset primaryKey, wich can be integer/serial or hash value
-		foreach($result as &$row) {
+		foreach ($result as &$row) {
 			unset($row['UserModel'][$model->primaryKey]);
 		}
 		$expected = array(
@@ -478,7 +452,7 @@ class ArraySourceTest extends CakeTestCase {
 		$model->belongsTo['Born']['fields'] = array('name');
 		$result = $model->find('all', array('recursive' => 0));
 		// unset primaryKey, wich can be integer/serial or hash value
-		foreach($result as &$row) {
+		foreach ($result as &$row) {
 			unset($row['UserModel'][$model->primaryKey]);
 		}
 		$expected = array(
@@ -499,7 +473,6 @@ class ArraySourceTest extends CakeTestCase {
  * testDboToArrayBelongsToWithoutForeignKey
  *
  * @return void
- * @access public
  */
 	public function testDboToArrayBelongsToWithoutForeignKey() {
 		ClassRegistry::config(array());
@@ -510,12 +483,12 @@ class ArraySourceTest extends CakeTestCase {
 			'recursive' => 0
 		));
 		// unset primaryKey, wich can be integer/serial or hash value
-		foreach($result as &$row) {
+		foreach ($result as &$row) {
 			unset($row['UserModel'][$model->primaryKey]);
 		}
 		$expected = array(
 			array(
-				'UserModel' => array( 'name' => 'User 1'),
+				'UserModel' => array('name' => 'User 1'),
 				'Born' => array()
 			),
 			array(
@@ -538,7 +511,6 @@ class ArraySourceTest extends CakeTestCase {
  * testDboToArrayHasMany
  *
  * @return void
- * @access public
  */
 	public function testDboToArrayHasMany() {
 		ClassRegistry::config(array());
@@ -548,7 +520,7 @@ class ArraySourceTest extends CakeTestCase {
 
 		$result = $model->find('all', array('recursive' => 1));
 		// unset primaryKey, wich can be integer/serial or hash value
-		foreach($result as &$row) {
+		foreach ($result as &$row) {
 			unset($row['UserModel'][$model->primaryKey]);
 		}
 		$expected = array(
@@ -580,7 +552,6 @@ class ArraySourceTest extends CakeTestCase {
  * testDboToArrayHasOne
  *
  * @return void
- * @access public
  */
 	public function testDboToArrayHasOne() {
 		ClassRegistry::config(array());
@@ -590,7 +561,7 @@ class ArraySourceTest extends CakeTestCase {
 
 		$result = $model->find('all', array('recursive' => 1));
 		// unset primaryKey, wich can be integer/serial or hash value
-		foreach($result as &$row) {
+		foreach ($result as &$row) {
 			unset($row['UserModel'][$model->primaryKey]);
 		}
 		$expected = array(
@@ -617,7 +588,6 @@ class ArraySourceTest extends CakeTestCase {
  * testArrayToArrayBelongsTo
  *
  * @return void
- * @access public
  */
 	public function testArrayToArrayBelongsTo() {
 		ClassRegistry::config(array());
@@ -673,7 +643,6 @@ class ArraySourceTest extends CakeTestCase {
  * testArrayToArrayBelongsToWithoutForeignKey
  *
  * @return void
- * @access public
  */
 	public function testArrayToArrayBelongsToWithoutForeignKey() {
 		ClassRegistry::config(array());
@@ -705,7 +674,6 @@ class ArraySourceTest extends CakeTestCase {
  * testArrayToArrayHasMany
  *
  * @return void
- * @access public
  */
 	public function testArrayToArrayHasMany() {
 		ClassRegistry::config(array());
@@ -738,7 +706,6 @@ class ArraySourceTest extends CakeTestCase {
  * testArrayToArrayHasOne
  *
  * @return void
- * @access public
  */
 	public function testArrayToArrayHasOne() {
 		ClassRegistry::config(array());
@@ -768,7 +735,6 @@ class ArraySourceTest extends CakeTestCase {
  * testArrayToArrayHasAndBelongsToMany
  *
  * @return void
- * @access public
  */
 	public function testArrayToArrayHasAndBelongsToMany() {
 		ClassRegistry::config(array());

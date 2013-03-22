@@ -95,12 +95,13 @@ class CsvSource extends DataSource {
  *
  * @var array
  */
-	public $_baseConfig = array(
+	protected $_baseConfig = array(
 		'datasource' => 'csv',
 		'path' => '.',
 		'extension' => 'csv',
 		'readonly' => true,
-		'recursive' => false);
+		'recursive' => false
+	);
 
 /**
  * Constructor
@@ -156,7 +157,7 @@ class CsvSource extends DataSource {
 		$extPattern = '\.' . preg_quote($this->config['extension']);
 		if ($this->config['recursive']) {
 			$list = $this->connection->findRecursive('.*' . $extPattern, true);
-			foreach($list as &$item) {
+			foreach ($list as &$item) {
 				$item = mb_substr($item, mb_strlen($this->config['path'] . DS));
 			}
 		} else {
@@ -190,19 +191,19 @@ class CsvSource extends DataSource {
  */
 	private function __getDescriptionFromFirstLine($model) {
 		$filename = $model->table . '.' . $this->config['extension'];
-		$handle = fopen($this->config['path'] . DS .  $filename, 'r');
+		$handle = fopen($this->config['path'] . DS . $filename, 'r');
 		$line = rtrim(fgets($handle));
-		$data_comma = explode(',', $line);
-		$data_semicolon = explode(';', $line);
+		$dataComma = explode(',', $line);
+		$dataSemicolon = explode(';', $line);
 
-		if (count($data_comma) > count($data_semicolon)) {
+		if (count($dataComma) > count($dataSemicolon)) {
 			$this->delimiter = ',';
-			$this->fields = $data_comma;
-			$this->maxCol = count($data_comma);
+			$this->fields = $dataComma;
+			$this->maxCol = count($dataComma);
 		} else {
 			$this->delimiter = ';';
-			$this->fields = $data_semicolon;
-			$this->maxCol = count($data_semicolon);
+			$this->fields = $dataSemicolon;
+			$this->maxCol = count($dataSemicolon);
 		}
 		fclose($handle);
 		return true;
@@ -216,8 +217,8 @@ class CsvSource extends DataSource {
 	public function close() {
 		if ($this->connected) {
 			if (!empty($this->handle)) {
-				foreach($this->handle as $h) {
-				  @fclose($h);
+				foreach ($this->handle as $h) {
+					@fclose($h);
 				}
 				$this->handle = false;
 			}
@@ -240,7 +241,7 @@ class CsvSource extends DataSource {
 		if (!Set::extract($this->handle, $model->table)) {
 			$this->handle[$model->table] = fopen($filename, 'r');
 		} else {
-			fseek($this->handle[$model->table], 0, SEEK_SET) ;
+			fseek($this->handle[$model->table], 0, SEEK_SET);
 		}
 
 		$queryData = $this->__scrubQueryData($queryData);
@@ -262,8 +263,8 @@ class CsvSource extends DataSource {
 			$_fieldIndex = array();
 			$index = 0;
 			// generate an index array of all wanted fields
-			foreach($this->fields as $field) {
-				if (in_array($field,  $fields)) {
+			foreach ($this->fields as $field) {
+				if (in_array($field, $fields)) {
 					$_fieldIndex[] = $index;
 				}
 				$index++;
@@ -276,7 +277,7 @@ class CsvSource extends DataSource {
 		$resultSet = array();
 
 		// Daten werden aus der Datei in ein Array $data gelesen
-		while (($data = fgetcsv($this->handle[$model->table], 8192, $this->delimiter)) !== FALSE) {
+		while (($data = fgetcsv($this->handle[$model->table], 8192, $this->delimiter)) !== false) {
 			if ($lineCount == 0) {
 				$lineCount++;
 				continue;
@@ -289,7 +290,7 @@ class CsvSource extends DataSource {
 				$record = array();
 				$i = 0;
 
-				foreach((array) $this->fields as $field) {
+				foreach ((array)$this->fields as $field) {
 					$record[$model->alias][$field] = $data[$i++];
 				}
 
@@ -300,12 +301,12 @@ class CsvSource extends DataSource {
 						if (!$allFields) {
 							$record = array();
 							if (count($_fieldIndex) > 0) {
-								foreach($_fieldIndex as $i) {
+								foreach ($_fieldIndex as $i) {
 									$record[$model->alias][$this->fields[$i]] = $data[$i];
 								}
 							}
 						}
-						$resultSet[] = $record ;
+						$resultSet[] = $record;
 						$recordCount++;
 					}
 				}
@@ -355,10 +356,10 @@ class CsvSource extends DataSource {
 	private function __checkConditions($record, $conditions, $model) {
 		$result = true;
 		foreach ($conditions as $name => $value) {
-            $alias = $model->alias;
-            if (strpos($name, '.') !== false) {
-                list($alias, $name) = explode('.', $name);
-            }
+			$alias = $model->alias;
+			if (strpos($name, '.') !== false) {
+				list($alias, $name) = explode('.', $name);
+			}
 
 			if (strtolower($name) === 'or') {
 				$cond = $value;

@@ -45,7 +45,7 @@ class ArraySource extends DataSource {
  *
  * @var array
  */
-	public $_baseConfig = array(
+	protected $_baseConfig = array(
 		'driver' => '' // Just to avoid DebugKit warning
 	);
 
@@ -94,7 +94,7 @@ class ArraySource extends DataSource {
 		if (!isset($model->records) || !is_array($model->records) || empty($model->records)) {
 			$this->_requestsLog[] = array(
 				'query' => 'Model ' . $model->alias,
-				'error' => __('No records found in model.', true),
+				'error' => __('No records found in model.'),
 				'affected' => 0,
 				'numRows' => 0,
 				'took' => 0
@@ -355,7 +355,7 @@ class ArraySource extends DataSource {
 						'recursive' => $recursive
 					));
 					$find = array(
-						$association => (array) Set::extract('{n}.' . $association, $find)
+						$association => (array)Set::extract('{n}.' . $association, $find)
 					);
 				}
 			} elseif ($type === 'hasAndBelongsToMany' && array_key_exists($model->primaryKey, $result[$model->alias])) {
@@ -402,7 +402,7 @@ class ArraySource extends DataSource {
 		if ($clear) {
 			$this->_requestsLog = array();
 		}
-		return array('log' => $log, 'count' => count($log), 'time' => array_sum((array) Set::extract('{n}.took', $log)));
+		return array('log' => $log, 'count' => count($log), 'time' => array_sum((array)Set::extract('{n}.took', $log)));
 	}
 
 /**
@@ -414,7 +414,7 @@ class ArraySource extends DataSource {
  * @param integer $numRows
  * @return void
  */
-	public function _registerLog(&$model, &$queryData, $took, $numRows) {
+	protected function _registerLog(&$model, &$queryData, $took, $numRows) {
 		if (!Configure::read()) {
 			return;
 		}
