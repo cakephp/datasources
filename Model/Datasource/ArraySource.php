@@ -218,7 +218,7 @@ class ArraySource extends DataSource {
  * @param boolean $or
  * @return void
  */
-	public function conditionsFilter(&$model, $record, $conditions, $or = false) {
+	public function conditionsFilter(Model $model, $record, $conditions, $or = false) {
 		foreach ($conditions as $field => $value) {
 			$return = null;
 			if ($value === '') {
@@ -332,7 +332,7 @@ class ArraySource extends DataSource {
  * @param integer $recursive Number of levels of association
  * @param array $stack
  */
-	public function queryAssociation(&$model, &$linkModel, $type, $association, $assocData, &$queryData, $external = false, &$resultSet, $recursive, $stack) {
+	public function queryAssociation(Model $model, &$linkModel, $type, $association, $assocData, &$queryData, $external = false, &$resultSet, $recursive, $stack) {
 		$assocData = array_merge(array('conditions' => null, 'fields' => null, 'order' => null), $assocData);
 		if (isset($queryData['conditions'])) {
 			$assocData['conditions'] = array_merge((array)$queryData['conditions'], (array)$assocData['conditions']);
@@ -426,7 +426,7 @@ class ArraySource extends DataSource {
  * @param integer $numRows
  * @return void
  */
-	protected function _registerLog(&$model, &$queryData, $took, $numRows) {
+	protected function _registerLog(Model $model, &$queryData, $took, $numRows) {
 		if (!Configure::read()) {
 			return;
 		}
@@ -446,7 +446,7 @@ class ArraySource extends DataSource {
  * @param array $queryData Query data sended by find
  * @return string Pseudo query
  */
-	protected function _pseudoSelect(&$model, &$queryData) {
+	protected function _pseudoSelect(Model $model, &$queryData) {
 		$out = '(symbolic) SELECT ';
 		if (empty($queryData['fields'])) {
 			$out .= '*';
