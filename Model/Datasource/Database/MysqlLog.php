@@ -2,34 +2,31 @@
 /**
  * MySQL Logging layer for DBO.
  *
- * PHP versions 4 and 5
+ * PHP 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2013, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2013, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       datasources
- * @subpackage    datasources.models.datasources.dbo
+ * @package       Datasources.Model.Datasource.Database
  * @since         CakePHP Datasources v 0.2
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-App::import('Datasource', 'DboSource');
-App::import('Datasource', 'DboMysql');
+App::uses('Mysql', 'Model/Datasource');
 
 /**
  * DBO implementation for the MySQL DBMS with logging enabled.
  *
  * A DboSource adapter for MySQL that enables developers to log queries
  *
- * @package datasources
- * @subpackage datasources.models.datasources.dbo
+ * @package       Datasources.Model.Datasource.Database
  */
-class DboMysqlLog extends DboMysql {
+class MysqlLog extends Mysql {
 
 /**
  * Datasource Description
@@ -39,15 +36,17 @@ class DboMysqlLog extends DboMysql {
 	public $description = 'MySQL Logging DBO Driver';
 
 /**
- * Log given SQL query.
+ * Log given SQL query. If config value `logQueries` is set to true the query
+ * will also be logged using CakeLog to 'sql' scope.
  *
  * @param string $sql SQL statement
+ * @param array $params Values binded to the query (prepared statements)
+ * @return void
  */
-	public function logQuery($sql) {
-		$return = parent::logQuery($sql);
+	public function logQuery($sql, $params = array()) {
+		parent::logQuery($sql, $params);
 		if (Configure::read('logQueries')) {
-			$this->log("sql[{$this->_queriesCnt}]:{$sql}", 'sql');
+			$this->log($this->_queriesLog[count($this->_queriesLog) - 1], 'sql');
 		}
-		return $return;
 	}
 }

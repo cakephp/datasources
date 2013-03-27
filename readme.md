@@ -9,6 +9,7 @@ The datasources plugin for CakePHP 2.0 is still in development. Refer to the fol
 * ArraySource
 * CsvSource
 * XmlrpcSource
+* Database/MysqlLog
 
 ### Still Incompatible Datasources:
 
@@ -18,7 +19,6 @@ The datasources plugin for CakePHP 2.0 is still in development. Refer to the fol
 * Database/Adodb
 * Database/Db2
 * Database/Firebird
-* Database/MysqlLog
 * Database/Odbc
 * Database/Sqlite3
 * Database/Sqlsrv
@@ -33,7 +33,7 @@ First download the repository and place it in `app/Plugin/Datasources` or on one
 Datasource plugin datasources can be used either through App::uses of by defining them in your database configuration
 
 	class DATABASE_CONFIG {
-		var $mySource = array(
+		public $mySource = array(
 			'datasource' => 'Datasources.XmlrpcSource',
 			...
 			);
@@ -47,7 +47,7 @@ or
 or, if using one of the pdo extended datasources,
 
 	class DATABASE_CONFIG {
-		var $mySource = array(
+		public $mySource = array(
 			'driver' => 'Datasources.Database/Firebird',
 			...
 			);
