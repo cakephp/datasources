@@ -133,7 +133,7 @@ class SoapSource extends DataSource {
  *
  * @return array List of SOAP methods
  */
-	public function listSources() {
+	public function listSources($data = NULL) {
 		return $this->client->__getFunctions();
 	}
 	
