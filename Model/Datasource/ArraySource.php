@@ -209,7 +209,6 @@ class ArraySource extends DataSource {
 			if (!isset($data[0])) $data = array($model->alias => array());
 			//$data = $data;
 		}
-		debug($model->findQueryType);
 		return $data;
 	}
 
