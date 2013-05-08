@@ -753,7 +753,13 @@ class ArraySourceTest extends CakeTestCase {
 		ClassRegistry::config(array());
 		$model = ClassRegistry::init('ArrayModel');
 		$model->unBindModel(array('hasOne' => array('Relate')), false);
-		$model->bindModel(array('hasAndBelongsToMany' => array('Relate' => array('className' => 'ArrayModel', 'with' => 'ArraysRelateModel', 'associationForeignKey' => 'relate_id'))), false);
+		$model->bindModel(array('hasAndBelongsToMany' => array(
+			'Relate' => array(
+				'className' => 'ArrayModel',
+				'with' => 'ArraysRelateModel',
+				'associationForeignKey' => 'relate_id'
+			)
+		)), false);
 
 		$result = $model->find('all', array('recursive' => 1));
 		$expected = array(
@@ -782,4 +788,51 @@ class ArraySourceTest extends CakeTestCase {
 		);
 		$this->assertEqual($result, $expected);
 	}
+
+/**
+ * testArrayToTableHasAndBelongsToMany
+ *
+ * @return void
+ */
+	public function testArrayToTableHasAndBelongsToMany() {
+		$User = ClassRegistry::init('UserModel');
+		$result = $User->find('all', array('recursive' => 1));
+		$User->bindModel(array('hasAndBelongsToMany' => array(
+			'Relate' => array(
+				'className' => 'ArrayModel',
+				'with' => 'ArraysRelateModel',
+				'foreignKey' => 'array_model_id',
+				'associationForeignKey' => 'relate_id'
+			)
+		)), false);
+		$User->unBindModel(array('belongsTo' => array('Born')), false);
+		$result = $User->find('all', array('recursive' => 1));
+
+		$User->ArraysRelateModel->records = array(
+			array('array_model_id' => 1, 'relate_id' => 1)
+		);
+		$result = $User->find('all', array('recursive' => 1));
+		$expected = array(
+			array(
+				'UserModel' => array('id' => 1, 'born_id' => 1, 'name' => 'User 1'),
+				'Relate' => array(
+					array('id' => 1, 'name' => 'USA', 'relate_id' => 1),
+				),
+			),
+			array(
+				'UserModel' => array('id' => 2, 'born_id' => 2, 'name' => 'User 2'),
+				'Relate' => array(),
+			),
+			array(
+				'UserModel' => array('id' => 3, 'born_id' => 1, 'name' => 'User 3'),
+				'Relate' => array(),
+			),
+			array(
+				'UserModel' => array('id' => 4, 'born_id' => 3, 'name' => 'User 4'),
+				'Relate' => array(),
+			)
+		);
+		$this->assertEqual($result, $expected);
+	}
+
 }

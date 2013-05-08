@@ -371,6 +371,7 @@ class ArraySource extends DataSource {
 					);
 				}
 			} elseif ($type === 'hasAndBelongsToMany' && array_key_exists($model->primaryKey, $result[$model->alias])) {
+				$find = array();
 				$hABTMModel = ClassRegistry::init($assocData['with']);
 				$ids = $hABTMModel->find('all', array(
 					'fields' => array(
@@ -380,16 +381,18 @@ class ArraySource extends DataSource {
 						$assocData['with'] . '.' . $assocData['foreignKey'] => $result[$model->alias][$model->primaryKey]
 					)
 				));
-				$ids = Set::extract('{n}.' . $assocData['with'] . '.' . $assocData['associationForeignKey'], $ids);
-				$find = $model->{$association}->find('all', array(
-					'conditions' => array_merge((array)$assocData['conditions'], array($association . '.' . $linkModel->primaryKey => $ids)),
-					'fields' => $assocData['fields'],
-					'order' => $assocData['order'],
-					'recursive' => $recursive
-				));
-				$find = array(
-					$association => Set::extract('{n}.' . $association, $find)
-				);
+				if ($ids) {
+					$ids = Set::extract('{n}.' . $assocData['with'] . '.' . $assocData['associationForeignKey'], $ids);
+					$find = $model->{$association}->find('all', array(
+						'conditions' => array_merge((array)$assocData['conditions'], array($association . '.' . $linkModel->primaryKey => $ids)),
+						'fields' => $assocData['fields'],
+						'order' => $assocData['order'],
+						'recursive' => $recursive
+					));
+					$find = array(
+						$association => (array)Set::extract('{n}.' . $association, $find)
+					);
+				}
 			}
 			if (empty($find)) {
 				$find = array($association => array());
