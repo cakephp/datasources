@@ -17,8 +17,10 @@
  * @since         CakePHP Datasources v 0.3
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-App::uses('Set', 'Utility');
+
+App::uses('Hash', 'Utility');
 App::uses('ConnectionManager', 'Model');
+
 /**
  * ArraySource
  *
@@ -147,7 +149,7 @@ class ArraySource extends DataSource {
 						list($field, $sort) = explode(' ', $field, 2);
 					}
 					if ($data) {
-						$data = Set::sort($data, '{n}.' . $model->alias . '.' . $field, $sort);
+						$data = Hash::sort($data, '{n}.' . $model->alias . '.' . $field, $sort);
 					}
 				}
 			}
@@ -332,7 +334,7 @@ class ArraySource extends DataSource {
  * @param integer $recursive Number of levels of association
  * @param array $stack
  */
-	public function queryAssociation(Model $model, &$linkModel, $type, $association, $assocData, &$queryData, $external = false, &$resultSet, $recursive, $stack) {
+	public function queryAssociation(Model $model, &$linkModel, $type, $association, $assocData, &$queryData, $external, &$resultSet, $recursive, $stack) {
 		$assocData = array_merge(array('conditions' => null, 'fields' => null, 'order' => null), $assocData);
 		if (isset($queryData['conditions'])) {
 			$assocData['conditions'] = array_merge((array)$queryData['conditions'], (array)$assocData['conditions']);
@@ -367,7 +369,7 @@ class ArraySource extends DataSource {
 						'recursive' => $recursive
 					));
 					$find = array(
-						$association => (array)Set::extract('{n}.' . $association, $find)
+						$association => Hash::extract($find, '{n}.' . $association)
 					);
 				}
 			} elseif ($type === 'hasAndBelongsToMany' && array_key_exists($model->primaryKey, $result[$model->alias])) {
@@ -382,7 +384,7 @@ class ArraySource extends DataSource {
 					)
 				));
 				if ($ids) {
-					$ids = Set::extract('{n}.' . $assocData['with'] . '.' . $assocData['associationForeignKey'], $ids);
+					$ids = Hash::extract($ids, '{n}.' . $assocData['with'] . '.' . $assocData['associationForeignKey']);
 					$find = $model->{$association}->find('all', array(
 						'conditions' => array_merge((array)$assocData['conditions'], array($association . '.' . $linkModel->primaryKey => $ids)),
 						'fields' => $assocData['fields'],
@@ -390,7 +392,7 @@ class ArraySource extends DataSource {
 						'recursive' => $recursive
 					));
 					$find = array(
-						$association => (array)Set::extract('{n}.' . $association, $find)
+						$association => Hash::extract($find, '{n}.' . $association)
 					);
 				}
 			}
@@ -417,7 +419,7 @@ class ArraySource extends DataSource {
 		if ($clear) {
 			$this->_requestsLog = array();
 		}
-		return array('log' => $log, 'count' => count($log), 'time' => array_sum((array)Set::extract('{n}.took', $log)));
+		return array('log' => $log, 'count' => count($log), 'time' => array_sum(Hash::extract($log, '{n}.took')));
 	}
 
 /**
