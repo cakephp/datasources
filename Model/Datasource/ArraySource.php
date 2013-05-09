@@ -107,8 +107,13 @@ class ArraySource extends DataSource {
 		$data = array();
 		$i = 0;
 		$limit = false;
-		if (!isset($queryData['recursive'])) {
-			$queryData['recursive'] = $model->recursive;
+		if ($recursive === null && isset($queryData['recursive'])) {
+			$recursive = $queryData['recursive'];
+		}
+
+		if (!is_null($recursive)) {
+			$_recursive = $model->recursive;
+			$model->recursive = $recursive;
 		}
 		if (is_integer($queryData['limit']) && $queryData['limit'] > 0) {
 			$limit = $queryData['page'] * $queryData['limit'];
@@ -180,7 +185,7 @@ class ArraySource extends DataSource {
 		}
 		$this->_registerLog($model, $queryData, microtime(true) - $startTime, count($data));
 		$_associations = $model->_associations;
-		if ($queryData['recursive'] > -1) {
+		if ($model->recursive > -1) {
 			foreach ($_associations as $type) {
 				foreach ($model->{$type} as $assoc => $assocData) {
 					$linkModel = $model->{$assoc};
@@ -194,7 +199,7 @@ class ArraySource extends DataSource {
 					if (isset($db)) {
 						if (method_exists($db, 'queryAssociation')) {
 							$stack = array($assoc);
-							$db->queryAssociation($model, $linkModel, $type, $assoc, $assocData, $queryData, true, $data, $queryData['recursive'] - 1, $stack);
+							$db->queryAssociation($model, $linkModel, $type, $assoc, $assocData, $queryData, true, $data, $model->recursive - 1, $stack);
 						}
 						unset($db);
 					}
@@ -207,6 +212,10 @@ class ArraySource extends DataSource {
 			} else {
 				$data = array($data[0]);
 			}
+		}
+
+		if (!is_null($recursive)) {
+			$model->recursive = $_recursive;
 		}
 		return $data;
 	}
