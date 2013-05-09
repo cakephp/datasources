@@ -66,6 +66,28 @@ class ArraySource extends DataSource {
 	public $endQuote = null;
 
 /**
+ * Imitation of DboSource method.
+ * @param mixed $data Either a string with a column to quote. An array of columns
+ *   to quote.
+ * @return string SQL field
+ */
+	public function name($data) {
+		if (is_object($data) && isset($data->type)) {
+			return $data->value;
+		}
+		if ($data === '*') {
+			return '*';
+		}
+		if (is_array($data)) {
+			foreach ($data as $i => $dataItem) {
+				$data[$i] = $this->name($dataItem);
+			}
+			return $data;
+		}
+		return (string)$data;
+	}
+
+/**
  * Returns a Model description (metadata) or null if none found.
  *
  * @param Model $model
