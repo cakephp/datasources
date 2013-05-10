@@ -88,7 +88,7 @@ class XmlrpcSource extends DataSource {
  * @param Model $model Reference to model (unused)
  * @return mixed Response of XML-RPC Server. If return false, $this->error contain a error message.
  */
-	public function query($method, $params = array(), &$model = null) {
+	public function query($method, $params = array(), $model = null) {
 		if (!is_string($method)) {
 			return false;
 		}
@@ -127,7 +127,7 @@ class XmlrpcSource extends DataSource {
 			'path' => $this->config['url']
 		);
 		try {
-			$response = $this->HttpSocket->post($uri, $xmlRequest, array('header' => array('Content-Type' => 'text/xml')));			
+			$response = $this->HttpSocket->post($uri, $xmlRequest, array('header' => array('Content-Type' => 'text/xml')));
 		} catch (Exception $e) {
 			return $this->_error(-32300, $e->getMessage());
 		}

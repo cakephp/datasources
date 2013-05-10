@@ -33,7 +33,7 @@ App::import('Vendor', 'NewADOConnection', array('file' => 'adodb' . DS . 'adodb.
  * @package       cake
  * @subpackage    cake.cake.libs.model.datasources.dbo
  */
-class DboAdodb extends DboSource {
+class Adodb extends DboSource {
 
 /**
  * Enter description here...
