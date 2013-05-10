@@ -53,8 +53,8 @@ class XmlrpcModel extends CakeTestModel {
  */
 	function getStateName($number) {
 		$params = array('examples.getStateName', array($number), &$this);
-		$db =& ConnectionManager::getDataSource($this->useDbConfig);
-		return call_user_func_array(array(&$db, 'query'), $params);
+		$db = ConnectionManager::getDataSource($this->useDbConfig);
+		return call_user_func_array(array($db, 'query'), $params);
 	}
 
 }
@@ -74,7 +74,7 @@ class XmlrpcTestSource extends XmlrpcSource {
  * @return mixed Response of XML-RPC Server. If return false, $this->error contain a error message.
  * @access public
  */
-	function query($method, $params, &$model) {
+	function query($method, $params = array(), $model = null) {
 		return array($method, $params, $model);
 	}
 
@@ -358,8 +358,9 @@ class XmlrpcSourceTest extends CakeTestCase {
  */
 	function testWithModel() {
 		$connection = array(
-			'datasource' => 'Datasources.XmlrpcTestSource',
+			'datasource' => 'Datasources.Datasource/XmlrpcTestSource',
 		);
+		App::uses('XmlrpcTestSource', 'Datasources.Model/Datasource');
 		ConnectionManager::create('test_xmlrpc', $connection);
 		$model = ClassRegistry::init('XmlrpcModel');
 

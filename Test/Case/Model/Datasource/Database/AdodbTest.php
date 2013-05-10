@@ -19,8 +19,8 @@
  * @since         CakePHP Datasources v 0.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-App::import('Model');
-App::import('Datasource', 'Datasources.DboAdodb');
+App::uses('Model', 'Model');
+App::uses('Adodb', 'Datasources.Model/Datasource/Database');
 
 /**
  * DboAdoTestDb
@@ -28,7 +28,7 @@ App::import('Datasource', 'Datasources.DboAdodb');
  * @package       datasources
  * @subpackage    datasources.tests.cases.models.datasources.dbo
  */
-class DboAdoTestDb extends DboAdodb {
+class DboAdoTestDb extends Adodb {
 
 /**
  * simulated property
@@ -204,7 +204,7 @@ class DboAdodbTest extends CakeTestCase {
  */
 	function skip() {
 		$this->_initDb();
-		$db =& ConnectionManager::getDataSource('test_suite');
+		$db =& ConnectionManager::getDataSource('test');
 		$this->skipIf($db->config['driver'] != 'adodb', '%s Adodb connection not available');
 	}
 
@@ -214,7 +214,8 @@ class DboAdodbTest extends CakeTestCase {
  * @access public
  */
 	function startTest($method) {
-		$db = ConnectionManager::getDataSource('test_suite');
+		$this->markTestSkipped('Test not compatible with cake 2.0');
+		$db = ConnectionManager::getDataSource('test');
 		$this->db = new DboAdoTestDb($db->config);
 		$this->model = new AdodbTestModel();
 	}
