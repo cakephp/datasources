@@ -66,7 +66,7 @@ class AmazonAssociatesSource extends DataSource {
  * @var array
  */
 	public $query = null;
-  
+
 /**
  * Signed request string to pass to Amazon
  *
@@ -86,8 +86,8 @@ class AmazonAssociatesSource extends DataSource {
  *
  * @var array
  */
-	private $__requestLog = array();
-	
+	protected $__requestLog = array();
+
 /**
  * Constructor
  *
@@ -156,7 +156,7 @@ class AmazonAssociatesSource extends DataSource {
 		);
 		return $this->__request();
 	}
-	
+
 /**
  * Play nice with the DebugKit
  *
@@ -177,7 +177,7 @@ class AmazonAssociatesSource extends DataSource {
  *
  * @return mixed array of the resulting request or false if unable to contact server
  */
-	private function __request() {
+	protected function __request() {
 		$this->_request = $this->__signQuery();
 		$this->__requestLog[] = $this->_request;
 		$retval = $this->Http->get($this->_request);
@@ -190,7 +190,7 @@ class AmazonAssociatesSource extends DataSource {
  *
  * @return string request signed string.
  */
-	private function __signQuery() {
+	protected function __signQuery() {
 		$method = 'GET';
 		$host = 'ecs.amazonaws.' . $this->region;
 		$uri = '/onca/xml';
