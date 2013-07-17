@@ -66,7 +66,7 @@ class AmazonAssociatesSource extends DataSource {
  * @var array
  */
 	public $query = null;
-  
+
 /**
  * Signed request string to pass to Amazon
  *
@@ -87,7 +87,7 @@ class AmazonAssociatesSource extends DataSource {
  * @var array
  */
 	private $__requestLog = array();
-	
+
 /**
  * Constructor
  *
@@ -127,7 +127,7 @@ class AmazonAssociatesSource extends DataSource {
 				'Service'        => 'AWSECommerceService',
 				'AWSAccessKeyId' => $this->config['key'],
 				'Timestamp'      => gmdate("Y-m-d\TH:i:s\Z"),
-				'AccociateTag'   => $this->config['tag'],
+				'AssociateTag'   => $this->config['tag'],
 				'Operation'      => 'ItemSearch',
 				'Version'        => '2009-03-31',
 			),
@@ -148,7 +148,7 @@ class AmazonAssociatesSource extends DataSource {
 				'Service'        => 'AWSECommerceService',
 				'AWSAccessKeyId' => $this->config['key'],
 				'Timestamp'      => gmdate("Y-m-d\TH:i:s\Z"),
-				'AccociateTag'   => $this->config['tag'],
+				'AssociateTag'   => $this->config['tag'],
 				'Version'        => '2009-03-31',
 				'Operation'      => 'ItemLookup',
 			),
@@ -156,7 +156,7 @@ class AmazonAssociatesSource extends DataSource {
 		);
 		return $this->__request();
 	}
-	
+
 /**
  * Play nice with the DebugKit
  *
