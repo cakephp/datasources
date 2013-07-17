@@ -66,7 +66,7 @@ class AmazonAssociatesSource extends DataSource {
  * @var array
  */
 	public $query = null;
-  
+
 /**
  * Signed request string to pass to Amazon
  *
@@ -87,7 +87,7 @@ class AmazonAssociatesSource extends DataSource {
  * @var array
  */
 	private $__requestLog = array();
-	
+
 /**
  * Constructor
  *
@@ -156,7 +156,7 @@ class AmazonAssociatesSource extends DataSource {
 		);
 		return $this->__request();
 	}
-	
+
 /**
  * Play nice with the DebugKit
  *
@@ -181,7 +181,10 @@ class AmazonAssociatesSource extends DataSource {
 		$this->_request = $this->__signQuery();
 		$this->__requestLog[] = $this->_request;
 		$retval = $this->Http->get($this->_request);
-		return Set::reverse(new Xml($retval));
+		$responseBodyXmlString = $retval->body;
+		$responseBodyXmlObj = Xml::build($responseBodyXmlString);
+		$responseBodyArray = Xml::toArray($responseBodyXmlObj);
+		return $responseBodyArray;
 	}
 
 /**
