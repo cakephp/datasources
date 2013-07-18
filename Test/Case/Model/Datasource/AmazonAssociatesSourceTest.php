@@ -140,7 +140,7 @@ class AmazonAssociatesTestCase extends CakeTestCase {
  * @return void
  * @access public
  */
-	function testRequest() {
+	function testRequestReturnsExpectedData() {
 		$query = array(
 		    'Service' => 'AWSECommerceService',
 		    'AWSAccessKeyId' => 'PUBLICKEY',
@@ -150,9 +150,7 @@ class AmazonAssociatesTestCase extends CakeTestCase {
 		    'Operation' => 'ItemSearch',
 		);
 		$results = $this->Amazon->find(null, $query);
-		$resultsType = gettype($results);
-		$expected = array('array', 'boolean');
-		$this->assertContains($resultsType, $expected);
+		$this->assertTrue($results === false || (is_array($results) && !empty($results)));
 	}
 
 /**
