@@ -86,7 +86,7 @@ class AmazonAssociatesSource extends DataSource {
  *
  * @var array
  */
-	protected $__requestLog = array();
+	protected $_requestLog = array();
 
 /**
  * Constructor
@@ -133,7 +133,7 @@ class AmazonAssociatesSource extends DataSource {
 			),
 			$query
 		);
-		return $this->__request();
+		return $this->_request();
 	}
 
 /**
@@ -154,7 +154,7 @@ class AmazonAssociatesSource extends DataSource {
 			),
      		array('ItemId' => $id)
 		);
-		return $this->__request();
+		return $this->_request();
 	}
 
 /**
@@ -165,9 +165,9 @@ class AmazonAssociatesSource extends DataSource {
  * @return array of log requested
  */
 	public function getLog($sorted = false, $clear = true) {
-		$log = $this->__requestLog;
+		$log = $this->_requestLog;
 		if($clear){
-			$this->__requestLog = array();
+			$this->_requestLog = array();
 		}
 		return array('log' => $log, 'count' => count($log), 'time' => 'Unknown');
 	}
@@ -177,9 +177,9 @@ class AmazonAssociatesSource extends DataSource {
  *
  * @return mixed array of the resulting request or false if unable to contact server
  */
-	protected function __request() {
-		$this->_request = $this->__signQuery();
-		$this->__requestLog[] = $this->_request;
+	protected function _request() {
+		$this->_request = $this->_signQuery();
+		$this->_requestLog[] = $this->_request;
 		$retval = $this->Http->get($this->_request);
 		return Set::reverse(new Xml($retval));
 	}
@@ -190,7 +190,7 @@ class AmazonAssociatesSource extends DataSource {
  *
  * @return string request signed string.
  */
-	protected function __signQuery() {
+	protected function _signQuery() {
 		$method = 'GET';
 		$host = 'ecs.amazonaws.' . $this->region;
 		$uri = '/onca/xml';
