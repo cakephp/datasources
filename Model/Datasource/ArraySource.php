@@ -2,29 +2,29 @@
 /**
  * Array Datasource
  *
- * PHP versions 4 and 5
+ * PHP 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       datasources
- * @subpackage    datasources.models.datasources
  * @since         CakePHP Datasources v 0.3
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 App::uses('Hash', 'Utility');
 App::uses('ConnectionManager', 'Model');
 
 /**
- * ArraySource
+ * Array Datasource
  *
- * Datasource by Array
+ * Datasource for array based models
  */
 class ArraySource extends DataSource {
 
@@ -112,6 +112,7 @@ class ArraySource extends DataSource {
  *
  * @param Model $model The model being read.
  * @param array $queryData An array of query data used to find the data you want
+ * @param null $recursive
  * @return mixed
  */
 	public function read(Model $model, $queryData = array(), $recursive = null) {
@@ -249,7 +250,7 @@ class ArraySource extends DataSource {
  * @param string $record
  * @param array $conditions
  * @param boolean $or
- * @return void
+ * @return boolean
  */
 	public function conditionsFilter(Model $model, $record, $conditions, $or = false) {
 		foreach ($conditions as $field => $value) {
@@ -357,8 +358,8 @@ class ArraySource extends DataSource {
  * @param Model $model Primary Model object
  * @param Model $linkModel Linked model that
  * @param string $type Association type, one of the model association types ie. hasMany
- * @param unknown_type $association
- * @param unknown_type $assocData
+ * @param string $association The name of the association
+ * @param array $assocData The data about the association
  * @param array $queryData
  * @param boolean $external Whether or not the association query is on an external datasource.
  * @param array $resultSet Existing results
@@ -456,7 +457,7 @@ class ArraySource extends DataSource {
 /**
  * Generate a log registry
  *
- * @param object $model
+ * @param Model $model
  * @param array $queryData
  * @param float $took
  * @param integer $numRows
@@ -478,8 +479,8 @@ class ArraySource extends DataSource {
 /**
  * Generate a pseudo select to log
  *
- * @param object $model Model
- * @param array $queryData Query data sended by find
+ * @param Model $model Model
+ * @param array $queryData Query data sent by find
  * @return string Pseudo query
  */
 	protected function _pseudoSelect(Model $model, &$queryData) {
