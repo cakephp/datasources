@@ -34,26 +34,25 @@ class DboAdoTestDb extends Adodb {
  * simulated property
  *
  * @var array
- * @access public
  */
-	var $simulated = array();
+	public $simulated = array();
 
 /**
  * testing property
  *
  * @var bool true
- * @access public
  */
-	var $testing = true;
+	public $testing = true;
 
 /**
  * execute method
  *
  * @param mixed $sql
- * @access protected
+ * @param array $params
+ * @param array $prepareOptions
  * @return void
  */
-	function _execute($sql) {
+	protected function _execute($sql, $params = array(), $prepareOptions = array()) {
 		if ($this->testing) {
 			$this->simulated[] = $sql;
 			return null;
@@ -64,10 +63,9 @@ class DboAdoTestDb extends Adodb {
 /**
  * getLastQuery method
  *
- * @access public
  * @return void
  */
-	function getLastQuery() {
+	public function getLastQuery() {
 		return $this->simulated[count($this->simulated) - 1];
 	}
 }
@@ -84,17 +82,15 @@ class AdodbTestModel extends CakeTestModel {
  * name property
  *
  * @var string 'AdodbTestModel'
- * @access public
  */
-	var $name = 'AdodbTestModel';
+	public $name = 'AdodbTestModel';
 
 /**
  * useTable property
  *
  * @var bool false
- * @access public
  */
-	var $useTable = false;
+	public $useTable = false;
 
 /**
  * find method
@@ -103,10 +99,9 @@ class AdodbTestModel extends CakeTestModel {
  * @param mixed $fields
  * @param mixed $order
  * @param mixed $recursive
- * @access public
  * @return void
  */
-	function find($conditions = null, $fields = null, $order = null, $recursive = null) {
+	public function find($conditions = null, $fields = null, $order = null, $recursive = null) {
 		return $conditions;
 	}
 
@@ -117,20 +112,19 @@ class AdodbTestModel extends CakeTestModel {
  * @param mixed $fields
  * @param mixed $order
  * @param mixed $recursive
- * @access public
  * @return void
  */
-	function findAll($conditions = null, $fields = null, $order = null, $recursive = null) {
+	public function findAll($conditions = null, $fields = null, $order = null, $recursive = null) {
 		return $conditions;
 	}
 
 /**
  * schema method
  *
- * @access public
+ * @param boolean|string $field Set to true to reload schema, or a string to return a specific field
  * @return void
  */
-	function schema() {
+	public function schema($field = false) {
 		return array(
 			'id'		=> array('type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'),
 			'client_id'	=> array('type' => 'integer', 'null' => '', 'default' => '0', 'length' => '11'),
@@ -167,9 +161,8 @@ if (!class_exists('Article')) {
  * name property
  *
  * @var string 'Article'
- * @access public
  */
-		var $name = 'Article';
+		public $name = 'Article';
 	}
 }
 
@@ -185,24 +178,20 @@ class DboAdodbTest extends CakeTestCase {
  * The Dbo instance to be tested
  *
  * @var DboSource
- * @access public
  */
-	var $db = null;
+	public $db = null;
 
 /**
  * fixtures property
  *
  * @var string
- * @access public
  */
-	var $fixtures = array('core.article');
+	public $fixtures = array('core.article');
 
 /**
  * Skip if cannot connect to AdoDb
- *
- * @access public
  */
-	function skip() {
+	public function skip() {
 		$this->_initDb();
 		$db =& ConnectionManager::getDataSource('test');
 		$this->skipIf($db->config['driver'] != 'adodb', '%s Adodb connection not available');
@@ -210,10 +199,8 @@ class DboAdodbTest extends CakeTestCase {
 
 /**
  * Sets up a Dbo class instance for testing
- *
- * @access public
  */
-	function startTest($method) {
+	public function startTest($method) {
 		$this->markTestSkipped('Test not compatible with cake 2.0');
 		$db = ConnectionManager::getDataSource('test');
 		$this->db = new DboAdoTestDb($db->config);
@@ -222,19 +209,15 @@ class DboAdodbTest extends CakeTestCase {
 
 /**
  * Sets up a Dbo class instance for testing
- *
- * @access public
  */
-	function tearDown() {
+	public function tearDown() {
 		unset($this->db);
 	}
 
 /**
  * Test Dbo value method
- *
- * @access public
  */
-	function testQuoting() {
+	public function testQuoting() {
 		$result = $this->db->fields($this->model);
 		$expected = array(
 			'`AdodbTestModel`.`id` AS `AdodbTestModel__id`',
@@ -279,13 +262,4 @@ class DboAdodbTest extends CakeTestCase {
 		$this->assertEqual($expected, $result);
 	}
 
-/**
- * testColumns method
- *
- * @access public
- * @return void
- */
-	function testColumns() {
-
-	}
 }

@@ -314,9 +314,9 @@ class XmlrpcSourceTest extends CakeTestCase {
 
 		// Not XML-RPC Response
 		$config = array(
-			'host' => 'groups.google.com',
+			'host' => 'rss1.smashingmagazine.com',
 			'port' => 80,
-			'url' => '/group/cake-php/feed/rss_v2_0_msgs.xml'
+			'url' => '/feed/'
 		);
 		$Xmlrpc = new XmlrpcSource($config);
 		$this->assertFalse($Xmlrpc->query('examples.getStateName', array(1)));
