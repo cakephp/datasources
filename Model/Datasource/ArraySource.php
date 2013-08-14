@@ -464,7 +464,7 @@ class ArraySource extends DataSource {
  * @return void
  */
 	protected function _registerLog(Model $model, &$queryData, $took, $numRows) {
-		if (!Configure::read()) {
+		if (!Configure::read('debug')) {
 			return;
 		}
 		$this->_requestsLog[] = array(
