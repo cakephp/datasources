@@ -464,7 +464,7 @@ class ArraySource extends DataSource {
  * @return void
  */
 	protected function _registerLog(Model $model, &$queryData, $took, $numRows) {
-		if (!Configure::read()) {
+		if (!Configure::read('debug')) {
 			return;
 		}
 		$this->_requestsLog[] = array(
@@ -522,7 +522,15 @@ class ArraySource extends DataSource {
 			$out = substr($out, 0, -3);
 		}
 		if (!empty($queryData['order'][0])) {
-			$out .= ' ORDER BY ' . implode(', ', $queryData['order']);
+			$order = $queryData['order'];
+			if (is_array($order[0])) {
+				$new = array();
+				foreach($order[0] as $field => $direction) {
+					$new[] = "$field $direction";
+				}
+				$order = $new;
+			}
+			$out .= ' ORDER BY ' . implode(', ', $order);
 		}
 		if (!empty($queryData['limit'])) {
 			$out .= ' LIMIT ' . (($queryData['page'] - 1) * $queryData['limit']) . ', ' . $queryData['limit'];

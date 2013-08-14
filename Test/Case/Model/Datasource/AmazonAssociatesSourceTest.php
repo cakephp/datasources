@@ -25,6 +25,22 @@
 App::uses('AmazonAssociatesSource', 'Datasources.Model/Datasource');
 
 /**
+ * Test datasource to test AmazonAssociatesSource::_signQuery();
+ */
+class AmazonAssociatesTestDataSource extends AmazonAssociatesSource {
+
+	/**
+	 * Public wrapper for the protected _signQuery method.
+	 *
+	 * @return string Url.
+	 */
+	public function signQuery() {
+		return parent::_signQuery();
+	}
+
+}
+
+/**
  * AmazonAssociatesTestCase
  *
  * @package       datasources
@@ -128,10 +144,11 @@ class AmazonAssociatesTestCase extends CakeTestCase {
 			'Version' => '2009-03-31',
 			'Operation' => 'ItemSearch',
 		);
-		$this->Amazon->find(null, $query);
-		$results = $this->Amazon->getLog();
+
+		$Amazon = new AmazonAssociatesTestDataSource($this->config);
+		$Amazon->query = $query;
 		$expected = 'http://ecs.amazonaws.com/onca/xml?AWSAccessKeyId=PUBLICKEY&AccociateTag=ASSID&Operation=ItemSearch&Service=AWSECommerceService&Timestamp=2010-03-01T07%3A44%3A03Z&Version=2009-03-31&Signature=oEbqdS17pJmjRaSzbBX14zcnlprDbRlpDhQEvjo9mUA%3D';
-		$this->assertEqual($expected, $results['log'][0]);
+		$this->assertEqual($expected, $Amazon->signQuery());
 	}
 /**
  * End Test
