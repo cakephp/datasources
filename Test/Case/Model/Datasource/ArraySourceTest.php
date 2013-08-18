@@ -87,13 +87,13 @@ class ArraysRelateModel extends CakeTestModel {
  * @var array
  */
 	public $records = array(
-		array('array_model_id' => 1, 'relate_id' => 1),
-		array('array_model_id' => 1, 'relate_id' => 2),
-		array('array_model_id' => 1, 'relate_id' => 3),
-		array('array_model_id' => 2, 'relate_id' => 1),
-		array('array_model_id' => 2, 'relate_id' => 3),
-		array('array_model_id' => 3, 'relate_id' => 1),
-		array('array_model_id' => 3, 'relate_id' => 2)
+		array('array_model_id' => 1, 'relate_id' => 1, 'additional' => 98),
+		array('array_model_id' => 1, 'relate_id' => 2, 'additional' => null),
+		array('array_model_id' => 1, 'relate_id' => 3, 'additional' => 45),
+		array('array_model_id' => 2, 'relate_id' => 1, 'additional' => null),
+		array('array_model_id' => 2, 'relate_id' => 3, 'additional' => 68),
+		array('array_model_id' => 3, 'relate_id' => 1, 'additional' => null),
+		array('array_model_id' => 3, 'relate_id' => 2, 'additional' => 148)
 	);
 }
 
@@ -375,6 +375,17 @@ class ArraySourceTest extends CakeTestCase {
 	}
 
 /**
+ * Tear down for tests
+ *
+ * @return void
+ */
+	public function tearDown() {
+		parent::tearDown();
+		ClassRegistry::flush();
+		$this->Model = null;
+	}
+
+/**
  * testFindAll
  *
  * @return void
@@ -528,6 +539,25 @@ class ArraySourceTest extends CakeTestCase {
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name' => 'USA', 'ArrayModel.id' => 2)));
 		$expected = array();
 		$this->assertIdentical($result, $expected);
+
+		$model = ClassRegistry::init('ArraysRelateModel');
+
+		$expected = array(
+			array('ArraysRelateModel' => array('array_model_id' => 1, 'relate_id' => 2, 'additional' => null)),
+			array('ArraysRelateModel' => array('array_model_id' => 2, 'relate_id' => 1, 'additional' => null)),
+			array('ArraysRelateModel' => array('array_model_id' => 3, 'relate_id' => 1, 'additional' => null))
+		);
+		$result = $model->find('all', array('conditions' => array('additional' => null)));
+		$this->assertSame($expected, $result);
+
+		$expected = array(
+			array('ArraysRelateModel' => array('array_model_id' => 1, 'relate_id' => 1, 'additional' => 98)),
+			array('ArraysRelateModel' => array('array_model_id' => 1, 'relate_id' => 3, 'additional' => 45)),
+			array('ArraysRelateModel' => array('array_model_id' => 2, 'relate_id' => 3, 'additional' => 68)),
+			array('ArraysRelateModel' => array('array_model_id' => 3, 'relate_id' => 2, 'additional' => 148))
+		);
+		$result = $model->find('all', array('conditions' => array('additional != ' => null)));
+		$this->assertSame($expected, $result);
 	}
 
 /**

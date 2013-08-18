@@ -269,7 +269,7 @@ class ArraySource extends DataSource {
 			} else {
 				if (is_array($value)) {
 					$type = 'IN';
-				} elseif (preg_match('/^(\w+\.?\w+)\s+(=|!=|LIKE|IN|<|<=|>|>=)$/i', $field, $matches)) {
+				} elseif (preg_match('/^(\w+\.?\w+)\s+(=|!=|LIKE|IN|<|<=|>|>=)\s*$/i', $field, $matches)) {
 					$field = $matches[1];
 					$type = strtoupper($matches[2]);
 				} elseif (preg_match('/^(\w+\.?\w+)\s+(=|!=|LIKE|IN|<|<=|>|>=)\s+(.*)$/i', $value, $matches)) {
@@ -287,22 +287,22 @@ class ArraySource extends DataSource {
 				}
 				switch ($type) {
 					case '<':
-						$return = (isset($record[$field]) && $record[$field] < $value);
+						$return = (array_key_exists($field, $record) && $record[$field] < $value);
 						break;
 					case '<=':
-						$return = (isset($record[$field]) && $record[$field] <= $value);
+						$return = (array_key_exists($field, $record) && $record[$field] <= $value);
 						break;
 					case '=':
-						$return = (isset($record[$field]) && $record[$field] == $value);
+						$return = (array_key_exists($field, $record) && $record[$field] == $value);
 						break;
 					case '>':
-						$return = (isset($record[$field]) && $record[$field] > $value);
+						$return = (array_key_exists($field, $record) && $record[$field] > $value);
 						break;
 					case '>=':
-						$return = (isset($record[$field]) && $record[$field] >= $value);
+						$return = (array_key_exists($field, $record) && $record[$field] >= $value);
 						break;
 					case '!=':
-						$return = (!isset($record[$field]) || $record[$field] != $value);
+						$return = (!array_key_exists($field, $record) || $record[$field] != $value);
 						break;
 					case 'LIKE':
 						$value = preg_replace(array('#(^|[^\\\\])_#', '#(^|[^\\\\])%#'), array('$1.', '$1.*'), $value);
@@ -316,7 +316,7 @@ class ArraySource extends DataSource {
 							$items = explode(',', trim($value, '()'));
 							$items = array_map('trim', $items);
 						}
-						$return = (isset($record[$field]) && in_array($record[$field], (array)$items));
+						$return = (array_key_exists($field, $record) && in_array($record[$field], (array)$items));
 						break;
 				}
 			}
