@@ -134,13 +134,15 @@ class ArraySource extends DataSource {
 			$recursive = $queryData['recursive'];
 		}
 
-		if (!is_null($recursive)) {
+		if ($recursive !== null) {
 			$_recursive = $model->recursive;
 			$model->recursive = $recursive;
 		}
+
 		if (is_integer($queryData['limit']) && $queryData['limit'] > 0) {
 			$limit = $queryData['page'] * $queryData['limit'];
 		}
+
 		foreach ($model->records as $pos => $record) {
 			// Tests whether the record will be chosen
 			if (!empty($queryData['conditions'])) {
@@ -226,18 +228,12 @@ class ArraySource extends DataSource {
 						}
 						unset($db);
 					}
+
 				}
 			}
 		}
-		if ($model->findQueryType === 'first') {
-			if (!isset($data[0])) {
-				$data = array();
-			} else {
-				$data = array($data[0]);
-			}
-		}
 
-		if (!is_null($recursive)) {
+		if ($recursive !== null) {
 			$model->recursive = $_recursive;
 		}
 		return $data;
@@ -273,7 +269,7 @@ class ArraySource extends DataSource {
 			} else {
 				if (is_array($value)) {
 					$type = 'IN';
-				} elseif (preg_match('/^(\w+\.?\w+)\s+(=|!=|LIKE|IN|<|<=|>|>=)$/i', $field, $matches)) {
+				} elseif (preg_match('/^(\w+\.?\w+)\s+(=|!=|LIKE|IN|<|<=|>|>=)\s*$/i', $field, $matches)) {
 					$field = $matches[1];
 					$type = strtoupper($matches[2]);
 				} elseif (preg_match('/^(\w+\.?\w+)\s+(=|!=|LIKE|IN|<|<=|>|>=)\s+(.*)$/i', $value, $matches)) {
@@ -291,22 +287,22 @@ class ArraySource extends DataSource {
 				}
 				switch ($type) {
 					case '<':
-						$return = (isset($record[$field]) && $record[$field] < $value);
+						$return = (array_key_exists($field, $record) && $record[$field] < $value);
 						break;
 					case '<=':
-						$return = (isset($record[$field]) && $record[$field] <= $value);
+						$return = (array_key_exists($field, $record) && $record[$field] <= $value);
 						break;
 					case '=':
-						$return = (isset($record[$field]) && $record[$field] == $value);
+						$return = (array_key_exists($field, $record) && $record[$field] == $value);
 						break;
 					case '>':
-						$return = (isset($record[$field]) && $record[$field] > $value);
+						$return = (array_key_exists($field, $record) && $record[$field] > $value);
 						break;
 					case '>=':
-						$return = (isset($record[$field]) && $record[$field] >= $value);
+						$return = (array_key_exists($field, $record) && $record[$field] >= $value);
 						break;
 					case '!=':
-						$return = (!isset($record[$field]) || $record[$field] != $value);
+						$return = (!array_key_exists($field, $record) || $record[$field] != $value);
 						break;
 					case 'LIKE':
 						$value = preg_replace(array('#(^|[^\\\\])_#', '#(^|[^\\\\])%#'), array('$1.', '$1.*'), $value);
@@ -320,7 +316,7 @@ class ArraySource extends DataSource {
 							$items = explode(',', trim($value, '()'));
 							$items = array_map('trim', $items);
 						}
-						$return = (isset($record[$field]) && in_array($record[$field], (array)$items));
+						$return = (array_key_exists($field, $record) && in_array($record[$field], (array)$items));
 						break;
 				}
 			}
@@ -366,72 +362,74 @@ class ArraySource extends DataSource {
  * @param integer $recursive Number of levels of association
  * @param array $stack
  */
-	public function queryAssociation(Model $model, &$linkModel, $type, $association, $assocData, &$queryData, $external, &$resultSet, $recursive, $stack) {
+	public function queryAssociation(Model $model, Model $linkModel, $type, $association, $assocData, &$queryData, $external, &$resultSet, $recursive, $stack) {
 		$assocData = array_merge(array('conditions' => null, 'fields' => null, 'order' => null), $assocData);
-		if (isset($queryData['conditions'])) {
-			$assocData['conditions'] = array_merge((array)$queryData['conditions'], (array)$assocData['conditions']);
-		}
 		if (isset($queryData['fields'])) {
-			$assocData['fields'] = array_merge((array)$queryData['fields'], (array)$assocData['fields']);
+			$assocData['fields'] = array_filter(array_merge((array)$queryData['fields'], (array)$assocData['fields']));
 		}
-		foreach ($resultSet as $id => $result) {
-			if (!array_key_exists($model->alias, $result)) {
+		if (isset($queryData['conditions'])) {
+			$assocData['conditions'] = array_filter(array_merge((array)$queryData['conditions'], (array)$assocData['conditions']));
+		}
+		$query = array(
+			'fields' => array_filter((array)$assocData['fields']),
+			'conditions' => array_filter((array)$assocData['conditions']),
+			'group' => null,
+			'order' => $assocData['order'],
+			'limit' => isset($assocData['limit']) ? $assocData['limit'] : null,
+			'page' => 1,
+			'offset' => null,
+			'callbacks' => true,
+			'recursive' => $recursive === 0 ? -1 : $recursive
+		);
+		foreach ($resultSet as &$record) {
+			$data = array();
+			if ($type === 'belongsTo') {
+				if (isset($record[$model->alias][$assocData['foreignKey']])) {
+					$conditions = array_merge($query['conditions'], array($linkModel->alias . '.' . $linkModel->primaryKey => $record[$model->alias][$assocData['foreignKey']]));
+					$limit = 1;
+					$data = $this->read($linkModel, compact('conditions', 'limit') + $query);
+				}
+			} elseif (($type === 'hasMany' || $type === 'hasOne') && $model->recursive > 0) {
+				$conditions = array_merge($query['conditions'], array($linkModel->alias . '.' . $assocData['foreignKey'] => $record[$model->alias][$model->primaryKey]));
+				$limit = $type === 'hasOne' ? 1 : $query['limit'];
+				$data = $this->read($linkModel, compact('conditions', 'limit') + $query);
+			} elseif ($type === 'hasAndBelongsToMany' && $model->recursive > 0) {
+				$joinModel = ClassRegistry::init($assocData['with']);
+				$fields = array($joinModel->alias . '.' . $assocData['associationForeignKey']);
+				$conditions = array($joinModel->alias . '.' . $assocData['foreignKey'] => $record[$model->alias][$model->primaryKey]);
+				$recursive = -1;
+				$ids = $joinModel->getDataSource()->read($joinModel, compact('fields', 'conditions', 'recursive') + $query);
+				if ($ids) {
+					$ids = Hash::extract($ids, "{n}.{$joinModel->alias}.{$assocData['associationForeignKey']}");
+					$conditions = array_merge($query['conditions'], array($linkModel->alias . '.' . $linkModel->primaryKey => $ids));
+					$data = $this->read($linkModel, compact('conditions') + $query);
+				}
+			} else {
 				continue;
 			}
-			if ($type === 'belongsTo' && array_key_exists($assocData['foreignKey'], $result[$model->alias])) {
-				$find = $model->{$association}->find('first', array(
-					'conditions' => array_merge((array)$assocData['conditions'], array($model->{$association}->primaryKey => $result[$model->alias][$assocData['foreignKey']])),
-					'fields' => $assocData['fields'],
-					'order' => $assocData['order'],
-					'recursive' => $recursive
-				));
-			} elseif (in_array($type, array('hasOne', 'hasMany')) && array_key_exists($model->primaryKey, $result[$model->alias])) {
-				if ($type === 'hasOne') {
-					$find = $model->{$association}->find('first', array(
-						'conditions' => array_merge((array)$assocData['conditions'], array($association . '.' . $assocData['foreignKey'] => $result[$model->alias][$model->primaryKey])),
-						'fields' => $assocData['fields'],
-						'order' => $assocData['order'],
-						'recursive' => $recursive
-					));
-				} else {
-					$find = $model->{$association}->find('all', array(
-						'conditions' => array_merge((array)$assocData['conditions'], array($association . '.' . $assocData['foreignKey'] => $result[$model->alias][$model->primaryKey])),
-						'fields' => $assocData['fields'],
-						'order' => $assocData['order'],
-						'recursive' => $recursive
-					));
-					$find = array(
-						$association => Hash::extract($find, '{n}.' . $association)
-					);
-				}
-			} elseif ($type === 'hasAndBelongsToMany' && array_key_exists($model->primaryKey, $result[$model->alias])) {
-				$find = array();
-				$hABTMModel = ClassRegistry::init($assocData['with']);
-				$ids = $hABTMModel->find('all', array(
-					'fields' => array(
-						$assocData['with'] . '.' . $assocData['associationForeignKey']
-					),
-					'conditions' => array(
-						$assocData['with'] . '.' . $assocData['foreignKey'] => $result[$model->alias][$model->primaryKey]
-					)
-				));
-				if ($ids) {
-					$ids = Hash::extract($ids, '{n}.' . $assocData['with'] . '.' . $assocData['associationForeignKey']);
-					$find = $model->{$association}->find('all', array(
-						'conditions' => array_merge((array)$assocData['conditions'], array($association . '.' . $linkModel->primaryKey => $ids)),
-						'fields' => $assocData['fields'],
-						'order' => $assocData['order'],
-						'recursive' => $recursive
-					));
-					$find = array(
-						$association => Hash::extract($find, '{n}.' . $association)
-					);
-				}
+
+			if (!$data) {
+				$record += array($linkModel->alias => array());
+				continue;
 			}
-			if (empty($find)) {
-				$find = array($association => array());
+
+			$formatted = array();
+			foreach ($data as $associated) {
+				foreach ($associated as $modelName => $associatedData) {
+					if ($modelName === $linkModel->alias) {
+						continue;
+					}
+					$associated[$linkModel->alias][$modelName] = $associatedData;
+					unset($associated[$modelName]);
+				}
+				$formatted[] = $associated;
 			}
-			$resultSet[$id] = array_merge($find, $resultSet[$id]);
+
+			if ($type === 'hasOne' || $type === 'belongsTo') {
+				$record += array($linkModel->alias => $formatted[0][$linkModel->alias]);
+				continue;
+			}
+			$record += array($linkModel->alias => Hash::extract($formatted, "{n}.{$linkModel->alias}"));
 		}
 	}
 
