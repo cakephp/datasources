@@ -12,21 +12,17 @@
  *
  * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       datasources
- * @subpackage    datasources.models.datasources.dbo
  * @since         CakePHP Datasources v 0.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-App::import('Datasource','DboSource');
+App::uses('DboSource', 'Model/Datasource');
 
 /**
  * Short description for class.
  *
  * Long description for class
  *
- * @package       cake
- * @subpackage    cake.cake.libs.model.datasources.dbo
  */
 class DboSybase extends DboSource {
 
@@ -35,28 +31,28 @@ class DboSybase extends DboSource {
  *
  * @var string
  */
-	var $description = "Sybase DBO Driver";
+	public $description = "Sybase DBO Driver";
 
 /**
  * Start quote for quoted identifiers
  *
  * @var string
  */
-	var $startQuote = "";
+	public $startQuote = '';
 
 /**
  * End quote for quoted identifiers
  *
  * @var string
  */
-	var $endQuote = "";
+	public $endQuote = '';
 
 /**
  * Base configuration settings for Sybase driver
  *
  * @var array
  */
-	var $_baseConfig = array(
+	protected $_baseConfig = array(
 		'persistent' => true,
 		'host' => 'localhost',
 		'login' => 'sa',
@@ -70,7 +66,7 @@ class DboSybase extends DboSource {
  *
  * @var array
  */
-	var $columns = array(
+	public $columns = array(
 		'primary_key' => array('name' => 'numeric(9,0) IDENTITY PRIMARY KEY'),
 		'string' => array('name' => 'varchar', 'limit' => '255'),
 		'text' => array('name' => 'text'),
@@ -89,7 +85,7 @@ class DboSybase extends DboSource {
  *
  * @return boolean True if the database could be connected, else false
  */
-	function connect() {
+	public function connect() {
 		$config = $this->config;
 
 		$port = '';
@@ -110,7 +106,7 @@ class DboSybase extends DboSource {
  *
  * @return boolean
  */
-	function enabled() {
+	public function enabled() {
 		return extension_loaded('sybase') || extension_loaded('sybase_ct');
 	}
 /**
@@ -118,7 +114,7 @@ class DboSybase extends DboSource {
  *
  * @return boolean True if the database could be disconnected, else false
  */
-	function disconnect() {
+	public function disconnect() {
 		$this->connected = !@sybase_close($this->connection);
 		return !$this->connected;
 	}
@@ -128,9 +124,8 @@ class DboSybase extends DboSource {
  *
  * @param string $sql SQL statement
  * @return resource Result resource identifier
- * @access protected
  */
-	function _execute($sql) {
+	protected function _execute($sql) {
 		return sybase_query($sql, $this->connection);
 	}
 
@@ -139,7 +134,7 @@ class DboSybase extends DboSource {
  *
  * @return array Array of tablenames in the database
  */
-	function listSources() {
+	public function listSources() {
 		$cache = parent::listSources();
 		if ($cache != null) {
 			return $cache;
@@ -148,16 +143,14 @@ class DboSybase extends DboSource {
 		$result = $this->_execute("SELECT name FROM sysobjects WHERE type IN ('U', 'V')");
 		if (!$result) {
 			return array();
-		} else {
-
-			$tables = array();
-			while ($line = sybase_fetch_array($result)) {
-				$tables[] = $line[0];
-			}
-
-			parent::listSources($tables);
-			return $tables;
 		}
+		$tables = array();
+		while ($line = sybase_fetch_array($result)) {
+			$tables[] = $line[0];
+		}
+
+		parent::listSources($tables);
+		return $tables;
 	}
 
 /**
@@ -166,8 +159,7 @@ class DboSybase extends DboSource {
  * @param string $tableName Name of database table to inspect
  * @return array Fields in table. Keys are name and type
  */
-	function describe(&$model) {
-
+	public function describe($model) {
 		$cache = parent::describe($model);
 		if ($cache != null) {
 			return $cache;
@@ -190,7 +182,7 @@ class DboSybase extends DboSource {
 			}
 		}
 
-		$this->__cacheDescription($model->tablePrefix.$model->table, $fields);
+		$this->_cacheDescription($model->tablePrefix . $model->table, $fields);
 		return $fields;
 	}
 
@@ -202,7 +194,7 @@ class DboSybase extends DboSource {
  * @param boolean $safe Whether or not numeric data should be handled automagically if no column data is provided
  * @return string Quoted and escaped data
  */
-	function value($data, $column = null, $safe = false) {
+	public function value($data, $column = null, $safe = false) {
 		$parent = parent::value($data, $column, $safe);
 
 		if ($parent != null) {
@@ -214,7 +206,7 @@ class DboSybase extends DboSource {
 		}
 
 		if ($data === '') {
-			return  "''";
+			return "''";
 		}
 
 		switch ($column) {
@@ -236,7 +228,7 @@ class DboSybase extends DboSource {
  * @return boolean True on success, false on fail
  * (i.e. if the database/model does not support transactions).
  */
-	function begin(&$model) {
+	public function begin(Model $model) {
 		if (parent::begin($model)) {
 			if ($this->execute('BEGIN TRAN')) {
 				$this->_transactionStarted = true;
@@ -254,7 +246,7 @@ class DboSybase extends DboSource {
  * (i.e. if the database/model does not support transactions,
  * or a transaction has not started).
  */
-	function commit(&$model) {
+	public function commit(Model $model) {
 		if (parent::commit($model)) {
 			$this->_transactionStarted = false;
 			return $this->execute('COMMIT TRAN');
@@ -270,7 +262,7 @@ class DboSybase extends DboSource {
  * (i.e. if the database/model does not support transactions,
  * or a transaction has not started).
  */
-	function rollback(&$model) {
+	public function rollback(Model $model) {
 		if (parent::rollback($model)) {
 			return $this->execute('ROLLBACK TRAN');
 		}
@@ -283,7 +275,7 @@ class DboSybase extends DboSource {
  * @todo not implemented
  * @return string Error message with error number
  */
-	function lastError() {
+	public function lastError() {
 		return null;
 	}
 
@@ -293,7 +285,7 @@ class DboSybase extends DboSource {
  *
  * @return integer Number of affected rows
  */
-	function lastAffected() {
+	public function lastAffected() {
 		if ($this->_result) {
 			return sybase_affected_rows($this->connection);
 		}
@@ -306,7 +298,7 @@ class DboSybase extends DboSource {
  *
  * @return integer Number of rows in resultset
  */
-	function lastNumRows() {
+	public function lastNumRows() {
 		if ($this->hasResult()) {
 			return @sybase_num_rows($this->_result);
 		}
@@ -319,8 +311,8 @@ class DboSybase extends DboSource {
  * @param unknown_type $source
  * @return in
  */
-	function lastInsertId($source = null) {
-		$result=$this->fetchRow('SELECT @@IDENTITY');
+	public function lastInsertId($source = null) {
+		$result = $this->fetchRow('SELECT @@IDENTITY');
 		return $result[0];
 	}
 
@@ -330,12 +322,11 @@ class DboSybase extends DboSource {
  * @param string $real Real database-layer column type (i.e. "varchar(255)")
  * @return string Abstract column type (i.e. "string")
  */
-	function column($real) {
+	public function column($real) {
 		if (is_array($real)) {
 			$col = $real['name'];
-			if (isset($real['limit']))
-			{
-				$col .= '('.$real['limit'].')';
+			if (isset($real['limit'])) {
+				$col .= '(' . $real['limit'] . ')';
 			}
 			return $col;
 		}
@@ -348,15 +339,20 @@ class DboSybase extends DboSource {
 
 		if (in_array($col, array('datetime', 'smalldatetime'))) {
 			return 'datetime';
-		} elseif (in_array($col, array('int', 'bigint', 'smallint', 'tinyint'))) {
+		}
+		if (in_array($col, array('int', 'bigint', 'smallint', 'tinyint'))) {
 			return 'integer';
-		} elseif (in_array($col, array('float', 'double', 'real', 'decimal', 'money', 'numeric', 'smallmoney'))) {
+		}
+		if (in_array($col, array('float', 'double', 'real', 'decimal', 'money', 'numeric', 'smallmoney'))) {
 			return 'float';
-		} elseif (strpos($col, 'text') !== false) {
+		}
+		if (strpos($col, 'text') !== false) {
 			return 'text';
-		} elseif (in_array($col, array('char', 'nchar', 'nvarchar', 'string', 'varchar'))) {
+		}
+		if (in_array($col, array('char', 'nchar', 'nvarchar', 'string', 'varchar'))) {
 			return 'binary';
-		} elseif (in_array($col, array('binary', 'image', 'varbinary'))) {
+		}
+		if (in_array($col, array('binary', 'image', 'varbinary'))) {
 			return 'binary';
 		}
 
@@ -368,16 +364,16 @@ class DboSybase extends DboSource {
  *
  * @param unknown_type $results
  */
-	function resultSet(&$results) {
+	public function resultSet(&$results) {
 		$this->results =& $results;
 		$this->map = array();
-		$num_fields = sybase_num_fields($results);
+		$numFields = sybase_num_fields($results);
 		$index = 0;
 		$j = 0;
 
-		while ($j < $num_fields) {
+		while ($j < $numFields) {
 
-			$column = sybase_fetch_field($results,$j);
+			$column = sybase_fetch_field($results, $j);
 			if (!empty($column->table)) {
 				$this->map[$index++] = array($column->table, $column->name);
 			} else {
@@ -390,9 +386,9 @@ class DboSybase extends DboSource {
 /**
  * Fetches the next row from the current result set
  *
- * @return unknown
+ * @return mixed
  */
-	function fetchResult() {
+	public function fetchResult() {
 		if ($row = sybase_fetch_row($this->results)) {
 			$resultRow = array();
 			$i = 0;
@@ -402,8 +398,7 @@ class DboSybase extends DboSource {
 				$i++;
 			}
 			return $resultRow;
-		} else {
-			return false;
 		}
+		return false;
 	}
 }

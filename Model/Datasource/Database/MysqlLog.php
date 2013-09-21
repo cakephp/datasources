@@ -12,7 +12,6 @@
  *
  * @copyright     Copyright 2005-2013, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       Datasources.Model.Datasource.Database
  * @since         CakePHP Datasources v 0.2
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
@@ -24,7 +23,6 @@ App::uses('Mysql', 'Model/Datasource/Database');
  *
  * A DboSource adapter for MySQL that enables developers to log queries
  *
- * @package       Datasources.Model.Datasource.Database
  */
 class MysqlLog extends Mysql {
 

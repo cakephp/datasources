@@ -12,8 +12,6 @@
  *
  * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       datasources
- * @subpackage    datasources.models.datasources
  * @since         CakePHP Datasources v 0.3
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
@@ -21,11 +19,9 @@
 /**
  * SoapSource
  *
- * @package datasources
- * @subpackage datasources.models.datasources
  */
 class SoapSource extends DataSource {
-    
+
 /**
  * Description
  *
@@ -52,7 +48,7 @@ class SoapSource extends DataSource {
  *
  * @var array
  */
-	public $_baseConfig = array(
+	protected $_baseConfig = array(
 		'wsdl' => null,
 		'location' => '',
 		'uri' => '',
@@ -65,7 +61,7 @@ class SoapSource extends DataSource {
  *
  * @param array $config An array defining the configuration settings
  */
-	public function __construct($config) {
+	public function __construct($config = array()) {
 		parent::__construct($config);
 		$this->connect();
 	}
@@ -85,10 +81,10 @@ class SoapSource extends DataSource {
 		if (!empty($this->config['location'])) {
 			$options['location'] = $this->config['location'];
 		}
-        if (!empty($this->config['uri'])) {
+		if (!empty($this->config['uri'])) {
 			$options['uri'] = $this->config['uri'];
 		}
-		if (!empty($this->config['login'])){
+		if (!empty($this->config['login'])) {
 			$options['login'] = $this->config['login'];
 			$options['password'] = $this->config['password'];
 			$options['authentication'] = $this->config['authentication'];
@@ -101,7 +97,7 @@ class SoapSource extends DataSource {
  *
  * @param array $config An array defining the new configuration settings
  * @return boolean True on success, false on failure
- */ 
+ */
 	public function connect() {
 		$options = $this->_parseConfig();
 		try {
@@ -136,7 +132,7 @@ class SoapSource extends DataSource {
 	public function listSources($data = null) {
 		return $this->client->__getFunctions();
 	}
-	
+
 /**
  * Query the SOAP server with the given method and parameters
  *
@@ -152,7 +148,7 @@ class SoapSource extends DataSource {
 		$method = null;
 		$queryData = null;
 
-		if (count($args) == 2) {
+		if (count($args) === 2) {
 			$method = $args[0];
 			$queryData = $args[1];
 		} elseif (count($args) > 2 && !empty($args[1])) {
@@ -161,7 +157,7 @@ class SoapSource extends DataSource {
 		} else {
 			return false;
 		}
-		
+
 		try {
 			$result = $this->client->__soapCall($method, $queryData);
 		} catch (SoapFault $fault) {
@@ -197,7 +193,7 @@ class SoapSource extends DataSource {
  * @return string The last SOAP response
  */
 	public function showError($result = null) {
-		if (Configure::read() > 0) {
+		if (Configure::read('debug') > 0) {
 			if ($this->error) {
 				trigger_error('<span style = "color:Red;text-align:left"><b>SOAP Error:</b> ' . $this->error . '</span>', E_USER_WARNING);
 			}

@@ -12,18 +12,14 @@
  *
  * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       datasources
- * @subpackage    datasources.models.datasources
  * @since         CakePHP Datasources v 0.3
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-App::import('Core', 'HttpSocket');
+App::uses('HttpSocket', 'Network/Http');
 
 /**
  * CouchDB Datasource
  *
- * @package datasources
- * @subpackage datasources.models.datasources
  */
 class CouchdbSource extends DataSource {
 
@@ -45,9 +41,8 @@ class CouchdbSource extends DataSource {
 
 		if ($autoConnect) {
 			return $this->connect();
-		} else {
-			return true;
 		}
+		return true;
 	}
 
 /**
@@ -80,7 +75,7 @@ class CouchdbSource extends DataSource {
 			if (strpos($this->Socket->get(), 'couchdb') !== false) {
 				$this->connected = true;
 			} else {
-				trigger_error(__('CouchDB Error: connection failed ', true), E_USER_WARNING);
+				trigger_error(__('CouchDB Error: connection failed'), E_USER_WARNING);
 				return $this->cakeError('missingConnection', array(array('code' => 500, 'className' => 'CouchdbSource')));
 			}
 		}
@@ -120,7 +115,7 @@ class CouchdbSource extends DataSource {
  * @return array Databases
  */
 	public function listSources() {
-		return $this->__decode($this->Socket->get($this->__uri('_all_dbs')), true);
+		return $this->_decode($this->Socket->get($this->_uri('_all_dbs')));
 	}
 
 /**
@@ -149,14 +144,14 @@ class CouchdbSource extends DataSource {
 /**
  * Creates a new document in the database.
  * If the primaryKey is declared, creates the document with the specified ID.
- * To create a new database: $this->__decode($this->Socket->put($this->__uri('databaseName')));
+ * To create a new database: $this->_decode($this->Socket->put($this->_uri('databaseName')));
  *
  * @param Model $model
  * @param array $fields An array of field names to insert. If null, $model->data will be used to generate the field names.
  * @param array $values An array with key values of the fields. If null, $model->data will be used to generate the field names.
  * @return boolean Success
  */
-	public function create($model, $fields = null, $values = null) {
+	public function create(Model $model, $fields = null, $values = null) {
 		$data = $model->data;
 		if ($fields !== null && $values !== null) {
 			$data = array_combine($fields, $values);
@@ -165,13 +160,13 @@ class CouchdbSource extends DataSource {
 		if (isset($data[$model->primaryKey]) && !empty($data[$model->primaryKey])) {
 			$params = $data[$model->primaryKey];
 		} else {
-			$uuids = $this->__decode($this->Socket->get('/_uuids'));
+			$uuids = $this->_decode($this->Socket->get('/_uuids'));
 			$params = $uuids->uuids[0];
 		}
 
-		$result = $this->__decode($this->Socket->put($this->__uri($model, $params), $this->__encode($data)));
+		$result = $this->_decode($this->Socket->put($this->_uri($model, $params), $this->_encode($data)));
 
-		if ($this->__checkOk($result)) {
+		if ($this->_checkOk($result)) {
 			$model->id = $result->id;
 			$model->rev = $result->rev;
 			return true;
@@ -187,12 +182,12 @@ class CouchdbSource extends DataSource {
  * @param integer $recursive Level number of associations.
  * @return mixed False if an error occurred, otherwise an array of results.
  */
-	public function read($model, $queryData = array(), $recursive = null) {
+	public function read(Model $model, $queryData = array(), $recursive = null) {
 		if ($recursive === null && isset($queryData['recursive'])) {
 			$recursive = $queryData['recursive'];
 		}
 
-		if (!is_null($recursive)) {
+		if ($recursive !== null) {
 			$model->recursive = $recursive;
 		}
 
@@ -216,8 +211,8 @@ class CouchdbSource extends DataSource {
 		}
 
 		$result = array();
-		$result[0][$model->alias] = $this->__decode($this->Socket->get($this->__uri($model, $params)), true);
-		return $this->__readResult($model, $queryData, $result);
+		$result[0][$model->alias] = $this->_decode($this->Socket->get($this->_uri($model, $params)), true);
+		return $this->_readResult($model, $queryData, $result);
 	}
 
 /**
@@ -228,7 +223,7 @@ class CouchdbSource extends DataSource {
  * @param array $result Data read from the document.
  * @return mixed False if an error occurred, otherwise an array of results.
  */
-	private function __readResult($model, $queryData, $result) {
+	protected function _readResult(Model $model, $queryData, $result) {
 		if (isset($result[0][$model->alias]['_id'])) {
 			if (isset($queryData['fields']) && $queryData['fields'] === true) {
 				$result[0][0]['count'] = 1;
@@ -241,7 +236,8 @@ class CouchdbSource extends DataSource {
 			unset($result[0][$model->alias]['_rev']);
 
 			return $result;
-		} else if (isset($result[0][$model->alias]['rows'])) {
+		}
+		if (isset($result[0][$model->alias]['rows'])) {
 			$docs = array();
 			foreach ($result[0][$model->alias]['rows'] as $k => $doc) {
 
@@ -271,17 +267,17 @@ class CouchdbSource extends DataSource {
  * @param mixed $conditions
  * @return boolean Success
  */
-	public function update($model, $fields = null, $values = null, $conditions = null) {
+	public function update(Model $model, $fields = null, $values = null, $conditions = null) {
 		$data = $model->data[$model->alias];
 		if ($fields !== null && $values !== null) {
 			$data = array_combine($fields, $values);
 		}
 
-		$this->__idRevData($model, $data);
+		$this->_idRevData($model, $data);
 
 		if (!empty($model->id)) {
-			$result = $this->__decode($this->Socket->put($this->__uri($model, $model->id), $this->__encode($data)));
-			if ($this->__checkOk($result)) {
+			$result = $this->_decode($this->Socket->put($this->_uri($model, $model->id), $this->_encode($data)));
+			if ($this->_checkOk($result)) {
 				$model->rev = $result->rev;
 				return true;
 			}
@@ -296,7 +292,7 @@ class CouchdbSource extends DataSource {
  * @param array $data
  * @return void
  */
-	private function __idRevData(&$model, &$data) {
+	protected function _idRevData(Model $model, &$data) {
 		if (isset($data[$model->primaryKey]) && !empty($data[$model->primaryKey])) {
 			$model->id = $data[$model->primaryKey];
 			unset($data[$model->primaryKey]);
@@ -305,7 +301,7 @@ class CouchdbSource extends DataSource {
 		if (isset($data['rev']) && !empty($data['rev'])) {
 			$data['_rev'] = $data['rev'];
 			unset($data['rev']);
-		} else if ($model->rev) {
+		} elseif ($model->rev) {
 			$data['_rev'] = $model->rev;
 		}
 	}
@@ -317,14 +313,14 @@ class CouchdbSource extends DataSource {
  * @param mixed $conditions
  * @return boolean Success
  */
-	public function delete($model, $conditions = null) {
+	public function delete(Model $model, $conditions = null) {
 		$id = $model->id;
 		$rev = $model->rev;
 
 		if (!empty($id) && !empty($rev)) {
-			$id_rev = $id . '/?rev=' . $rev;
-			$result = $this->__decode($this->Socket->delete($this->__uri($model, $id_rev)));
-			return $this->__checkOk($result);
+			$idRev = $id . '/?rev=' . $rev;
+			$result = $this->_decode($this->Socket->delete($this->_uri($model, $idRev)));
+			return $this->_checkOk($result);
 		}
 		return false;
 	}
@@ -337,7 +333,7 @@ class CouchdbSource extends DataSource {
  * @param array $params Function parameters (any values must be quoted manually)
  * @return string An SQL calculation function
  */
-	public function calculate($model, $func, $params = array()) {
+	public function calculate(Model $model, $func, $params = array()) {
 		return true;
 	}
 
@@ -368,7 +364,7 @@ class CouchdbSource extends DataSource {
  * @return object
  */
 	public function query($uri, $post) {
-		return $this->__decode($this->Socket->post($uri, $this->__encode($post)));
+		return $this->_decode($this->Socket->post($uri, $this->_encode($post)));
 	}
 
 /**
@@ -378,8 +374,8 @@ class CouchdbSource extends DataSource {
  * @param string $params
  * @return string URI
  */
-	private function __uri($model = null, $params = null) {
-		if (!is_null($params)) {
+	protected function _uri(Model $model = null, $params = null) {
+		if ($params !== null) {
 			$params = '/' . $params;
 		}
 		return '/' . $this->fullTableName($model) . $params;
@@ -391,7 +387,7 @@ class CouchdbSource extends DataSource {
  * @param string json $data
  * @return string JSON
  */
-	private function __encode($data) {
+	protected function _encode($data) {
 		return json_encode($data);
 	}
 
@@ -401,7 +397,7 @@ class CouchdbSource extends DataSource {
  * @param boolean $assoc If true, returns array. If false, returns object.
  * @return mixed Object or Array.
  */
-	private function __decode($data, $assoc = false) {
+	protected function _decode($data, $assoc = false) {
 		return json_decode($data, $assoc);
 	}
 
@@ -411,7 +407,7 @@ class CouchdbSource extends DataSource {
  * @param object $object
  * @return boolean
  */
-	private function __checkOk($object = null) {
+	protected function _checkOk($object = null) {
 		return isset($object->ok) && $object->ok === true;
 	}
 }

@@ -14,8 +14,6 @@
  *
  * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       cake
- * @subpackage    cake.cake.libs.model.datasources.dbo
  * @since         CakePHP Datasources v 0.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
@@ -25,8 +23,6 @@ App::uses('Adodb', 'Datasources.Model/Datasource/Database');
 /**
  * DboAdoTestDb
  *
- * @package       datasources
- * @subpackage    datasources.tests.cases.models.datasources.dbo
  */
 class DboAdoTestDb extends Adodb {
 
@@ -40,7 +36,7 @@ class DboAdoTestDb extends Adodb {
 /**
  * testing property
  *
- * @var bool true
+ * @var boolean
  */
 	public $testing = true;
 
@@ -68,27 +64,19 @@ class DboAdoTestDb extends Adodb {
 	public function getLastQuery() {
 		return $this->simulated[count($this->simulated) - 1];
 	}
+
 }
 
 /**
  * AdodbTestModel
  *
- * @package       cake
- * @subpackage    cake.tests.cases.libs.model.datasources
  */
 class AdodbTestModel extends CakeTestModel {
 
 /**
- * name property
- *
- * @var string 'AdodbTestModel'
- */
-	public $name = 'AdodbTestModel';
-
-/**
  * useTable property
  *
- * @var bool false
+ * @var boolean
  */
 	public $useTable = false;
 
@@ -141,7 +129,7 @@ class AdodbTestModel extends CakeTestModel {
 			'url'		=> array('type' => 'string', 'null' => '1', 'default' => '', 'length' => '255'),
 			'email'		=> array('type' => 'string', 'null' => '1', 'default' => '', 'length' => '155'),
 			'comments'	=> array('type' => 'text', 'null' => '1', 'default' => '', 'length' => ''),
-			'last_login'=> array('type' => 'datetime', 'null' => '1', 'default' => '', 'length' => ''),
+			'last_login' => array('type' => 'datetime', 'null' => '1', 'default' => '', 'length' => ''),
 			'created'	=> array('type' => 'date', 'null' => '1', 'default' => '', 'length' => ''),
 			'updated'	=> array('type' => 'datetime', 'null' => '1', 'default' => '', 'length' => null)
 		);
@@ -152,25 +140,14 @@ if (!class_exists('Article')) {
 /**
  * Article class
  *
- * @package       cake
- * @subpackage    cake.tests.cases.libs.model.datasources.dbo
  */
 	class Article extends CakeTestModel {
-
-/**
- * name property
- *
- * @var string 'Article'
- */
-		public $name = 'Article';
 	}
 }
 
 /**
  * DboAdodbTest class
  *
- * @package       cake
- * @subpackage    cake.tests.cases.libs.model.datasources.dbo
  */
 class DboAdodbTest extends CakeTestCase {
 
@@ -193,8 +170,8 @@ class DboAdodbTest extends CakeTestCase {
  */
 	public function skip() {
 		$this->_initDb();
-		$db =& ConnectionManager::getDataSource('test');
-		$this->skipIf($db->config['driver'] != 'adodb', '%s Adodb connection not available');
+		$db = ConnectionManager::getDataSource('test');
+		$this->skipIf($db->config['driver'] !== 'adodb', '%s Adodb connection not available');
 	}
 
 /**
@@ -239,27 +216,27 @@ class DboAdodbTest extends CakeTestCase {
 			'`AdodbTestModel`.`created` AS `AdodbTestModel__created`',
 			'`AdodbTestModel`.`updated` AS `AdodbTestModel__updated`'
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$expected = "'1.2'";
 		$result = $this->db->value(1.2, 'float');
-		$this->assertEqual($expected, $result);
+		$this->assertEquals($expected, $result);
 
 		$expected = "'1,2'";
 		$result = $this->db->value('1,2', 'float');
-		$this->assertEqual($expected, $result);
+		$this->assertEquals($expected, $result);
 
 		$expected = "'4713e29446'";
 		$result = $this->db->value('4713e29446');
-		$this->assertEqual($expected, $result);
+		$this->assertEquals($expected, $result);
 
 		$expected = "'10010001'";
 		$result = $this->db->value('10010001');
-		$this->assertEqual($expected, $result);
+		$this->assertEquals($expected, $result);
 
 		$expected = "'00010010001'";
 		$result = $this->db->value('00010010001');
-		$this->assertEqual($expected, $result);
+		$this->assertEquals($expected, $result);
 	}
 
 }

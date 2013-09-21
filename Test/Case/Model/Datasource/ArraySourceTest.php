@@ -12,8 +12,6 @@
  *
  * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       datasources
- * @subpackage    datasources.tests.cases.models.datasources
  * @since         CakePHP Datasources v 0.3
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
@@ -397,7 +395,7 @@ class ArraySourceTest extends CakeTestCase {
 			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)),
 			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2))
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -412,13 +410,13 @@ class ArraySourceTest extends CakeTestCase {
 			array('ArrayModel' => array('id' => 3))
 		);
 		$result = $this->Model->find('all', array('fields' => array('id')));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('fields' => array('ArrayModel.id')));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('fields' => array('ArrayModel.id', 'Unknow.id')));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -429,15 +427,15 @@ class ArraySourceTest extends CakeTestCase {
 	public function testField() {
 		$expected = 2;
 		$result = $this->Model->field('id', array('name' => 'Brazil'));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$expected = 'Germany';
 		$result = $this->Model->field('name', array('relate_id' => 2));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$expected = 'USA';
 		$result = $this->Model->field('name', array('relate_id' => 1));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -451,13 +449,13 @@ class ArraySourceTest extends CakeTestCase {
 			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
 			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1))
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('limit' => 2, 'page' => 2));
 		$expected = array(
 			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2))
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -472,7 +470,7 @@ class ArraySourceTest extends CakeTestCase {
 			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)),
 			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1))
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('fields' => array('ArrayModel.id'), 'order' => 'ArrayModel.name'));
 		$expected = array(
@@ -480,13 +478,13 @@ class ArraySourceTest extends CakeTestCase {
 			array('ArrayModel' => array('id' => 3)),
 			array('ArrayModel' => array('id' => 1)),
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('fields' => array('ArrayModel.id'), 'order' => 'ArrayModel.name', 'limit' => 1, 'page' => 2));
 		$expected = array(
 			array('ArrayModel' => array('id' => 3))
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -497,48 +495,48 @@ class ArraySourceTest extends CakeTestCase {
 	public function testFindConditions() {
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name' => 'USA')));
 		$expected = array(array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name =' => 'USA')));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name = USA')));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name !=' => 'USA')));
 		$expected = array(array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)), array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name != USA')));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name LIKE' => '%ra%')));
 		$expected = array(array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name LIKE %ra%')));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name LIKE _r%')));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name LIKE %b%')));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name LIKE %a%')));
 		$expected = array(array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)), array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)), array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name' => array('USA', 'Germany'))));
 		$expected = array(array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)), array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name IN (USA, Germany)')));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.name' => 'USA', 'ArrayModel.id' => 2)));
 		$expected = array();
-		$this->assertIdentical($result, $expected);
+		$this->assertSame($expected, $result);
 
 		$model = ClassRegistry::init('ArraysRelateModel');
 
@@ -568,28 +566,27 @@ class ArraySourceTest extends CakeTestCase {
 	public function testFindConditionsRecursive() {
 		$result = $this->Model->find('all', array('conditions' => array('AND' => array('ArrayModel.name' => 'USA', 'ArrayModel.id' => 2))));
 		$expected = array();
-		$this->assertIdentical($result, $expected);
+		$this->assertSame($expected, $result);
 
 		$result = $this->Model->find('all', array('conditions' => array('OR' => array('ArrayModel.name' => 'USA', 'ArrayModel.id' => 2))));
 		$expected = array(
 			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
 			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1))
 		);
-		$this->assertIdentical($result, $expected);
+		$this->assertSame($expected, $result);
 
 		$result = $this->Model->find('all', array('conditions' => array('NOT' => array('ArrayModel.id' => 2))));
 		$expected = array(
 			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
 			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2))
 		);
-		$this->assertIdentical($result, $expected);
+		$this->assertSame($expected, $result);
 	}
 
 /**
  * testFindConditionsWithComparisonOperators
  *
  * @return void
- * @access public
  */
 	public function testFindConditionsWithComparisonOperators() {
 		$result = $this->Model->find('all', array('conditions' => array('ArrayModel.id <' => 2)));
@@ -627,11 +624,11 @@ class ArraySourceTest extends CakeTestCase {
 	public function testFindFirst() {
 		$result = $this->Model->find('first');
 		$expected = array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('first', array('fields' => array('name')));
 		$expected = array('ArrayModel' => array('name' => 'USA'));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -641,16 +638,16 @@ class ArraySourceTest extends CakeTestCase {
  */
 	public function testFindCount() {
 		$result = $this->Model->find('count');
-		$this->assertEqual($result, 3);
+		$this->assertEquals($result, 3);
 
 		$result = $this->Model->find('count', array('limit' => 2));
-		$this->assertEqual($result, 2);
+		$this->assertEquals($result, 2);
 
 		$result = $this->Model->find('count', array('limit' => 5));
-		$this->assertEqual($result, 3);
+		$this->assertEquals($result, 3);
 
 		$result = $this->Model->find('count', array('limit' => 2, 'page' => 2));
-		$this->assertEqual($result, 1);
+		$this->assertEquals($result, 1);
 	}
 
 /**
@@ -661,12 +658,12 @@ class ArraySourceTest extends CakeTestCase {
 	public function testFindList() {
 		$result = $this->Model->find('list');
 		$expected = array(1 => 1, 2 => 2, 3 => 3);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$this->Model->displayField = 'name';
 		$result = $this->Model->find('list');
 		$expected = array(1 => 'USA', 2 => 'Brazil', 3 => 'Germany');
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -677,11 +674,11 @@ class ArraySourceTest extends CakeTestCase {
 	public function testRead() {
 		$result = $this->Model->read(null, 1);
 		$expected = array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->read(array('name'), 2);
 		$expected = array('ArrayModel' => array('name' => 'Brazil'));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -704,7 +701,7 @@ class ArraySourceTest extends CakeTestCase {
 			array('UserModel' => array('born_id' => 1, 'name' => 'User 3'), 'Born' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
 			array('UserModel' => array('born_id' => 3, 'name' => 'User 4'), 'Born' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2))
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$model->belongsTo['Born']['fields'] = array('name');
 		$result = $model->find('all', array('recursive' => 0));
@@ -718,12 +715,12 @@ class ArraySourceTest extends CakeTestCase {
 			array('UserModel' => array('born_id' => 1, 'name' => 'User 3'), 'Born' => array('name' => 'USA')),
 			array('UserModel' => array('born_id' => 3, 'name' => 'User 4'), 'Born' => array('name' => 'Germany'))
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $model->read(null, 1);
 		unset($result['UserModel'][$model->primaryKey]);
 		$expected = array('UserModel' => array('born_id' => 1, 'name' => 'User 1'), 'Born' => array('name' => 'USA'));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -761,7 +758,7 @@ class ArraySourceTest extends CakeTestCase {
 				'Born' => array()
 			)
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -802,7 +799,7 @@ class ArraySourceTest extends CakeTestCase {
 				),
 			)
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -838,7 +835,7 @@ class ArraySourceTest extends CakeTestCase {
 				'Relate' => array()
 			)
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -867,7 +864,7 @@ class ArraySourceTest extends CakeTestCase {
 				'Relate' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)
 			)
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$model->belongsTo['Relate']['fields'] = array('name');
 
@@ -886,14 +883,14 @@ class ArraySourceTest extends CakeTestCase {
 				'Relate' => array('name' => 'Brazil')
 			)
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $model->read(null, 1);
 		$expected = array(
 			'ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1),
 			'Relate' => array('name' => 'USA')
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -924,7 +921,7 @@ class ArraySourceTest extends CakeTestCase {
 				'Relate' => array()
 			)
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -956,7 +953,7 @@ class ArraySourceTest extends CakeTestCase {
 				'Relate' => array(),
 			)
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -985,7 +982,7 @@ class ArraySourceTest extends CakeTestCase {
 				'Relate' => array()
 			)
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -1030,7 +1027,7 @@ class ArraySourceTest extends CakeTestCase {
 				),
 			)
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -1076,7 +1073,7 @@ class ArraySourceTest extends CakeTestCase {
 				'Relate' => array(),
 			)
 		);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -1085,7 +1082,6 @@ class ArraySourceTest extends CakeTestCase {
  * @return void
  */
 	public function testDeepRecursion() {
-
 		$Post = ClassRegistry::init('ArraySourceTestPost');
 
 		$expected = array(
@@ -1209,7 +1205,6 @@ class ArraySourceTest extends CakeTestCase {
 		$this->assertFalse(isset($results['ArraySourceTestComment'][0]['ArraySourceTestUser']['ArraySourceTestProfile']));
 		$this->assertFalse(isset($results['ArraySourceTestComment'][0]['ArraySourceTestUser']['ArraySourceTestComment']));
 
-
 		$Profile = ClassRegistry::init('ArraySourceTestProfile');
 
 		$expected = array(
@@ -1267,7 +1262,7 @@ class ArraySourceTest extends CakeTestCase {
  */
 	public function testDeepRecursionWithContainable() {
 		$Profile = ClassRegistry::init('ArraySourceTestProfile');
-		$Profile->Behaviors->attach('Containable');
+		$Profile->Behaviors->load('Containable');
 
 		$expected = array(
 			'ArraySourceTestProfile' => array(

@@ -12,13 +12,11 @@
  *
  * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       datasources
- * @subpackage    datasources.models.datasources.dbo
  * @since         CakePHP Datasources v 0.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-App::import('Datasource','DboSource');
+App::uses('DboSource', 'Model/Datasource');
 
 /**
  * Include AdoDB files.
@@ -30,8 +28,6 @@ App::import('Vendor', 'NewADOConnection', array('file' => 'adodb' . DS . 'adodb.
  *
  * Database abstraction implementation for the AdoDB library.
  *
- * @package       cake
- * @subpackage    cake.cake.libs.model.datasources.dbo
  */
 class Adodb extends DboSource {
 
@@ -96,18 +92,18 @@ class Adodb extends DboSource {
 		$persistent = strrpos($config['connect'], '|p');
 
 		if ($persistent === false) {
-			$adodb_driver = $config['connect'];
+			$adodbDriver = $config['connect'];
 			$connect = 'Connect';
 		} else {
-			$adodb_driver = substr($config['connect'], 0, $persistent);
+			$adodbDriver = substr($config['connect'], 0, $persistent);
 			$connect = 'PConnect';
 		}
 		if (!$this->enabled()) {
 			return false;
 		}
-		$this->_adodb = NewADOConnection($adodb_driver);
+		$this->_adodb = NewADOConnection($adodbDriver);
 
-		$this->_adodbDataDict = NewDataDictionary($this->_adodb, $adodb_driver);
+		$this->_adodbDataDict = NewDataDictionary($this->_adodb, $adodbDriver);
 
 		$this->startQuote = $this->_adodb->nameQuote;
 		$this->endQuote = $this->_adodb->nameQuote;
@@ -260,7 +256,7 @@ class Adodb extends DboSource {
 			}
 		}
 
-		$this->__cacheDescription($this->fullTableName($model, false), $fields);
+		$this->_cacheDescription($this->fullTableName($model, false), $fields);
 		return $fields;
 	}
 
@@ -298,7 +294,7 @@ class Adodb extends DboSource {
  * Returns the ID generated from the previous INSERT operation.
  *
  * @param mixed $source
- * @return int Returns the last autonumbering ID inserted. Returns false if function not supported.
+ * @return integer Returns the last autonumbering ID inserted. Returns false if function not supported.
  */
 	public function lastInsertId($source = null) {
 		return $this->_adodb->Insert_ID();
@@ -340,12 +336,12 @@ class Adodb extends DboSource {
 	public function column($real) {
 		$metaTypes = array_flip($this->_adodbColumnTypes);
 
-		$interpreted_type = $this->_adodbMetatyper->MetaType($real);
+		$interpretedType = $this->_adodbMetatyper->MetaType($real);
 
-		if (!isset($metaTypes[$interpreted_type])) {
+		if (!isset($metaTypes[$interpretedType])) {
 			return 'text';
 		}
-		return $metaTypes[$interpreted_type];
+		return $metaTypes[$interpretedType];
 	}
 
 /**
@@ -392,7 +388,7 @@ class Adodb extends DboSource {
 		}
 		$count = count($fields);
 
-		if ($count >= 1 && $fields[0] != '*' && strpos($fields[0], 'COUNT(*)') === false) {
+		if ($count >= 1 && $fields[0] !== '*' && strpos($fields[0], 'COUNT(*)') === false) {
 			for ($i = 0; $i < $count; $i++) {
 				if (!preg_match('/^.+\\(.*\\)/', $fields[$i]) && !preg_match('/\s+AS\s+/', $fields[$i])) {
 					$prepend = '';
@@ -419,14 +415,14 @@ class Adodb extends DboSource {
  * @param array $results
  */
 	public function resultSet(&$results) {
-		$num_fields = count($results);
+		$numFields = count($results);
 		$fields = array_keys($results);
 		$this->results =& $results;
 		$this->map = array();
 		$index = 0;
 		$j = 0;
 
-		while ($j < $num_fields) {
+		while ($j < $numFields) {
 			$columnName = $fields[$j];
 
 			if (strpos($columnName, '__')) {
@@ -493,7 +489,7 @@ class Adodb extends DboSource {
 		$real = $this->columns[$type];
 
 		//UUIDs are broken so fix them.
-		if ($type == 'string' && isset($real['length']) && $real['length'] == 36) {
+		if ($type === 'string' && isset($real['length']) && $real['length'] == 36) {
 			$concreteType = 'CHAR';
 		}
 
@@ -513,10 +509,10 @@ class Adodb extends DboSource {
 		}
 		$_notNull = $_default = $_autoInc = $_constraint = $_unsigned = false;
 
-		if (isset($column['key']) && $column['key'] == 'primary' && $type == 'integer') {
+		if (isset($column['key']) && $column['key'] === 'primary' && $type === 'integer') {
 			$_constraint = '';
 			$_autoInc = true;
-		} elseif (isset($column['key']) && $column['key'] == 'primary') {
+		} elseif (isset($column['key']) && $column['key'] === 'primary') {
 			$_notNull = '';
 		} elseif (isset($column['default']) && isset($column['null']) && $column['null'] == false) {
 			$_notNull = true;

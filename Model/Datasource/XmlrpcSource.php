@@ -13,8 +13,6 @@
  * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @link          http://www.xmlrpc.com/spec Specification
- * @package       datasources
- * @subpackage    datasources.models.datasources
  * @since         CakePHP Datasources v 0.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
@@ -55,7 +53,7 @@ class XmlrpcSource extends DataSource {
  *
  * @var array
  */
-	public $_baseConfig = array(
+	protected $_baseConfig = array(
 		'host' => '127.0.0.1',
 		'port' => 80,
 		'url' => '/RPC2',
@@ -101,8 +99,8 @@ class XmlrpcSource extends DataSource {
  * @param Model $model
  * @return mixed Array with methods or false if not supported
  */
-	public function describe($model = null) {
-		if (!is_null($this->_cacheDescribe)) {
+	public function describe($model) {
+		if ($this->_cacheDescribe !== null) {
 			return $this->_cacheDescribe;
 		}
 		$this->_cacheDescribe = $this->query('system.listMethods');
@@ -119,7 +117,7 @@ class XmlrpcSource extends DataSource {
 	protected function _request($method, $params) {
 		$xmlRequest = $this->generateXML($method, $params);
 		if (!$this->HttpSocket) {
-			$this->HttpSocket =& new HttpSocket(array('timeout' => $this->config['timeout']));
+			$this->HttpSocket = new HttpSocket(array('timeout' => $this->config['timeout']));
 		}
 		$uri = array(
 			'host' => $this->config['host'],
@@ -132,10 +130,10 @@ class XmlrpcSource extends DataSource {
 			return $this->_error(-32300, $e->getMessage());
 		}
 		if (!$this->HttpSocket->response['status']['code']) {
-			return $this->_error(-32300, __('Transport error - could not open socket', true));
+			return $this->_error(-32300, __('Transport error - could not open socket'));
 		}
 		if ($this->HttpSocket->response['status']['code'] != 200) {
-			return $this->_error(-32300, __('Transport error - HTTP status code was not 200', true));
+			return $this->_error(-32300, __('Transport error - HTTP status code was not 200'));
 		}
 
 		return $this->parseResponse($response);
@@ -176,13 +174,13 @@ class XmlrpcSource extends DataSource {
 		$data = Xml::toArray($Xml);
 		unset($Xml);
 		if (isset($data['methodResponse']['fault'])) {
-			return $this->__parseResponseError($data);
+			return $this->_parseResponseError($data);
 		}
 		if (!isset($data['methodResponse']['params']['param']['value'])) {
-			return $this->_error(-32700, __('Parse error. Not well formed', true));
+			return $this->_error(-32700, __('Parse error. Not well formed'));
 		}
 		$this->_error(0, '');
-		return $this->__parseResponse($data['methodResponse']['params']['param']['value']);
+		return $this->_parseResponse($data['methodResponse']['params']['param']['value']);
 	}
 
 /**
@@ -212,11 +210,14 @@ class XmlrpcSource extends DataSource {
 				$members[] = array_merge(compact('name'), $this->_normalizeParam($value));
 			}
 			return array('value' => array('struct' => array('member' => $members)));
-		} elseif (is_int($param)) {
+		}
+		if (is_int($param)) {
 			return array('value' => array('int' => $param));
-		} elseif (is_bool($param)) {
+		}
+		if (is_bool($param)) {
 			return array('value' => array('boolean' => $param ? '1' : '0'));
-		} elseif (is_numeric($param)) {
+		}
+		if (is_numeric($param)) {
 			return array('value' => array('double' => $param));
 		}
 		return array('value' => array('string' => $param));
@@ -228,7 +229,7 @@ class XmlrpcSource extends DataSource {
  * @param array $data Response as array of XML Class
  * @return boolean Always false
  */
-	private function __parseResponseError(&$data) {
+	protected function _parseResponseError(&$data) {
 		foreach ($data['methodResponse']['fault']['value']['struct']['member'] as $member) {
 			if ($member['name'] === 'faultCode') {
 				if (isset($member['value']['int'])) {
@@ -249,7 +250,7 @@ class XmlrpcSource extends DataSource {
  * @param array $value Value
  * @return mixed
  */
-	private function __parseResponse($value) {
+	protected function _parseResponse($value) {
 		$type = array_keys($value);
 		$type = $type[0];
 		$value = $value[$type];
@@ -268,9 +269,9 @@ class XmlrpcSource extends DataSource {
 							$key = 0;
 						}
 						if ($key === 'struct' || $key === 'array') {
-							$return[] = $this->__parseResponse(array($key => $newValue));
+							$return[] = $this->_parseResponse(array($key => $newValue));
 						} else {
-							$return[] = $this->__parseResponse($newValue);
+							$return[] = $this->_parseResponse($newValue);
 						}
 					}
 				}
@@ -278,7 +279,7 @@ class XmlrpcSource extends DataSource {
 			case 'struct':
 				$return = array();
 				foreach ($value['member'] as $member) {
-					$return[$member['name']] = $this->__parseResponse($member['value']);
+					$return[$member['name']] = $this->_parseResponse($member['value']);
 				}
 				return $return;
 			default:

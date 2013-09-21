@@ -12,8 +12,6 @@
  *
  * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       datasources
- * @subpackage    datasources.models.datasources
  * @since         CakePHP Datasources v 0.3
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  *
@@ -40,8 +38,6 @@ App::uses('HttpSocket', 'Network/Http');
 /**
  * Amazon Associates Datasource
  *
- * @package datasources
- * @subpackage datasources.models.datasources
  */
 class AmazonAssociatesSource extends DataSource {
 
@@ -95,9 +91,9 @@ class AmazonAssociatesSource extends DataSource {
  *
  * @param array $config Configuration array
  */
-	public function __construct($config) {
+	public function __construct($config = array()) {
 		parent::__construct($config);
-		App::import('HttpSocket');
+
 		$this->Http = new HttpSocket();
 	}
 
@@ -152,7 +148,7 @@ class AmazonAssociatesSource extends DataSource {
 				'Version'        => '2009-03-31',
 				'Operation'      => 'ItemLookup',
 			),
-     		array('ItemId' => $id)
+			array('ItemId' => $id)
 		);
 		return $this->_request();
 	}
@@ -166,7 +162,7 @@ class AmazonAssociatesSource extends DataSource {
  */
 	public function getLog($sorted = false, $clear = true) {
 		$log = $this->_requestLog;
-		if($clear){
+		if ($clear) {
 			$this->_requestLog = array();
 		}
 		return array('log' => $log, 'count' => count($log), 'time' => 'Unknown');
@@ -197,22 +193,22 @@ class AmazonAssociatesSource extends DataSource {
 
 		ksort($this->query);
 		// create the canonicalized query
-		$canonicalized_query = array();
-		foreach ($this->query as $param=>$value) {
+		$canonicalizedQuery = array();
+		foreach ($this->query as $param => $value) {
 			$param = str_replace('%7E', '~', rawurlencode($param));
 			$value = str_replace('%7E', '~', rawurlencode($value));
-			$canonicalized_query[] = $param."=".$value;
+			$canonicalizedQuery[] = $param . "=" . $value;
 		}
-		$canonicalized_query = implode('&', $canonicalized_query);
-		$string_to_sign = implode("\n", array($method, $host, $uri, $canonicalized_query));
+		$canonicalizedQuery = implode('&', $canonicalizedQuery);
+		$stringToSign = implode("\n", array($method, $host, $uri, $canonicalizedQuery));
 
 		// calculate HMAC with SHA256 and base64-encoding
-		$signature = base64_encode(hash_hmac("sha256", $string_to_sign, $this->config['secret'], true));
+		$signature = base64_encode(hash_hmac("sha256", $stringToSign, $this->config['secret'], true));
 
 		// encode the signature for the request
 		$signature = str_replace('%7E', '~', rawurlencode($signature));
 
 		// create request
-		return sprintf('http://%s%s?%s&Signature=%s', $host, $uri, $canonicalized_query, $signature);
+		return sprintf('http://%s%s?%s&Signature=%s', $host, $uri, $canonicalizedQuery, $signature);
 	}
 }

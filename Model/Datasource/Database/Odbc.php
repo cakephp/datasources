@@ -12,21 +12,17 @@
  *
  * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       datasources
- * @subpackage    datasources.models.datasources.dbo
  * @since         CakePHP Datasources v 0.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-App::import('Datasource','DboSource');
+App::uses('DboSource', 'Model/Datasource');
 
 /**
  * Short description for class.
  *
  * Long description for class
  *
- * @package       cake
- * @subpackage    cake.cake.libs.model.datasources.dbo
  */
 class DboOdbc extends DboSource {
 
@@ -35,28 +31,28 @@ class DboOdbc extends DboSource {
  *
  * @var string
  */
-	var $description = "ODBC DBO Driver";
+	public $description = "ODBC DBO Driver";
 
 /**
  * Table/column starting quote
  *
  * @var string
  */
-	var $startQuote = "`";
+	public $startQuote = "`";
 
 /**
  * Table/column end quote
  *
  * @var string
  */
-	var $endQuote = "`";
+	public $endQuote = "`";
 
 /**
  * Driver base configuration
  *
  * @var array
  */
-	var $_baseConfig = array(
+	protected $_baseConfig = array(
 		'persistent' => true,
 		'login' => 'root',
 		'password' => '',
@@ -69,9 +65,9 @@ class DboOdbc extends DboSource {
  *
  * @var array
  */
-	var $columns = array();
+	public $columns = array();
 
-	//	var $columns = array('primary_key' => array('name' => 'int(11) DEFAULT NULL auto_increment'),
+	//	public $columns = array('primary_key' => array('name' => 'int(11) DEFAULT NULL auto_increment'),
 	//						'string' => array('name' => 'varchar', 'limit' => '255'),
 	//						'text' => array('name' => 'text'),
 	//						'integer' => array('name' => 'int', 'limit' => '11'),
@@ -88,7 +84,7 @@ class DboOdbc extends DboSource {
  *
  * @return boolean True if the database could be connected, else false
  */
-	function connect() {
+	public function connect() {
 		$config = $this->config;
 		$connect = $config['connect'];
 		if (!$config['persistent']) {
@@ -111,7 +107,7 @@ class DboOdbc extends DboSource {
  *
  * @return boolean
  */
-	function enabled() {
+	public function enabled() {
 		return extension_loaded('odbc');
 	}
 
@@ -120,7 +116,7 @@ class DboOdbc extends DboSource {
  *
  * @return boolean True if the database could be disconnected, else false
  */
-	function disconnect() {
+	public function disconnect() {
 		return @odbc_close($this->connection);
 	}
 
@@ -129,9 +125,8 @@ class DboOdbc extends DboSource {
  *
  * @param string $sql SQL statement
  * @return resource Result resource identifier
- * @access protected
  */
-	function _execute($sql) {
+	protected function _execute($sql) {
 		switch ($sql) {
 			case 'BEGIN':
 				return odbc_autocommit($this->connection, false);
@@ -149,7 +144,7 @@ class DboOdbc extends DboSource {
  *
  * @return array Array of tablenames in the database
  */
-	function listSources() {
+	public function listSources() {
 		$cache = parent::listSources();
 		if ($cache != null) {
 			return $cache;
@@ -171,7 +166,7 @@ class DboOdbc extends DboSource {
  * @param Model $model Model object to describe
  * @return array Fields in table. Keys are name and type
  */
-	function &describe(&$model) {
+	public function &describe($model) {
 		$cache=parent::describe($model);
 
 		if ($cache != null) {
@@ -192,7 +187,7 @@ class DboOdbc extends DboSource {
 			$fields[$column] = array('type' => $type);
 		}
 
-		$this->__cacheDescription($model->tablePrefix . $model->table, $fields);
+		$this->_cacheDescription($model->tablePrefix . $model->table, $fields);
 		return $fields;
 	}
 
@@ -204,7 +199,7 @@ class DboOdbc extends DboSource {
  * @return string Quoted and escaped
  * @todo Add logic that formats/escapes data based on column type
  */
-	function value($data, $column = null) {
+	public function value($data, $column = null) {
 		$parent = parent::value($data, $column);
 
 		if ($parent != null) {
@@ -227,7 +222,7 @@ class DboOdbc extends DboSource {
  *
  * @return string Error message with error number
  */
-	function lastError() {
+	public function lastError() {
 		if ($error = odbc_errormsg($this->connection)) {
 			return odbc_error($this->connection) . ': ' . $error;
 		}
@@ -240,7 +235,7 @@ class DboOdbc extends DboSource {
  *
  * @return integer Number of affected rows
  */
-	function lastAffected() {
+	public function lastAffected() {
 		if ($this->hasResult()) {
 			return odbc_num_rows($this->_result);
 		}
@@ -251,9 +246,9 @@ class DboOdbc extends DboSource {
  * Returns number of rows in previous resultset. If no previous resultset exists,
  * this returns false.
  *
- * @return int Number of rows in resultset
+ * @return integer Number of rows in resultset
  */
-	function lastNumRows() {
+	public function lastNumRows() {
 		if ($this->hasResult()) {
 			return odbc_num_rows($this->_result);
 		}
@@ -264,9 +259,9 @@ class DboOdbc extends DboSource {
  * Returns the ID generated from the previous INSERT operation.
  *
  * @param unknown_type $source
- * @return int
+ * @return integer
  */
-	function lastInsertId($source = null) {
+	public function lastInsertId($source = null) {
 		$result = $this->fetchRow('SELECT @@IDENTITY');
 		return $result[0];
 	}
@@ -276,7 +271,7 @@ class DboOdbc extends DboSource {
  *
  * @param string $real Real database-layer column type (i.e. "varchar(255)")
  */
-	function column($real) {
+	public function column($real) {
 		if (is_array($real)) {
 			$col=$real['name'];
 			if (isset($real['limit'])) {
@@ -292,13 +287,13 @@ class DboOdbc extends DboSource {
 *
 * @param unknown_type $results
 */
-	function resultSet(&$results) {
-		$this->results =& $results;
-		$num_fields = odbc_num_fields($results);
+	public function resultSet(&$results) {
+		$this->results = $results;
+		$numFields = odbc_num_fields($results);
 		$this->map = array();
 		$index = 0;
 		$j = 0;
-		while ($j < $num_fields) {
+		while ($j < $numFields) {
 			$column = odbc_field_name($results, $j+1);
 
 			if (strpos($column, '_dot_') !== false) {
@@ -319,7 +314,7 @@ class DboOdbc extends DboSource {
 * @param mixed $fields
 * @return array
 */
-	function fields(&$model, $alias = null, $fields = null, $quote = true) {
+	public function fields(Model $model, $alias = null, $fields = null, $quote = true) {
 		if (empty($alias)) {
 			$alias = $model->name;
 		}
@@ -327,8 +322,8 @@ class DboOdbc extends DboSource {
 			if ($fields != null) {
 				$fields = array_map('trim', explode(',', $fields));
 			} else {
-				foreach($model->tableToModel as $tableName => $modelName) {
-					foreach($this->__descriptions[$model->tablePrefix .$tableName] as $field => $type) {
+				foreach ($model->tableToModel as $tableName => $modelName) {
+					foreach ($this->_descriptions[$model->tablePrefix . $tableName] as $field => $type) {
 						$fields[] = $modelName . '.' . $field;
 					}
 				}
@@ -337,7 +332,7 @@ class DboOdbc extends DboSource {
 
 		$count = count($fields);
 
-		if ($count >= 1 && $fields[0] != '*' && strpos($fields[0], 'COUNT(*)') === false) {
+		if ($count >= 1 && $fields[0] !== '*' && strpos($fields[0], 'COUNT(*)') === false) {
 			for ($i = 0; $i < $count; $i++) {
 				if (!preg_match('/^.+\\(.*\\)/', $fields[$i])) {
 					$prepend = '';
@@ -363,12 +358,12 @@ class DboOdbc extends DboSource {
  *
  * @return unknown
  */
-	function fetchResult() {
+	public function fetchResult() {
 		if ($row = odbc_fetch_row($this->results)) {
 			$resultRow = array();
 			$numFields = odbc_num_fields($this->results);
 			$i = 0;
-			for($i = 0; $i < $numFields; $i++) {
+			for ($i = 0; $i < $numFields; $i++) {
 				list($table, $column) = $this->map[$i];
 				$resultRow[$table][$column] = odbc_result($this->results, $i + 1);
 			}
