@@ -615,7 +615,7 @@ class LdapSource extends DataSource {
 		return @ldap_delete($this->database, $dn);
 	}
 
-	public function generateAssociationQuery(Model $model, Model $linkModel, $type, $association = null, $assocData = array(), &$queryData, $external = false, &$resultSet) {
+	public function generateAssociationQuery(Model $model, Model $linkModel, $type, $association, $assocData, &$queryData, $external, &$resultSet) {
 		$this->_scrubQueryData($queryData);
 
 		switch ($type) {
@@ -738,20 +738,26 @@ class LdapSource extends DataSource {
 		return $unixTimestamp;
 	}
 
-	/* The following was kindly "borrowed" from the excellent phpldapadmin project */
+/**
+ * The following was kindly "borrowed" from the excellent phpldapadmin project
+ *
+ * @return array
+ */
 	protected function _getLDAPschema() {
 		$schemaTypes = array('objectclasses', 'attributetypes');
 		$this->results = @ldap_read($this->database, $this->SchemaDN, $this->SchemaFilter, $schemaTypes, 0, 0, 0, LDAP_DEREF_ALWAYS);
 		if ($this->results === null) {
 			$this->log( "LDAP schema filter $schemaFilter is invalid!", 'ldap.error');
-			continue;
+			return array();
 		}
 
 		$schemaEntries = @ldap_get_entries($this->database, $this->results);
+		if (!$schemaEntries) {
+			return array();
+		}
 
-		if ($schemaEntries) {
-			$return = array();
-			foreach ($schemaTypes as $n) {
+		$return = array();
+		foreach ($schemaTypes as $n) {
 			$schemaTypeEntries = $schemaEntries[0][$n];
 			for ($x = 0; $x < $schemaTypeEntries['count']; $x++) {
 				$entry = array();
@@ -848,16 +854,23 @@ class LdapSource extends DataSource {
 				if (!isset($return[$n]) || !is_array($return[$n])) {
 					$return[$n] = array();
 				}
-				//make lowercase for consistency
+				// Make lowercase for consistency
 				$return[strtolower($n)][strtolower($entry['name'])] = $entry;
 				//array_push($return[$n][$entry['name']], $entry);
-				}
 			}
 		}
 
 		return $return;
 	}
 
+	/**
+	 * LdapSource::_parseList()
+	 *
+	 * @param integer $i
+	 * @param array $strings
+	 * @param array $attrs
+	 * @return integer
+	 */
 	protected function _parseList($i, $strings, &$attrs) {
 	/**
 	 ** A list starts with a ( followed by a list of attributes separated by $ terminated by )
