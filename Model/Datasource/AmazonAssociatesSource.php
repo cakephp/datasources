@@ -91,7 +91,7 @@ class AmazonAssociatesSource extends DataSource {
  *
  * @param array $config Configuration array
  */
-	public function __construct($config) {
+	public function __construct($config = array()) {
 		parent::__construct($config);
 
 		$this->Http = new HttpSocket();

@@ -208,9 +208,9 @@ class ArraySource extends DataSource {
 			}
 		}
 		$this->_registerLog($model, $queryData, microtime(true) - $startTime, count($data));
-		$_associations = $model->_associations;
+		$associations = $model->_associations;
 		if ($model->recursive > -1) {
-			foreach ($_associations as $type) {
+			foreach ($associations as $type) {
 				foreach ($model->{$type} as $assoc => $assocData) {
 					$linkModel = $model->{$assoc};
 

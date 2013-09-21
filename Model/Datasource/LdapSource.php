@@ -136,7 +136,7 @@ class LdapSource extends DataSource {
  *
  * @param array $config Configuration
  */
-	public function __construct($config = null) {
+	public function __construct($config = array()) {
 		$this->debug = Configure::read('debug') > 0;
 		$this->fullDebug = Configure::read('debug') > 1;
 		parent::__construct($config);
@@ -539,12 +539,12 @@ class LdapSource extends DataSource {
 		unset($entry['dn']);
 
 		if ($resultSet) {
-			$_dn = $resultSet[0][$model->alias]['dn'];
+			$dn = $resultSet[0][$model->alias]['dn'];
 
-			if (@ldap_modify($this->database, $_dn, $entry)) {
+			if (@ldap_modify($this->database, $dn, $entry)) {
 				return true;
 			}
-			$this->log("Error updating $_dn: " . ldap_error($this->database) . "\nHere is what I sent: " . print_r($entry, true), 'ldap.error');
+			$this->log("Error updating $dn: " . ldap_error($this->database) . "\nHere is what I sent: " . print_r($entry, true), 'ldap.error');
 			return false;
 		}
 

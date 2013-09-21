@@ -61,7 +61,7 @@ class SoapSource extends DataSource {
  *
  * @param array $config An array defining the configuration settings
  */
-	public function __construct($config) {
+	public function __construct($config = array()) {
 		parent::__construct($config);
 		$this->connect();
 	}
