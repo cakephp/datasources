@@ -91,8 +91,8 @@ class DboSqlsrv extends DboSource {
  * @var array
  */
 	protected $_commands = array(
-		'begin'    => 'BEGIN TRANSACTION',
-		'commit'   => 'COMMIT',
+		'begin' => 'BEGIN TRANSACTION',
+		'commit' => 'COMMIT',
 		'rollback' => 'ROLLBACK'
 	);
 
@@ -194,16 +194,16 @@ class DboSqlsrv extends DboSource {
 
 		if (!$result || empty($result)) {
 			return array();
-		} else {
-			$tables = array();
-
-			foreach ($result as $table) {
-				$tables[] = $table[0]['TABLE_NAME'];
-			}
-
-			parent::listSources($tables);
-			return $tables;
 		}
+
+		$tables = array();
+
+		foreach ($result as $table) {
+			$tables[] = $table[0]['TABLE_NAME'];
+		}
+
+		parent::listSources($tables);
+		return $tables;
 	}
 
 /**
@@ -347,14 +347,13 @@ class DboSqlsrv extends DboSource {
 					if ($model->getColumnType($fields[$i]) === 'datetime') {
 						$fieldName = "CONVERT(VARCHAR(20), {$fieldName}, 20)";
 					}
-					$fields[$i] =  "{$fieldName} AS {$fieldAlias}";
+					$fields[$i] = "{$fieldName} AS {$fieldAlias}";
 				}
 				$result[] = $prepend . $fields[$i];
 			}
 			return $result;
-		} else {
-			return $fields;
 		}
+		return $fields;
 	}
 
 /**
@@ -421,7 +420,7 @@ class DboSqlsrv extends DboSource {
 		$errors = sqlsrv_errors();
 		if (is_array($errors)) {
 			foreach ($errors as $err) {
-				$error .= $err['message'].'<br />';
+				$error .= $err['message'] . '<br />';
 			}
 		}
 
@@ -593,10 +592,9 @@ class DboSqlsrv extends DboSource {
 					//return "SELECT * FROM (SELECT {$limit} * FROM (SELECT TOP {$offset} {$fields} FROM {$table} {$alias} {$joins} {$conditions} {$group} {$order}) AS Set1 {$rOrder}) AS Set2 {$order2}";
 					$limitint = (int)$offset + 1 - (int)trim(str_replace('TOP','', $limit));
 					return "SELECT * FROM (SELECT row_number() OVER ({$order}) as resultNum, {$fields} FROM {$table} {$alias} {$joins} {$conditions} {$group}) as numberResults WHERE resultNum BETWEEN {$limitint} and {$offset} ";
-				} else {
-					return "SELECT {$limit} {$fields} FROM {$table} {$alias} {$joins} {$conditions} {$group} {$order}";
 				}
-			break;
+				return "SELECT {$limit} {$fields} FROM {$table} {$alias} {$joins} {$conditions} {$group} {$order}";
+
 			case "schema":
 				extract($data);
 
@@ -613,10 +611,9 @@ class DboSqlsrv extends DboSource {
 					}
 				}
 				return "CREATE TABLE {$table} (\n{$columns});\n{$indexes}";
-			break;
+
 			default:
 				return parent::renderStatement($type, $data);
-			break;
 		}
 	}
 

@@ -348,8 +348,8 @@ class LdapSource extends DataSource {
 				$id = $values[$i];
 			} elseif ($fields[$i] === 'cn') {
 				$cn = $values[$i];
-		}
-		$fieldsData[$fields[$i]] = $values[$i];
+			}
+			$fieldsData[$fields[$i]] = $values[$i];
 		}
 
 		//Lets make our DN, this is made from the useTable & basedn + primary key. Logically this corelate to LDAP
@@ -384,7 +384,7 @@ class LdapSource extends DataSource {
  *
  * @return mixed
  */
-	public function query($find, $query = null, $model) {
+	public function query($find, $query, $model) {
 		if (isset($query[0]) && is_array($query[0])) {
 			$query = $query[0];
 		}
@@ -503,7 +503,8 @@ class LdapSource extends DataSource {
 			$values = array_values($model->data);
 		}
 
-		for ($i = 0; $i < count($fields); $i++) {
+		$fieldCount = count($fields);
+		for ($i = 0; $i < $fieldCount; $i++) {
 			$fieldsData[$fields[$i]] = $values[$i];
 		}
 
@@ -633,7 +634,6 @@ class LdapSource extends DataSource {
 				$queryData['targetDn'] = $linkModel->useTable;
 				$queryData['type'] = 'search';
 				$queryData['limit'] = 1;
-
 				return $queryData;
 
 			case 'hasMany':
@@ -642,7 +642,6 @@ class LdapSource extends DataSource {
 				$queryData['targetDn'] = $linkModel->useTable;
 				$queryData['type'] = 'search';
 				$queryData['limit'] = $assocData['limit'];
-
 				return $queryData;
 
 			case 'hasAndBelongsToMany':
@@ -665,7 +664,6 @@ class LdapSource extends DataSource {
 
 		$count = count($resultSet);
 		for ($i = 0; $i < $count; $i++) {
-
 			$row = $resultSet[$i];
 			$queryData = $this->generateAssociationQuery($model, $linkModel, $type, $association, $assocData, $queryData, $external, $row);
 			$fetch = $this->_executeQuery($queryData);
@@ -675,7 +673,7 @@ class LdapSource extends DataSource {
 			if (!empty($fetch) && is_array($fetch)) {
 					if ($recursive > 0) {
 						foreach ($linkModel->_associations as $type1) {
-							foreach ($linkModel-> {$type1 } as $assoc1 => $assocData1) {
+							foreach ($linkModel->{$type1 } as $assoc1 => $assocData1) {
 								$deepModel = $linkModel->{$assocData1['className']};
 								if ($deepModel->alias !== $model->name) {
 									$tmpStack = $stack;
@@ -686,7 +684,7 @@ class LdapSource extends DataSource {
 										$db = ConnectionManager::getDataSource($deepModel->useDbConfig);
 									}
 									$queryData = array();
-									$db->queryAssociation($linkModel, $deepModel, $type1, $assoc1, $assocData1, $queryData, true, $fetch, $recursive -1, $tmpStack);
+									$db->queryAssociation($linkModel, $deepModel, $type1, $assoc1, $assocData1, $queryData, true, $fetch, $recursive - 1, $tmpStack);
 								}
 							}
 						}
@@ -719,7 +717,7 @@ class LdapSource extends DataSource {
  * @return integer Number of rows in resultset
  */
 	public function lastNumRows() {
-		if ($this->_result and is_resource($this->_result)) {
+		if ($this->_result && is_resource($this->_result)) {
 			return @ldap_count_entries($this->database, $this->_result);
 		}
 		return null;
@@ -731,7 +729,7 @@ class LdapSource extends DataSource {
  * @param integer $adTimestamp Active directory timestamp
  * @return integer Unix timestamp
  */
-	public function convertTimestamp_ADToUnix($adTimestamp) {
+	public function convertTimestampADToUnix($adTimestamp) {
 		$epochDiff = 11644473600; // difference 1601<>1970 in seconds. see reference URL
 		$dateTimestamp = $adTimestamp * 0.0000001;
 		$unixTimestamp = $dateTimestamp - $epochDiff;
@@ -768,7 +766,7 @@ class LdapSource extends DataSource {
 						case '(':
 							break;
 						case 'NAME':
-							if ($strings[$i+1] !== '(') {
+							if ($strings[$i + 1] !== '(') {
 								do {
 								$i++;
 									if (!isset($entry['name']) || strlen($entry['name']) === 0) {
@@ -798,27 +796,29 @@ class LdapSource extends DataSource {
 						case 'DESC':
 							do {
 								$i++;
-								if (!isset($entry['description'] ) || strlen($entry['description']) === 0)
-								$entry['description'] = $strings[$i];
-								else
-								$entry['description'] .= ' ' . $strings[$i];
+								if (!isset($entry['description']) || strlen($entry['description']) === 0) {
+									$entry['description'] = $strings[$i];
+								} else {
+									$entry['description'] .= ' ' . $strings[$i];
+								}
 							} while (!preg_match( '/\'$/s', $strings[$i]));
 							break;
 						case 'OBSOLETE':
-							$entry['is_obsolete'] = TRUE;
+							$entry['is_obsolete'] = true;
 							break;
 						case 'SUP':
 							$entry['sup_classes'] = array();
-							if ($strings[$i+1] !== '(') {
+							if ($strings[$i + 1] !== '(') {
 								$i++;
 								array_push($entry['sup_classes'], preg_replace( "/'/", '', $strings[$i]));
 							} else {
 								$i++;
 								do {
-								$i++;
-								if ($strings[$i] !== '$')
-									array_push($entry['sup_classes'], preg_replace( "/'/", '', $strings[$i]));
-								} while (! preg_match('/\)+\)?/', $strings[$i+1]));
+									$i++;
+									if ($strings[$i] !== '$') {
+										array_push($entry['sup_classes'], preg_replace( "/'/", '', $strings[$i]));
+									}
+								} while (! preg_match('/\)+\)?/', $strings[$i + 1]));
 							}
 							break;
 						case 'ABSTRACT':
@@ -896,7 +896,7 @@ class LdapSource extends DataSource {
 
 			} elseif (preg_match('/^\(./', $string)) {
 				$string = preg_replace('/^\(/', '', $string);
-				array_push ($attrs, $string);
+				array_push($attrs, $string);
 				$i++;
 			}
 
@@ -905,16 +905,16 @@ class LdapSource extends DataSource {
 			while (!preg_match('/\)+$/', $strings[$i])) {
 				$string = $strings[$i];
 				if ($string === '$') {
-						$i++;
-						continue;
+					$i++;
+					continue;
 				}
 
 				if (preg_match('/\)$/', $string)) {
-						$string = preg_replace('/\)+$/', '', $string);
+					$string = preg_replace('/\)+$/', '', $string);
 				} else {
-						$i++;
+					$i++;
 				}
-				array_push ($attrs, $string);
+				array_push($attrs, $string);
 			}
 		}
 		sort($attrs);
@@ -983,12 +983,12 @@ class LdapSource extends DataSource {
 			print ("<thead>\n<tr><th>Nr</th><th>Query</th><th>Error</th><th>Affected</th><th>Num. rows</th><th>Took (ms)</th></tr>\n</thead>\n<tbody>\n");
 
 			foreach ($log as $k => $i) {
-				print ("<tr><td>" . ($k +1) . "</td><td>{$i['query']}</td><td>{$i['error']}</td><td style = \"text-align: right\">{$i['affected']}</td><td style = \"text-align: right\">{$i['numRows']}</td><td style = \"text-align: right\">{$i['took']}</td></tr>\n");
+				print ("<tr><td>" . ($k + 1) . "</td><td>{$i['query']}</td><td>{$i['error']}</td><td style = \"text-align: right\">{$i['affected']}</td><td style = \"text-align: right\">{$i['numRows']}</td><td style = \"text-align: right\">{$i['took']}</td></tr>\n");
 			}
 			print ("</table>\n");
 		} else {
 			foreach ($log as $k => $i) {
-				print (($k +1) . ". {$i['query']} {$i['error']}\n");
+				print (($k + 1) . ". {$i['query']} {$i['error']}\n");
 			}
 		}
 	}
@@ -1020,10 +1020,10 @@ class LdapSource extends DataSource {
 		$name = $model->name;
 
 		if (is_array($conditions) && count($conditions) === 1) {
-			$sqlHack = "$name. $key";
+			$sqlHack = "$name.$key";
 			$conditions = str_ireplace($sqlHack, $key, $conditions);
 			foreach ($conditions as $k => $v) {
-				if ($k === $name.'.dn') {
+				if ($k === $name . '.dn') {
 					$res = substr($v, 0, strpos($v, ','));
 				} elseif (($k === $sqlHack) && (empty($v) || $v === '*')) {
 					$res = 'objectclass=*';
@@ -1080,7 +1080,7 @@ class LdapSource extends DataSource {
 					return null;
 				}
 				$tmp = '(' . $opsRec[$operand]['prefix'];
-				foreach ($children as $key => $value)  {
+				foreach ($children as $key => $value) {
 					$child = array($key => $value);
 					$tmp .= $this->_conditionsArrayToString($child);
 				}
@@ -1096,7 +1096,7 @@ class LdapSource extends DataSource {
 				return '(!' . $this->_conditionsArrayToString(array($nextOperand => $children)) . ')';
 			}
 
-			if (in_array($operand,  array_keys($opsTer))) {
+			if (in_array($operand, array_keys($opsTer))) {
 				$tmp = '';
 				foreach ($children as $key => $value) {
 					if (!is_array($value)) {
@@ -1114,7 +1114,7 @@ class LdapSource extends DataSource {
 
 	public function checkBaseDn($targetDN) {
 		$parts = preg_split('/,\s*/', $this->config['basedn']);
-		$pattern = '/'.implode(',\s*', $parts).'/i';
+		$pattern = '/' . implode(',\s*', $parts) . '/i';
 		return preg_match($pattern, $targetDN);
 	}
 
@@ -1124,7 +1124,7 @@ class LdapSource extends DataSource {
 		$pattern = '/,[ \t]+(\w+)=/';
 		$queryData['targetDn'] = preg_replace($pattern, ', $1=', $queryData['targetDn']);
 		if ($this->checkBaseDn($queryData['targetDn']) == 0) {
-			$this->log("Missing BaseDN in ". $queryData['targetDn'], 'debug');
+			$this->log("Missing BaseDN in " . $queryData['targetDn'], 'debug');
 
 			if ($queryData['targetDn'] != null) {
 				$seperator = (substr($queryData['targetDn'], -1) === ',') ? '' : ',';
@@ -1132,9 +1132,9 @@ class LdapSource extends DataSource {
 					//Fix TargetDN here
 					$key = $this->model->primaryKey;
 					$table = $this->model->useTable;
-					$queryData['targetDn'] = $key. '=' . $queryData['targetDn'] . ', ' . $table. $seperator. $this->config['basedn'];
+					$queryData['targetDn'] = $key . '=' . $queryData['targetDn'] . ', ' . $table . $seperator . $this->config['basedn'];
 				} else {
-					$queryData['targetDn'] = $queryData['targetDn']. $seperator. $this->config['basedn'];
+					$queryData['targetDn'] = $queryData['targetDn'] . $seperator . $this->config['basedn'];
 				}
 			} else {
 				$queryData['targetDn'] = $this->config['basedn'];
@@ -1170,7 +1170,7 @@ class LdapSource extends DataSource {
 					if (!$res) {
 						$res = false;
 						$errMsg = ldap_error($this->database);
-						$this->log("Query Params Failed:" . print_r($queryData,true) . ' Error: ' . $errMsg, 'ldap.error');
+						$this->log("Query Params Failed:" . print_r($queryData, true) . ' Error: ' . $errMsg, 'ldap.error');
 						$this->count = 0;
 					} else {
 						$this->count = ldap_count_entries($this->database, $res);
@@ -1205,27 +1205,27 @@ class LdapSource extends DataSource {
 
 	protected function _queryToString($queryData) {
 		$tmp = '';
-		if (!empty($queryData['scope']))
+		if (!empty($queryData['scope'])) {
 			$tmp .= ' | scope: ' . $queryData['scope'] . ' ';
-
-		if (!empty($queryData['conditions']))
+		}
+		if (!empty($queryData['conditions'])) {
 			$tmp .= ' | cond: ' . $queryData['conditions'] . ' ';
-
-		if (!empty($queryData['targetDn']))
+		}
+		if (!empty($queryData['targetDn'])) {
 			$tmp .= ' | targetDn: ' . $queryData['targetDn'] . ' ';
-
+		}
 		$fields = '';
 		if (!empty($queryData['fields']) && is_array($queryData['fields'] )) {
 			$fields = implode(', ', $queryData['fields']);
 			$tmp .= ' |fields: ' . $fields . ' ';
 		}
 
-		if (!empty($queryData['order']))
+		if (!empty($queryData['order'])) {
 			$tmp .= ' | order: ' . $queryData['order'][0] . ' ';
-
-		if (!empty($queryData['limit']))
+		}
+		if (!empty($queryData['limit'])) {
 			$tmp .= ' | limit: ' . $queryData['limit'];
-
+		}
 		return $queryData['type'] . $tmp;
 	}
 

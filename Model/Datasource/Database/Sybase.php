@@ -143,16 +143,14 @@ class DboSybase extends DboSource {
 		$result = $this->_execute("SELECT name FROM sysobjects WHERE type IN ('U', 'V')");
 		if (!$result) {
 			return array();
-		} else {
-
-			$tables = array();
-			while ($line = sybase_fetch_array($result)) {
-				$tables[] = $line[0];
-			}
-
-			parent::listSources($tables);
-			return $tables;
 		}
+		$tables = array();
+		while ($line = sybase_fetch_array($result)) {
+			$tables[] = $line[0];
+		}
+
+		parent::listSources($tables);
+		return $tables;
 	}
 
 /**
@@ -162,7 +160,6 @@ class DboSybase extends DboSource {
  * @return array Fields in table. Keys are name and type
  */
 	public function describe($model) {
-
 		$cache = parent::describe($model);
 		if ($cache != null) {
 			return $cache;
@@ -209,7 +206,7 @@ class DboSybase extends DboSource {
 		}
 
 		if ($data === '') {
-			return  "''";
+			return "''";
 		}
 
 		switch ($column) {
@@ -315,7 +312,7 @@ class DboSybase extends DboSource {
  * @return in
  */
 	public function lastInsertId($source = null) {
-		$result=$this->fetchRow('SELECT @@IDENTITY');
+		$result = $this->fetchRow('SELECT @@IDENTITY');
 		return $result[0];
 	}
 
@@ -329,7 +326,7 @@ class DboSybase extends DboSource {
 		if (is_array($real)) {
 			$col = $real['name'];
 			if (isset($real['limit'])) {
-				$col .= '(' . $real['limit'].')';
+				$col .= '(' . $real['limit'] . ')';
 			}
 			return $col;
 		}
@@ -342,15 +339,20 @@ class DboSybase extends DboSource {
 
 		if (in_array($col, array('datetime', 'smalldatetime'))) {
 			return 'datetime';
-		} elseif (in_array($col, array('int', 'bigint', 'smallint', 'tinyint'))) {
+		}
+		if (in_array($col, array('int', 'bigint', 'smallint', 'tinyint'))) {
 			return 'integer';
-		} elseif (in_array($col, array('float', 'double', 'real', 'decimal', 'money', 'numeric', 'smallmoney'))) {
+		}
+		if (in_array($col, array('float', 'double', 'real', 'decimal', 'money', 'numeric', 'smallmoney'))) {
 			return 'float';
-		} elseif (strpos($col, 'text') !== false) {
+		}
+		if (strpos($col, 'text') !== false) {
 			return 'text';
-		} elseif (in_array($col, array('char', 'nchar', 'nvarchar', 'string', 'varchar'))) {
+		}
+		if (in_array($col, array('char', 'nchar', 'nvarchar', 'string', 'varchar'))) {
 			return 'binary';
-		} elseif (in_array($col, array('binary', 'image', 'varbinary'))) {
+		}
+		if (in_array($col, array('binary', 'image', 'varbinary'))) {
 			return 'binary';
 		}
 
@@ -384,7 +386,7 @@ class DboSybase extends DboSource {
 /**
  * Fetches the next row from the current result set
  *
- * @return unknown
+ * @return mixed
  */
 	public function fetchResult() {
 		if ($row = sybase_fetch_row($this->results)) {
@@ -396,8 +398,7 @@ class DboSybase extends DboSource {
 				$i++;
 			}
 			return $resultRow;
-		} else {
-			return false;
 		}
+		return false;
 	}
 }
