@@ -12,19 +12,15 @@
  *
  * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       datasources
- * @subpackage    datasources.models.datasources.dbo
  * @since         CakePHP Datasources v 0.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-App::import('Datasource','DboSource');
+App::uses('DboSource', 'Model/Datasource');
 
 /**
  * Firebird/Interbase Datasource
  *
- * @package       cake
- * @subpackage    cake.cake.libs.model.dbo
  */
 
 class DboFirebird extends DboSource {
@@ -33,65 +29,57 @@ class DboFirebird extends DboSource {
  * Datasource description
  *
  * @var string
- * @access public
  */
-	var $description = "Firebird/Interbase DBO Driver";
+	public $description = "Firebird/Interbase DBO Driver";
 
 /**
  * Saves the original table name
  *
  * @var array
- * @access public
  */
-	var $modeltmp = array();
+	public $modeltmp = array();
 
 /**
  * Quote start
  *
  * @var string
- * @access public
  */
-	var $startQuote = "\'";
+	public $startQuote = "\'";
 
 /**
  * End quote
  *
  * @var string
- * @access public
  */
-	var $endQuote = "\'";
+	public $endQuote = "\'";
 
 /**
  * Alias
  *
  * @var string
- * @access public
  */
-	var $alias = ' ';
+	public $alias = ' ';
 
 /**
  * Goofy Limit
  *
  * @var boolean
- * @access public
  */
-	var $goofyLimit = true;
+	public $goofyLimit = true;
 
 /**
  * Creates a map between field aliases and numeric indexes.
  *
  * @var array
- * @access private
  */
-	var $__fieldMappings = array();
+	protected $__fieldMappings = array();
 
 /**
  * Base configuration settings for Firebird driver
  *
  * @var array
- * @access protected
  */
-	var $_baseConfig = array(
+	protected $_baseConfig = array(
 		'persistent' => true,
 		'host' => 'localhost',
 		'login' => 'SYSDBA',
@@ -105,9 +93,8 @@ class DboFirebird extends DboSource {
  * Firebird column definition
  *
  * @var array
- * @access public
  */
-	var $columns = array(
+	public $columns = array(
 		'primary_key' => array('name' => 'IDENTITY (1, 1) NOT NULL'),
 		'string'	=> array('name'	 => 'varchar', 'limit' => '255'),
 		'text'		=> array('name' => 'BLOB SUB_TYPE 1 SEGMENT SIZE 100 CHARACTER SET NONE'),
@@ -125,9 +112,8 @@ class DboFirebird extends DboSource {
  * Firebird Transaction commands.
  *
  * @var array
- * @access protected
  */
-	var $_commands = array(
+	protected $_commands = array(
 		'begin'	   => 'SET TRANSACTION',
 		'commit'   => 'COMMIT',
 		'rollback' => 'ROLLBACK'
@@ -137,9 +123,8 @@ class DboFirebird extends DboSource {
  * Connects to the database using options in the given configuration array.
  *
  * @return boolean True if the database could be connected, else false
- * @access public
  */
-	function connect() {
+	public function connect() {
 		$config = $this->config;
 		$connect = $config['connect'];
 
@@ -153,18 +138,16 @@ class DboFirebird extends DboSource {
  * Check that the interbase extension is loaded
  *
  * @return boolean
- * @access public
  */
-	function enabled() {
+	public function enabled() {
 		return extension_loaded('interbase');
 	}
 /**
  * Disconnects from database.
  *
  * @return boolean True if the database could be disconnected, else false
- * @access public
  */
-	function disconnect() {
+	public function disconnect() {
 		$this->connected = false;
 		return @ibase_close($this->connection);
 	}
@@ -174,9 +157,8 @@ class DboFirebird extends DboSource {
  *
  * @param string $sql SQL statement
  * @return resource Result resource identifier
- * @access protected
  */
-	function _execute($sql) {
+	protected function _execute($sql) {
 		return @ibase_query($this->connection,	$sql);
 	}
 
@@ -184,9 +166,8 @@ class DboFirebird extends DboSource {
  * Returns a row from given resultset as an array .
  *
  * @return array The fetched row as an array
- * @access public
  */
-	function fetchRow() {
+	public function fetchRow() {
 		if ($this->hasResult()) {
 			$this->resultSet($this->_result);
 			$resultRow = $this->fetchResult();
@@ -199,9 +180,8 @@ class DboFirebird extends DboSource {
  * Returns an array of sources (tables) in the database.
  *
  * @return array Array of tablenames in the database
- * @access public
  */
-	function listSources() {
+	public function listSources() {
 		$cache = parent::listSources();
 
 		if ($cache != null) {
@@ -211,7 +191,7 @@ class DboFirebird extends DboSource {
 				FROM RDB" ."$" . "RELATIONS
 				Where RDB" . "$" . "SYSTEM_FLAG =0";
 
-		$result = @ibase_query($this->connection,$sql);
+		$result = @ibase_query($this->connection, $sql);
 		$tables = array();
 		while ($row = ibase_fetch_row ($result)) {
 			$tables[] = strtolower(trim($row[0]));
@@ -225,9 +205,8 @@ class DboFirebird extends DboSource {
  *
  * @param Model $model Model object to describe
  * @return array Fields in table. Keys are name and type
- * @access public
  */
-	function describe(&$model) {
+	public function describe($model) {
 		$this->modeltmp[$model->table] = $model->alias;
 		$cache = parent::describe($model);
 
@@ -241,14 +220,14 @@ class DboFirebird extends DboSource {
 		$fields = false;
 
 		for ($i = 0; $i < $coln; $i++) {
-			$col_info = ibase_field_info($rs, $i);
-			$fields[strtolower($col_info['name'])] = array(
-					'type' => $this->column($col_info['type']),
+			$colInfo = ibase_field_info($rs, $i);
+			$fields[strtolower($colInfo['name'])] = array(
+					'type' => $this->column($colInfo['type']),
 					'null' => '',
-					'length' => $col_info['length']
+					'length' => $colInfo['length']
 				);
 		}
-		$this->__cacheDescription($this->fullTableName($model, false), $fields);
+		$this->_cacheDescription($this->fullTableName($model, false), $fields);
 		return $fields;
 	}
 
@@ -257,10 +236,9 @@ class DboFirebird extends DboSource {
  *
  * @param string $data Name (table.field) to be prepared for use in an SQL statement
  * @return string Quoted for Firebird
- * @access public
  */
-	function name($data) {
-		if ($data == '*') {
+	public function name($data) {
+		if ($data === '*') {
 				return '*';
 		}
 		$pos = strpos($data, '"');
@@ -283,9 +261,8 @@ class DboFirebird extends DboSource {
  * @param string $column The column into which this data will be inserted
  * @param boolean $safe Whether or not numeric data should be handled automagically if no column data is provided
  * @return string Quoted and escaped data
- * @access public
  */
-	function value($data, $column = null, $safe = false) {
+	public function value($data, $column = null, $safe = false) {
 		$parent = parent::value($data, $column, $safe);
 
 		if ($parent != null) {
@@ -298,7 +275,7 @@ class DboFirebird extends DboSource {
 			return "''";
 		}
 
-		switch($column) {
+		switch ($column) {
 			case 'boolean':
 				$data = $this->boolean((bool)$data);
 			break;
@@ -320,9 +297,8 @@ class DboFirebird extends DboSource {
  * @param array $fields
  * @param array $values
  * @return array
- * @access public
  */
-	function update(&$model, $fields = array(), $values = array()) {
+	public function update(Model $model, $fields = array(), $values = array()) {
 		foreach ($fields as $i => $field) {
 			if ($field == $model->primaryKey) {
 				unset ($fields[$i]);
@@ -337,9 +313,8 @@ class DboFirebird extends DboSource {
  * Returns a formatted error message from previous database operation.
  *
  * @return string Error message with error number
- * @access public
  */
-	function lastError() {
+	public function lastError() {
 		$error = ibase_errmsg();
 
 		if ($error !== false) {
@@ -353,9 +328,8 @@ class DboFirebird extends DboSource {
  * this returns false.
  *
  * @return integer Number of affected rows
- * @access public
  */
-	function lastAffected() {
+	public function lastAffected() {
 		if ($this->_result) {
 			return ibase_affected_rows($this->connection);
 		}
@@ -367,9 +341,8 @@ class DboFirebird extends DboSource {
  * this returns false.
  *
  * @return integer Number of rows in resultset
- * @access public
  */
-	function lastNumRows() {
+	public function lastNumRows() {
 		return $this->_result? /*ibase_affected_rows($this->_result)*/ 1: false;
 	}
 
@@ -378,22 +351,21 @@ class DboFirebird extends DboSource {
  *
  * @param unknown_type $source
  * @return in
- * @access public
  */
-	function lastInsertId($source = null, $field = 'id') {
+	public function lastInsertId($source = null, $field = 'id') {
 		$query = "SELECT RDB\$TRIGGER_SOURCE
 		FROM RDB\$TRIGGERS WHERE RDB\$RELATION_NAME = '".  strtoupper($source) .  "' AND
 		RDB\$SYSTEM_FLAG IS NULL AND  RDB\$TRIGGER_TYPE = 1 ";
 
-		$result = @ibase_query($this->connection,$query);
-		$generator = "";
+		$result = @ibase_query($this->connection, $query);
+		$generator = '';
 
 		while ($row = ibase_fetch_row($result, IBASE_TEXT)) {
 			if (strpos($row[0], "NEW." . strtoupper($field))) {
 				$pos = strpos($row[0], "GEN_ID(");
 
 				if ($pos > 0) {
-					$pos2 = strpos($row[0],",",$pos + 7);
+					$pos2 = strpos($row[0],",", $pos + 7);
 
 					if ($pos2 > 0) {
 						$generator = substr($row[0], $pos +7, $pos2 - $pos- 7);
@@ -418,9 +390,8 @@ class DboFirebird extends DboSource {
  * @param integer $limit Limit of results returned
  * @param integer $offset Offset from which to start results
  * @return string SQL limit/offset statement
- * @access public
  */
-	function limit($limit, $offset = null) {
+	public function limit($limit, $offset = null) {
 		if ($limit) {
 			$rt = '';
 
@@ -442,9 +413,8 @@ class DboFirebird extends DboSource {
  *
  * @param string $real Real database-layer column type (i.e. "varchar(255)")
  * @return string Abstract column type (i.e. "string")
- * @access public
  */
-	function column($real) {
+	public function column($real) {
 		if (is_array($real)) {
 			$col = $real['name'];
 
@@ -463,13 +433,13 @@ class DboFirebird extends DboSource {
 		if (in_array($col, array('DATE', 'TIME'))) {
 			return strtolower($col);
 		}
-		if ($col == 'TIMESTAMP') {
+		if ($col === 'TIMESTAMP') {
 			return 'datetime';
 		}
-		if ($col == 'SMALLINT') {
+		if ($col === 'SMALLINT') {
 			return 'boolean';
 		}
-		if (strpos($col, 'int') !== false || $col == 'numeric' || $col == 'INTEGER') {
+		if (strpos($col, 'int') !== false || $col === 'numeric' || $col === 'INTEGER') {
 			return 'integer';
 		}
 		if (strpos($col, 'char') !== false) {
@@ -494,16 +464,15 @@ class DboFirebird extends DboSource {
  * Generate Result Set
  *
  * @param unknown_type $results
- * @access public
  */
-	function resultSet(&$results) {
-		$this->results =& $results;
+	public function resultSet(&$results) {
+		$this->results = $results;
 		$this->map = array();
-		$num_fields = ibase_num_fields($results);
+		$numFields = ibase_num_fields($results);
 		$index = 0;
 		$j = 0;
 
-		while ($j < $num_fields) {
+		while ($j < $numFields) {
 			$column = ibase_field_info($results, $j);
 			if (!empty($column[2])) {
 				$this->map[$index++] = array(ucfirst(strtolower($this->modeltmp[strtolower($column[2])])), strtolower($column[1]));
@@ -520,18 +489,17 @@ class DboFirebird extends DboSource {
  * @param string $type Query type
  * @param array $data Query data
  * @return string
- * @access public
  */
-	function renderStatement($type, $data) {
+	public function renderStatement($type, $data) {
 		extract($data);
 
-		if (strtolower($type) == 'select') {
+		if (strtolower($type) === 'select') {
 			if (preg_match('/offset\s+([0-9]+)/i', $limit, $offset)) {
 				$limit = preg_replace('/\s*offset.*$/i', '', $limit);
 				preg_match('/top\s+([0-9]+)/i', $limit, $limitVal);
 				$offset = intval($offset[1]) + intval($limitVal[1]);
-				$rOrder = $this->__switchSort($order);
-				list($order2, $rOrder) = array($this->__mapFields($order), $this->__mapFields($rOrder));
+				$rOrder = $this->_switchSort($order);
+				list($order2, $rOrder) = array($this->_mapFields($order), $this->_mapFields($rOrder));
 				return "SELECT * FROM (SELECT {$limit} * FROM (SELECT TOP {$offset} {$fields} FROM {$table} {$alias} {$joins} {$conditions} {$order}) AS Set1 {$rOrder}) AS Set2 {$order2}";
 			}
 			return "SELECT {$limit} {$fields} FROM {$table} {$alias} {$joins} {$conditions} {$order}";
@@ -543,9 +511,8 @@ class DboFirebird extends DboSource {
  * Fetches the next row from the current result set
  *
  * @return unknown
- * @access public
  */
-	function fetchResult() {
+	public function fetchResult() {
 		if ($row = ibase_fetch_row($this->results, IBASE_TEXT)) {
 			$resultRow = array();
 			$i = 0;
@@ -553,7 +520,7 @@ class DboFirebird extends DboSource {
 			foreach ($row as $index => $field) {
 				list($table, $column) = $this->map[$index];
 
-				if (trim($table) == "") {
+				if (trim($table) === '') {
 					$resultRow[0][$column] = $row[$index];
 				} else {
 					$resultRow[$table][$column] = $row[$index];

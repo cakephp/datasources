@@ -12,8 +12,6 @@
  *
  * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       datasources
- * @subpackage    datasources.models.datasources
  * @since         CakePHP Datasources v 0.3
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  *
@@ -36,8 +34,6 @@ if (!class_exists('Folder')) {
 /**
  * CSVSource Datasource
  *
- * @package datasources
- * @subpackage datasources.models.datasources
  */
 class CsvSource extends DataSource {
 
@@ -189,7 +185,7 @@ class CsvSource extends DataSource {
  * @param Model $model
  * @return boolean True, Success
  */
-	protected function _getDescriptionFromFirstLine($model) {
+	protected function _getDescriptionFromFirstLine(Model $model) {
 		$filename = $model->table . '.' . $this->config['extension'];
 		$handle = fopen($this->config['path'] . DS . $filename, 'r');
 		$line = rtrim(fgets($handle));
@@ -351,7 +347,7 @@ class CsvSource extends DataSource {
  *
  * @param array $record
  * @param array $conditions
- * @return bool
+ * @return boolean
  */
 	protected function _checkConditions($record, $conditions, $model) {
 		$result = true;

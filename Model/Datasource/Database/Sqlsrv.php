@@ -12,8 +12,6 @@
  *
  * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       datasources
- * @subpackage    datasources.models.datasources.dbo
  * @since         CakePHP Datasources v0.3
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
@@ -21,8 +19,6 @@
 /**
  * Provides common base for Microsoft SQL Server Driver for PHP v1.1 connections
  *
- * @package       datasources
- * @subpackage    datasources.models.datasources.dbo
  */
 class DboSqlsrv extends DboSource {
 
@@ -31,21 +27,21 @@ class DboSqlsrv extends DboSource {
  *
  * @var string
  */
-	var $description = "MS SQLSRV DBO Driver";
+	public $description = "MS SQLSRV DBO Driver";
 
 /**
  * Starting quote character for quoted identifiers
  *
  * @var string
  */
-	var $startQuote = "[";
+	public $startQuote = "[";
 
 /**
  * Ending quote character for quoted identifiers
  *
  * @var string
  */
-	var $endQuote = "]";
+	public $endQuote = "]";
 
 /**
  * Creates a map between field aliases and numeric indexes.  Workaround for the
@@ -53,14 +49,14 @@ class DboSqlsrv extends DboSource {
  *
  * @var array
  */
-	var $__fieldMappings = array();
+	protected $_fieldMappings = array();
 
 /**
  * Base configuration settings for MS SQL driver
  *
  * @var array
  */
-	var $_baseConfig = array(
+	protected $_baseConfig = array(
 		'host' => 'localhost',
 		'login' => 'root',
 		'password' => '',
@@ -75,7 +71,7 @@ class DboSqlsrv extends DboSource {
  *
  * @var array
  */
-	var $columns = array(
+	public $columns = array(
 		'primary_key' => array('name' => 'IDENTITY (1, 1) NOT NULL'),
 		'string'      => array('name' => 'varchar', 'limit' => '255'),
 		'text'        => array('name' => 'text'),
@@ -93,9 +89,8 @@ class DboSqlsrv extends DboSource {
  * Index of basic SQL commands
  *
  * @var array
- * @access protected
  */
-	var $_commands = array(
+	protected $_commands = array(
 		'begin'    => 'BEGIN TRANSACTION',
 		'commit'   => 'COMMIT',
 		'rollback' => 'ROLLBACK'
@@ -107,7 +102,7 @@ class DboSqlsrv extends DboSource {
  * @param array $config Configuration data from app/config/databases.php
  * @return boolean True if connected successfully, false on error
  */
-	function __construct($config, $autoConnect = true) {
+	public function __construct($config, $autoConnect = true) {
 		return parent::__construct($config, $autoConnect);
 	}
 
@@ -116,7 +111,7 @@ class DboSqlsrv extends DboSource {
  *
  * @return boolean True if the database could be connected, else false
  */
-	function connect() {
+	public function connect() {
 		$os = env('OS');
 		if (!empty($os) && strpos($os, 'Windows') !== false) {
 			$sep = ', ';
@@ -157,7 +152,7 @@ class DboSqlsrv extends DboSource {
  *
  * @return boolean
  **/
-	function enabled() {
+	public function enabled() {
 		return extension_loaded('sqlsrv');
 	}
 
@@ -166,7 +161,7 @@ class DboSqlsrv extends DboSource {
  *
  * @return boolean True if the database could be disconnected, else false
  */
-	function disconnect() {
+	public function disconnect() {
 		if (!empty($this->results)) {
 			@sqlsrv_free_stmt($this->results);
 		}
@@ -179,9 +174,8 @@ class DboSqlsrv extends DboSource {
  *
  * @param string $sql SQL statement
  * @return resource Result resource identifier
- * @access protected
  */
-	function _execute($sql) {
+	protected function _execute($sql) {
 		return sqlsrv_query($this->connection, $sql);
 	}
 
@@ -190,7 +184,7 @@ class DboSqlsrv extends DboSource {
  *
  * @return array Array of tablenames in the database
  */
-	function listSources() {
+	public function listSources() {
 		$cache = parent::listSources();
 
 		if ($cache != null) {
@@ -218,7 +212,7 @@ class DboSqlsrv extends DboSource {
  * @param Model $model Model object to describe
  * @return array Fields in table. Keys are name and type
  */
-	function describe(&$model) {
+	public function describe($model) {
 		$cache = parent::describe($model);
 
 		if ($cache != null) {
@@ -233,10 +227,10 @@ class DboSqlsrv extends DboSource {
 			$field = $column[0]['Field'];
 			$fields[$field] = array(
 				'type' => $this->column($column[0]['Type']),
-				'null' => (strtoupper($column[0]['Null']) == 'YES'),
+				'null' => (strtoupper($column[0]['Null']) === 'YES'),
 				'default' => preg_replace("/^[(]{1,2}'?([^')]*)?'?[)]{1,2}$/", "$1", $column[0]['Default']),
 				'length' => intval($column[0]['Length']),
-				'key' => ($column[0]['Key'] == '1') ? 'primary' : false
+				'key' => ($column[0]['Key'] === '1') ? 'primary' : false
 			);
 			if ($fields[$field]['default'] === 'null') {
 				$fields[$field]['default'] = null;
@@ -244,7 +238,7 @@ class DboSqlsrv extends DboSource {
 				$this->value($fields[$field]['default'], $fields[$field]['type']);
 			}
 
-			if ($fields[$field]['key'] && $fields[$field]['type'] == 'integer') {
+			if ($fields[$field]['key'] && $fields[$field]['type'] === 'integer') {
 				$fields[$field]['length'] = 11;
 			} elseif (!$fields[$field]['key']) {
 				unset($fields[$field]['key']);
@@ -253,7 +247,7 @@ class DboSqlsrv extends DboSource {
 				$fields[$field]['length'] = null;
 			}
 		}
-		$this->__cacheDescription($this->fullTableName($model, false), $fields);
+		$this->_cacheDescription($this->fullTableName($model, false), $fields);
 		return $fields;
 	}
 
@@ -265,7 +259,7 @@ class DboSqlsrv extends DboSource {
  * @param boolean $safe Whether or not numeric data should be handled automagically if no column data is provided
  * @return string Quoted and escaped data
  */
-	function value($data, $column = null, $safe = false) {
+	public function value($data, $column = null, $safe = false) {
 		$parent = parent::value($data, $column, $safe);
 
 		if ($parent != null) {
@@ -308,7 +302,7 @@ class DboSqlsrv extends DboSource {
  * @param mixed $fields
  * @return array
  */
-	function fields(&$model, $alias = null, $fields = array(), $quote = true) {
+	public function fields(Model $model, $alias = null, $fields = array(), $quote = true) {
 		if (empty($alias)) {
 			$alias = $model->alias;
 		}
@@ -324,10 +318,10 @@ class DboSqlsrv extends DboSource {
 					$prepend = 'DISTINCT ';
 					$fields[$i] = trim(str_replace('DISTINCT', '', $fields[$i]));
 				}
-				$fieldAlias = count($this->__fieldMappings);
+				$fieldAlias = count($this->_fieldMappings);
 
 				if (!preg_match('/\s+AS\s+/i', $fields[$i])) {
-					if (substr($fields[$i], -1) == '*') {
+					if (substr($fields[$i], -1) === '*') {
 						if (strpos($fields[$i], '.') !== false && $fields[$i] != $alias . '.*') {
 							$build = explode('.', $fields[$i]);
 							$AssociatedModel = $model->{$build[0]};
@@ -341,16 +335,16 @@ class DboSqlsrv extends DboSource {
 					}
 
 					if (strpos($fields[$i], '.') === false) {
-						$this->__fieldMappings[$alias . '__' . $fieldAlias] = $alias . '.' . $fields[$i];
+						$this->_fieldMappings[$alias . '__' . $fieldAlias] = $alias . '.' . $fields[$i];
 						$fieldName  = $this->name($alias . '.' . $fields[$i]);
 						$fieldAlias = $this->name($alias . '__' . $fieldAlias);
 					} else {
 						$build = explode('.', $fields[$i]);
-						$this->__fieldMappings[$build[0] . '__' . $fieldAlias] = $fields[$i];
+						$this->_fieldMappings[$build[0] . '__' . $fieldAlias] = $fields[$i];
 						$fieldName  = $this->name($build[0] . '.' . $build[1]);
 						$fieldAlias = $this->name(preg_replace("/^\[(.+)\]$/", "$1", $build[0]) . '__' . $fieldAlias);
 					}
-					if ($model->getColumnType($fields[$i]) == 'datetime') {
+					if ($model->getColumnType($fields[$i]) === 'datetime') {
 						$fieldName = "CONVERT(VARCHAR(20), {$fieldName}, 20)";
 					}
 					$fields[$i] =  "{$fieldName} AS {$fieldAlias}";
@@ -374,7 +368,7 @@ class DboSqlsrv extends DboSource {
  * @param mixed $conditions
  * @return array
  */
-	function create(&$model, $fields = null, $values = null) {
+	public function create(Model $model, $fields = null, $values = null) {
 		if (!empty($values)) {
 			$fields = array_combine($fields, $values);
 		}
@@ -404,7 +398,7 @@ class DboSqlsrv extends DboSource {
  * @param mixed $conditions
  * @return array
  */
-	function update(&$model, $fields = array(), $values = null, $conditions = null) {
+	public function update(Model $model, $fields = array(), $values = null, $conditions = null) {
 		if (!empty($values)) {
 			$fields = array_combine($fields, $values);
 		}
@@ -422,10 +416,10 @@ class DboSqlsrv extends DboSource {
  *
  * @return string Error message with error number
  */
-	function lastError() {
+	public function lastError() {
 		$error = false;
 		$errors = sqlsrv_errors();
-		if(is_array($errors)){
+		if (is_array($errors)) {
 			foreach ($errors as $err) {
 				$error .= $err['message'].'<br />';
 			}
@@ -445,7 +439,7 @@ class DboSqlsrv extends DboSource {
  *
  * @return integer Number of affected rows
  */
-	function lastAffected() {
+	public function lastAffected() {
 		if ($this->_result) {
 			return sqlsrv_rows_affected($this->_result);
 		}
@@ -458,7 +452,7 @@ class DboSqlsrv extends DboSource {
  *
  * @return integer Number of rows in resultset
  */
-	function lastNumRows() {
+	public function lastNumRows() {
 		if ($this->_result) {
 			return @sqlsrv_num_rows($this->_result);
 		}
@@ -471,7 +465,7 @@ class DboSqlsrv extends DboSource {
  * @param unknown_type $source
  * @return in
  */
-	function lastInsertId($source = null) {
+	public function lastInsertId($source = null) {
 		$id = $this->fetchRow('SELECT SCOPE_IDENTITY() AS insertID', false);
 		return $id[0]['insertID'];
 	}
@@ -483,7 +477,7 @@ class DboSqlsrv extends DboSource {
  * @param integer $offset Offset from which to start results
  * @return string SQL limit/offset statement
  */
-	function limit($limit, $offset = null) {
+	public function limit($limit, $offset = null) {
 		if ($limit) {
 			$rt = '';
 			if (!strpos(strtolower($limit), 'top') || strpos(strtolower($limit), 'top') === 0) {
@@ -504,7 +498,7 @@ class DboSqlsrv extends DboSource {
  * @param string $real Real database-layer column type (i.e. "varchar(255)")
  * @return string Abstract column type (i.e. "string")
  */
-	function column($real) {
+	public function column($real) {
 		if (is_array($real)) {
 			$col = $real['name'];
 
@@ -522,7 +516,7 @@ class DboSqlsrv extends DboSource {
 		if (in_array($col, array('date', 'time', 'datetime', 'timestamp'))) {
 			return $col;
 		}
-		if ($col == 'bit') {
+		if ($col === 'bit') {
 			return 'boolean';
 		}
 		if (strpos($col, 'int') !== false) {
@@ -534,7 +528,7 @@ class DboSqlsrv extends DboSource {
 		if (strpos($col, 'text') !== false) {
 			return 'text';
 		}
-		if (strpos($col, 'binary') !== false || $col == 'image') {
+		if (strpos($col, 'binary') !== false || $col === 'image') {
 			return 'binary';
 		}
 		if (in_array($col, array('float', 'real', 'decimal', 'numeric'))) {
@@ -548,19 +542,19 @@ class DboSqlsrv extends DboSource {
  *
  * @param unknown_type $results
  */
-	function resultSet(&$results) {
-		$this->results =& $results;
+	public function resultSet(&$results) {
+		$this->results = $results;
 		$this->map = array();
 		$index = 0;
 
-		foreach(sqlsrv_field_metadata($results) as $fieldMetadata) {
+		foreach (sqlsrv_field_metadata($results) as $fieldMetadata) {
 			$column = $fieldMetadata['Name'];
 
 			if (strpos($column, '__')) {
-				if (isset($this->__fieldMappings[$column]) && strpos($this->__fieldMappings[$column], '.')) {
-					$map = explode('.', $this->__fieldMappings[$column]);
-				} elseif (isset($this->__fieldMappings[$column])) {
-					$map = array(0, $this->__fieldMappings[$column]);
+				if (isset($this->_fieldMappings[$column]) && strpos($this->_fieldMappings[$column], '.')) {
+					$map = explode('.', $this->_fieldMappings[$column]);
+				} elseif (isset($this->_fieldMappings[$column])) {
+					$map = array(0, $this->_fieldMappings[$column]);
 				} else {
 					$map = array(0, $column);
 				}
@@ -578,7 +572,7 @@ class DboSqlsrv extends DboSource {
  * @param array $data Query data
  * @return string
  */
-	function renderStatement($type, $data) {
+	public function renderStatement($type, $data) {
 		switch (strtolower($type)) {
 			case 'select':
 				extract($data);
@@ -593,9 +587,9 @@ class DboSqlsrv extends DboSource {
 					$limit = preg_replace('/\s*offset.*$/i', '', $limit);
 					preg_match('/top\s+([0-9]+)/i', $limit, $limitVal);
 					$offset = intval($offset[1]) + intval($limitVal[1]);
-					$rOrder = $this->__switchSort($order);
-					list($order2, $rOrder) = array($this->__mapFields($order), $this->__mapFields($rOrder));
-					
+					$rOrder = $this->_switchSort($order);
+					list($order2, $rOrder) = array($this->_mapFields($order), $this->_mapFields($rOrder));
+
 					//return "SELECT * FROM (SELECT {$limit} * FROM (SELECT TOP {$offset} {$fields} FROM {$table} {$alias} {$joins} {$conditions} {$group} {$order}) AS Set1 {$rOrder}) AS Set2 {$order2}";
 					$limitint = (int)$offset + 1 - (int)trim(str_replace('TOP','', $limit));
 					return "SELECT * FROM (SELECT row_number() OVER ({$order}) as resultNum, {$fields} FROM {$table} {$alias} {$joins} {$conditions} {$group}) as numberResults WHERE resultNum BETWEEN {$limitint} and {$offset} ";
@@ -631,9 +625,8 @@ class DboSqlsrv extends DboSource {
  *
  * @param string $order
  * @return string
- * @access private
  */
-	function __switchSort($order) {
+	protected function _switchSort($order) {
 		$order = preg_replace('/\s+ASC/i', '__tmp_asc__', $order);
 		$order = preg_replace('/\s+DESC/i', ' ASC', $order);
 		return preg_replace('/__tmp_asc__/', ' DESC', $order);
@@ -644,13 +637,12 @@ class DboSqlsrv extends DboSource {
  *
  * @param string $sql A snippet of SQL representing an ORDER or WHERE statement
  * @return string The value of $sql with field names replaced
- * @access private
  */
-	function __mapFields($sql) {
-		if (empty($sql) || empty($this->__fieldMappings)) {
+	protected function _mapFields($sql) {
+		if (empty($sql) || empty($this->_fieldMappings)) {
 			return $sql;
 		}
-		foreach ($this->__fieldMappings as $key => $val) {
+		foreach ($this->_fieldMappings as $key => $val) {
 			$sql = preg_replace('/' . preg_quote($val) . '/', $this->name($key), $sql);
 			$sql = preg_replace('/' . preg_quote($this->name($val)) . '/', $this->name($key), $sql);
 		}
@@ -665,9 +657,9 @@ class DboSqlsrv extends DboSource {
  * @param boolean $cache Enables returning/storing cached query results
  * @return array Array of resultset rows, or false if no rows matched
  */
-	function read(&$model, $queryData = array(), $recursive = null) {
+	public function read(Model $model, $queryData = array(), $recursive = null) {
 		$results = parent::read($model, $queryData, $recursive);
-		$this->__fieldMappings = array();
+		$this->_fieldMappings = array();
 		return $results;
 	}
 
@@ -676,7 +668,7 @@ class DboSqlsrv extends DboSource {
  *
  * @return unknown
  */
-	function fetchResult() {
+	public function fetchResult() {
 		if ($row = sqlsrv_fetch_array($this->results, SQLSRV_FETCH_NUMERIC)) {
 			$resultRow = array();
 			$i = 0;
@@ -697,9 +689,8 @@ class DboSqlsrv extends DboSource {
  * @param string $table
  * @param string $fields
  * @param array $values
- * @access protected
  */
-	function insertMulti($table, $fields, $values) {
+	public function insertMulti($table, $fields, $values) {
 		$primaryKey = $this->_getPrimaryKey($table);
 		$hasPrimaryKey = $primaryKey != null && (
 			(is_array($fields) && in_array($primaryKey, $fields)
@@ -721,11 +712,11 @@ class DboSqlsrv extends DboSource {
  *   where options can be 'default', 'length', or 'key'.
  * @return string
  */
-	function buildColumn($column) {
+	public function buildColumn($column) {
 		$result = preg_replace('/(int|integer)\([0-9]+\)/i', '$1', parent::buildColumn($column));
 		if (strpos($result, 'DEFAULT NULL') !== false) {
 			$result = str_replace('DEFAULT NULL', 'NULL', $result);
-		} else if (array_keys($column) == array('type', 'name')) {
+		} elseif (array_keys($column) == array('type', 'name')) {
 			$result .= ' NULL';
 		}
 		return $result;
@@ -738,13 +729,13 @@ class DboSqlsrv extends DboSource {
  * @param string $table
  * @return string
  */
-	function buildIndex($indexes, $table = null) {
+	public function buildIndex($indexes, $table = null) {
 		$join = array();
 
 		foreach ($indexes as $name => $value) {
-			if ($name == 'PRIMARY') {
+			if ($name === 'PRIMARY') {
 				$join[] = 'PRIMARY KEY (' . $this->name($value['column']) . ')';
-			} else if (isset($value['unique']) && $value['unique']) {
+			} elseif (isset($value['unique']) && $value['unique']) {
 				$out = "ALTER TABLE {$table} ADD CONSTRAINT {$name} UNIQUE";
 
 				if (is_array($value['column'])) {
@@ -763,10 +754,9 @@ class DboSqlsrv extends DboSource {
  * Makes sure it will return the primary key
  *
  * @param mixed $model
- * @access protected
  * @return string
  */
-	function _getPrimaryKey($model) {
+	protected function _getPrimaryKey(Model $model) {
 		if (is_object($model)) {
 			$schema = $model->schema();
 		} else {
@@ -774,7 +764,7 @@ class DboSqlsrv extends DboSource {
 		}
 
 		foreach ($schema as $field => $props) {
-			if (isset($props['key']) && $props['key'] == 'primary') {
+			if (isset($props['key']) && $props['key'] === 'primary') {
 				return $field;
 			}
 		}

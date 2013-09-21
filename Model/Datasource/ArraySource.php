@@ -13,7 +13,6 @@
  *
  * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       datasources
  * @since         CakePHP Datasources v 0.3
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
@@ -523,7 +522,7 @@ class ArraySource extends DataSource {
 			$order = $queryData['order'];
 			if (is_array($order[0])) {
 				$new = array();
-				foreach($order[0] as $field => $direction) {
+				foreach ($order[0] as $field => $direction) {
 					$new[] = "$field $direction";
 				}
 				$order = $new;
