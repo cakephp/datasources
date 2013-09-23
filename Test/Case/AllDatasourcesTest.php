@@ -2,7 +2,6 @@
 /**
  * All Datasources plugin tests
  *
- * @package       Cake.Test.Case.Controller.Component.Auth
  */
 class AllDatasourcesTest extends CakeTestCase {
 

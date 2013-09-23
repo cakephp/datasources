@@ -1,8 +1,6 @@
 <?php
 /**
- * Comma Separated Values Datasource
- *
- * PHP versions 4 and 5
+ * PHP 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
@@ -12,8 +10,6 @@
  *
  * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       datasources
- * @subpackage    datasources.models.datasources
  * @since         CakePHP Datasources v 0.3
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  *
@@ -29,15 +25,11 @@
  *   );
  */
 App::uses('DataSource', 'Model/Datasource');
-if (!class_exists('Folder')) {
-	App::uses('Folder', 'Utility');
-}
+App::uses('Folder', 'Utility');
 
 /**
- * CSVSource Datasource
+ * Comma Separated Values Datasource
  *
- * @package datasources
- * @subpackage datasources.models.datasources
  */
 class CsvSource extends DataSource {
 
@@ -189,7 +181,7 @@ class CsvSource extends DataSource {
  * @param Model $model
  * @return boolean True, Success
  */
-	protected function _getDescriptionFromFirstLine($model) {
+	protected function _getDescriptionFromFirstLine(Model $model) {
 		$filename = $model->table . '.' . $this->config['extension'];
 		$handle = fopen($this->config['path'] . DS . $filename, 'r');
 		$line = rtrim(fgets($handle));
@@ -276,46 +268,45 @@ class CsvSource extends DataSource {
 		$findCount = 0;
 		$resultSet = array();
 
-		// Daten werden aus der Datei in ein Array $data gelesen
 		while (($data = fgetcsv($this->handle[$model->table], 8192, $this->delimiter)) !== false) {
-			if ($lineCount == 0) {
+			if ($lineCount === 0) {
 				$lineCount++;
 				continue;
-			} else {
-				// Skip over records, that are not complete
-				if (count($data) < $this->maxCol) {
-					continue;
-				}
+			}
 
-				$record = array();
-				$i = 0;
+			// Skip over records, that are not complete
+			if (count($data) < $this->maxCol) {
+				continue;
+			}
 
-				foreach ((array)$this->fields as $field) {
-					$record[$model->alias][$field] = $data[$i++];
-				}
+			$record = array();
+			$i = 0;
 
-				if ($this->_checkConditions($record, $queryData['conditions'], $model)) {
-					// Compute the virtual pagenumber
-					$_page = floor($findCount / $this->limit) + 1;
-					if ($this->page <= $_page) {
-						if (!$allFields) {
-							$record = array();
-							if (count($_fieldIndex) > 0) {
-								foreach ($_fieldIndex as $i) {
-									$record[$model->alias][$this->fields[$i]] = $data[$i];
-								}
+			foreach ((array)$this->fields as $field) {
+				$record[$model->alias][$field] = $data[$i++];
+			}
+
+			if ($this->_checkConditions($record, $queryData['conditions'], $model)) {
+				// Compute the virtual pagenumber
+				$page = floor($findCount / $this->limit) + 1;
+				if ($this->page <= $page) {
+					if (!$allFields) {
+						$record = array();
+						if (count($_fieldIndex) > 0) {
+							foreach ($_fieldIndex as $i) {
+								$record[$model->alias][$this->fields[$i]] = $data[$i];
 							}
 						}
-						$resultSet[] = $record;
-						$recordCount++;
 					}
+					$resultSet[] = $record;
+					$recordCount++;
 				}
-				unset($record);
-				$findCount++;
+			}
+			unset($record);
+			$findCount++;
 
-				if ($recordCount >= $this->limit) {
-					break;
-				}
+			if ($recordCount >= $this->limit) {
+				break;
 			}
 		}
 
@@ -326,7 +317,7 @@ class CsvSource extends DataSource {
 	}
 
 /**
- * Private helper method to remove query metadata in given data array.
+ * Helper method to remove query metadata in given data array.
  *
  * @param array $data Data
  * @return array Cleaned Data
@@ -347,11 +338,11 @@ class CsvSource extends DataSource {
 	}
 
 /**
- * Private helper method to check conditions.
+ * Helper method to check conditions.
  *
  * @param array $record
  * @param array $conditions
- * @return bool
+ * @return boolean
  */
 	protected function _checkConditions($record, $conditions, $model) {
 		$result = true;
@@ -388,7 +379,7 @@ class CsvSource extends DataSource {
 	}
 
 /**
- * Private helper method to crete rule.
+ * Helper method to crete rule.
  *
  * @param string $name
  * @param string $value

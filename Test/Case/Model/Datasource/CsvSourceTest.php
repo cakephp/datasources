@@ -12,8 +12,6 @@
  *
  * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       datasources
- * @subpackage    datasources.tests.cases.models.datasources
  * @since         CakePHP Datasources v 0.3
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
@@ -27,7 +25,6 @@ App::uses('CsvSource', 'Datasources.Model/Datasource');
 /**
  * Test Model for users.csv
  *
- * @package default
  * @author Predominant
  */
 class UserTest extends CakeTestModel {
@@ -50,7 +47,6 @@ class UserTest extends CakeTestModel {
 /**
  * Test Model for blogs.csv
  *
- * @package default
  */
 class BlogTest extends CakeTestModel {
 
@@ -79,10 +75,8 @@ class BlogTest extends CakeTestModel {
 /**
  * CsvSourceTestCase
  *
- * @package datasources
- * @subpackage datasources.tests.cases.models.datasources
  */
-class CsvSourceTestCase extends CakeTestCase {
+class CsvSourceTest extends CakeTestCase {
 
 /**
  * Default testing configuration
@@ -120,7 +114,7 @@ class CsvSourceTestCase extends CakeTestCase {
  * @return void
  */
 	public function testInstance() {
-		$this->assertTrue(is_a($this->Csv, 'CsvSource'));
+		$this->assertInstanceOf('CsvSource', $this->Csv);
 	}
 
 /**
@@ -130,7 +124,7 @@ class CsvSourceTestCase extends CakeTestCase {
  */
 	public function testNoAutoConnect() {
 		$this->Csv = new CsvSource($this->config, false);
-		$this->assertTrue(is_a($this->Csv, 'CsvSource'));
+		$this->assertInstanceOf('CsvSource', $this->Csv);
 		$this->assertFalse($this->Csv->connected);
 	}
 
@@ -144,11 +138,11 @@ class CsvSourceTestCase extends CakeTestCase {
 
 		$expected = array('Blog', 'Post', 'User');
 		$result = $this->Csv->listSources();
-		$this->assertIdentical($expected, $result);
+		$this->assertSame($expected, $result);
 
 		$expected = array('Blog', 'Post', 'User');
 		$result = $this->Csv->listSources();
-		$this->assertIdentical($expected, $result);
+		$this->assertSame($expected, $result);
 	}
 
 /**
@@ -161,7 +155,7 @@ class CsvSourceTestCase extends CakeTestCase {
 		$this->Csv = new CsvSource($config);
 		$expected = array('Blog', 'Post', 'User', 'SecondLevel' . DS . 'Thing');
 		$result = $this->Csv->listSources();
-		$this->assertIdentical($expected, $result);
+		$this->assertSame($expected, $result);
 	}
 
 /**
@@ -175,7 +169,7 @@ class CsvSourceTestCase extends CakeTestCase {
 		$expected = array(
 			'id', 'name', 'age'
 		);
-		$this->assertEqual($expected, $this->Csv->describe($model));
+		$this->assertEquals($expected, $this->Csv->describe($model));
 	}
 
 /**
@@ -206,23 +200,23 @@ class CsvSourceTestCase extends CakeTestCase {
 		);
 
 		$result = $model->find('all');
-		$this->assertEqual($result[0], $expected[0]);
+		$this->assertEquals($result[0], $expected[0]);
 
 		$result = $model->find('first');
-		$this->assertEqual($result, $expected[0]);
+		$this->assertEquals($result, $expected[0]);
 
 		$result = $model->find('first', array('conditions' => array('UserTest.id' => 2)));
-		$this->assertEqual($result, $expected[1]);
+		$this->assertEquals($result, $expected[1]);
 
 		$result = $model->find('count');
-		$this->assertEqual(3, $result);
+		$this->assertEquals(3, $result);
 
 		$result = $model->find('all', array('conditions' => array('UserTest.id <' => 3)));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $model->find('all', array('conditions' => array('UserTest.id <' => 3), 'limit' => 1));
 		$expected = array($expected[0]);
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -251,17 +245,17 @@ class CsvSourceTestCase extends CakeTestCase {
 		);
 
 		$result = $model->find('all');
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $model->find('first', array('conditions' => array('BlogTest.key' => 'myblog')));
-		$this->assertEqual($result, $expected[1]);
+		$this->assertEquals($result, $expected[1]);
 
 		$result = $model->find('all', array('conditions' => array(
 			'OR' => array(
 				'BlogTest.key' => array('myblog', '1st')
 			),
 		)));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$result = $model->find('all', array('conditions' => array(
 			'OR' => array(
@@ -269,7 +263,7 @@ class CsvSourceTestCase extends CakeTestCase {
 				'BlogTest.title' => '1st Blog',
 			),
 		)));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 
 		$expected = array(
 			array(
@@ -285,7 +279,7 @@ class CsvSourceTestCase extends CakeTestCase {
 				'BlogTest.title' => 'Not found',
 			),
 		)));
-		$this->assertEqual($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
