@@ -5,8 +5,9 @@ php:
   - 5.4
 
 env:
-  - CAKE_VERSION=master DB=mysql
-  - CAKE_VERSION=2.5 DB=mysql
+  - DB=mysql CAKE_VERSION=2.3
+  - DB=mysql CAKE_VERSION=master
+  - DB=mysql CAKE_VERSION=2.5
 
 before_script:
   - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'CREATE DATABASE cakephp_test;'; fi"
