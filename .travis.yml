@@ -5,7 +5,7 @@ php:
   - 5.4
 
 env:
-  - DB=mysql CAKE_VERSION=2.3
+  - DB=mysql CAKE_VERSION=2.3.10
   - DB=mysql CAKE_VERSION=master
   - DB=mysql CAKE_VERSION=2.5
 
