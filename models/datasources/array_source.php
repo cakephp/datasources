@@ -53,10 +53,20 @@ class ArraySource extends Datasource {
  * Returns a Model description (metadata) or null if none found.
  *
  * @param Model $model
- * @return array Show only id
+ * @return array Show id and etc.
  */
-	public function describe(&$model) {
-		return array('id' => array());
+	public function describe($model) {
+        $columns = array('id' => array());
+        foreach ($model->records as $pos => $record) {
+            $column_names = array_keys($record);
+
+            foreach($column_names as $column_name){
+                $columns[$column_name] = array();
+            }
+            break;
+        }
+
+        return $columns;
 	}
 
 /**
