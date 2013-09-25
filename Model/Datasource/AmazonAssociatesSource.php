@@ -177,7 +177,10 @@ class AmazonAssociatesSource extends DataSource {
 		$this->_request = $this->_signQuery();
 		$this->_requestLog[] = $this->_request;
 		$retval = $this->Http->get($this->_request);
-		return Set::reverse(new Xml($retval));
+		$responseBodyXmlString = $retval->body;
+		$responseBodyXmlObj = Xml::build($responseBodyXmlString);
+		$responseBodyArray = Xml::toArray($responseBodyXmlObj);
+		return $responseBodyArray;
 	}
 
 /**

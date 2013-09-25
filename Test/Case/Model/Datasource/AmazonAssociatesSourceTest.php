@@ -140,6 +140,26 @@ class AmazonAssociatesTest extends CakeTestCase {
 		$expected = 'http://ecs.amazonaws.com/onca/xml?AWSAccessKeyId=PUBLICKEY&AccociateTag=ASSID&Operation=ItemSearch&Service=AWSECommerceService&Timestamp=2010-03-01T07%3A44%3A03Z&Version=2009-03-31&Signature=oEbqdS17pJmjRaSzbBX14zcnlprDbRlpDhQEvjo9mUA%3D';
 		$this->assertEquals($expected, $Amazon->signQuery());
 	}
+
+/**
+ * testRequest
+ *
+ * @return void
+ * @access public
+ */
+	function testRequestReturnsExpectedData() {
+		$query = array(
+		    'Service' => 'AWSECommerceService',
+		    'AWSAccessKeyId' => 'PUBLICKEY',
+		    'Timestamp' => '2010-03-01T07:44:03Z',
+		    'AccociateTag' => 'ASSID',
+		    'Version' => '2009-03-31',
+		    'Operation' => 'ItemSearch',
+		);
+		$results = $this->Amazon->find(null, $query);
+		$this->assertTrue($results === false || (is_array($results) && !empty($results)));
+	}
+
 /**
  * End Test
  *
