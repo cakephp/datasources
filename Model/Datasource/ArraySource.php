@@ -200,9 +200,11 @@ class ArraySource extends DataSource {
 				$listOfFields[] = $field;
 			}
 			foreach ($data as $id => $record) {
-				foreach ($record[$model->alias] as $field => $value) {
-					if (!in_array($field, $listOfFields)) {
-						unset($data[$id][$model->alias][$field]);
+				if( count($listOfFields) > 0 ){
+					foreach ($record[$model->alias] as $field => $value) {
+						if (!in_array($field, $listOfFields)) {
+							unset($data[$id][$model->alias][$field]);
+						}
 					}
 				}
 			}
