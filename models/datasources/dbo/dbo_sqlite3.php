@@ -6,6 +6,16 @@
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ *  
+ * If you have a problem using this connector, the most likely explanation is your
+ * database config file. Check that it looks something like this:
+ * 
+ *     var $default = array(
+ *             'driver' => 'Datasources.DboSqlite3',
+ *             'persistent' => false,
+ *             'database' => '/path/to/database/file.sqlite', // (or a relative
+ *             'prefix' => '' // Your table prefix (default is none)
+ *     );
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
@@ -194,32 +204,44 @@ class DboSqlite3 extends DboSource {
  * @access protected
  */
 	function _execute($sql) {
-		if (strncmp($sql,"CREATE",6) === 0) {
-			$statements = explode(";",$sql);
-			if (count($statements) > 1) {
-				foreach($statements as $st) {
-					$this->_execute($st);
+		if($this->connected) { // See bugfix, line 231.
+			if (strncmp($sql,"CREATE",6) === 0) {
+				$statements = explode(";",$sql);
+				if (count($statements) > 1) {
+					foreach($statements as $st) {
+						$this->_execute($st);
+					}
+					return false;
 				}
-				return false;
 			}
-		}
-		for ($i = 0; $i < 2; $i++) {
-			try {
-				$this->last_error = NULL;
-				$this->pdo_statement = $this->connection->query($sql);
-				if (is_object($this->pdo_statement)) {
-					$this->rows = $this->pdo_statement->fetchAll(PDO::FETCH_NUM);
-					$this->row_count = count($this->rows);
-					return $this->pdo_statement;
-				}
-	  		}
-	  		catch(PDOException $e) {
-	  			// Schema change; re-run query
-				if ($e->errorInfo[1] === 17) {
-					$this->last_error = $e->getMessage();
-				}
-				 continue;
-	  		}
+				
+			for ($i = 0; $i < 2; $i++) {
+				try {
+					$this->last_error = NULL;
+					$this->pdo_statement = $this->connection->query($sql);
+					if (is_object($this->pdo_statement)) {
+						$this->rows = $this->pdo_statement->fetchAll(PDO::FETCH_NUM);
+						$this->row_count = count($this->rows);
+						return $this->pdo_statement;
+					}
+		  		}
+		  		catch(PDOException $e) {
+		  			// Schema change; re-run query
+					if ($e->errorInfo[1] === 17) {
+						$this->last_error = $e->getMessage();
+					}
+					 continue;
+		  		}
+			}
+		} else {
+			/** Bug fix in which an incorrect database configuration throws the fatal error "Call to a member function query() on a non-object on line x." (now line 221)
+			* Reported here: http://stackoverflow.com/questions/4779007/cakephp-and-sqlite-fatal-error-call-to-a-member-function-query-on-a-non-obje
+			* here: http://stackoverflow.com/questions/7107996/fatal-error-call-to-a-member-function-query-on-a-non-object-in-var-www-likes
+			* and here: http://stackoverflow.com/questions/7572091/error-while-trying-to-connect-to-sqlite3-database-from-cakephp
+			* To reproduce: set $config['connect'] to an invalid value.
+			* System tested on: OSX 10.6, php 5.3.4, cake 1.3.12.
+			*/
+			$this->last_error = "Unable to connect to database. Check your configuration settings are correct.";
 		}
 		return false;
 	}
@@ -239,7 +261,13 @@ class DboSqlite3 extends DboSource {
 			return $cache;
 		}
 		
-		$result = $this->fetchAll("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;", false);
+               /**
+               * Bug fix in which SQL views are ignored
+               * To reproduce: create a new SQL view in the usual way. Then try to use it with your model.
+               * Result: Cakephp complains that there is no table for the selected model.
+               * System tested on: OSX 10.6, php 5.3.4, cake 1.3.12.
+               */
+		$result = $this->fetchAll("SELECT name FROM sqlite_master WHERE type='table' OR type='view' ORDER BY name;", false);
 
 		if (!$result || empty($result)) {
 			return array();
