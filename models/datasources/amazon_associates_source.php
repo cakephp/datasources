@@ -191,7 +191,7 @@ class AmazonAssociatesSource extends DataSource {
  */
 	private function __signQuery() {
 		$method = 'GET';
-		$host = 'ecs.amazonaws.' . $this->region;
+		$host = 'ecs.amazonaws.' . (empty($this->config['locale']) ? $this->region : $this->config['locale']);
 		$uri = '/onca/xml';
 
 		ksort($this->query);
