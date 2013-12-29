@@ -1,0 +1,27 @@
+{
+    "name": "cakephp/datasources",
+    "description": "CakePHP Datasources Plugin",
+    "type": "cakephp-plugin",
+    "keywords": ["cakephp", "datasources", "adodb", "couchdb", "db2", "firebird", "ldap", "odbc", "sqlserver", "sqlite", "sybase"],
+    "homepage": "https://github.com/cakephp/datasources",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "CakePHP Community",
+            "homepage": "https://github.com/cakephp/datasources/graphs/contributors"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/cakephp/datasources/issues",
+        "forum": "http://stackoverflow.com/tags/cakephp",
+        "irc": "irc://irc.freenode.org/cakephp",
+        "source": "https://github.com/cakephp/datasources"
+    },
+    "require": {
+        "php": ">=5.2.8",
+        "composer/installers": "*"
+    },
+    "extra": {
+        "installer-name": "Datasources"
+    }
+}
