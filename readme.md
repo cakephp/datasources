@@ -60,4 +60,4 @@ If you have a datasource, or an idea for a datasource that could benefit the Cak
 
 ## Issues with datasources
 
-If you have issues with the datasources plugin, you can report them at http://cakephp.lighthouseapp.com/projects/42657-datasources/overview
+If you have issues with the datasources plugin, you can report them via [Github issues](https://github.com/cakephp/datasources/issues)
