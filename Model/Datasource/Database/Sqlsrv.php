@@ -73,16 +73,16 @@ class DboSqlsrv extends DboSource {
  */
 	public $columns = array(
 		'primary_key' => array('name' => 'IDENTITY (1, 1) NOT NULL'),
-		'string'      => array('name' => 'varchar', 'limit' => '255'),
-		'text'        => array('name' => 'text'),
-		'integer'     => array('name' => 'int', 'formatter' => 'intval'),
-		'float'       => array('name' => 'numeric', 'formatter' => 'floatval'),
-		'datetime'    => array('name' => 'datetime', 'format' => 'Y-m-d H:i:s', 'formatter' => 'date'),
-		'timestamp'   => array('name' => 'timestamp', 'format' => 'Y-m-d H:i:s', 'formatter' => 'date'),
-		'time'        => array('name' => 'datetime', 'format' => 'H:i:s', 'formatter' => 'date'),
-		'date'        => array('name' => 'datetime', 'format' => 'Y-m-d', 'formatter' => 'date'),
-		'binary'      => array('name' => 'image'),
-		'boolean'     => array('name' => 'bit')
+		'string' => array('name' => 'varchar', 'limit' => '255'),
+		'text' => array('name' => 'text'),
+		'integer' => array('name' => 'int', 'formatter' => 'intval'),
+		'float' => array('name' => 'numeric', 'formatter' => 'floatval'),
+		'datetime' => array('name' => 'datetime', 'format' => 'Y-m-d H:i:s', 'formatter' => 'date'),
+		'timestamp' => array('name' => 'timestamp', 'format' => 'Y-m-d H:i:s', 'formatter' => 'date'),
+		'time' => array('name' => 'datetime', 'format' => 'H:i:s', 'formatter' => 'date'),
+		'date' => array('name' => 'datetime', 'format' => 'Y-m-d', 'formatter' => 'date'),
+		'binary' => array('name' => 'image'),
+		'boolean' => array('name' => 'bit')
 	);
 
 /**
@@ -336,12 +336,12 @@ class DboSqlsrv extends DboSource {
 
 					if (strpos($fields[$i], '.') === false) {
 						$this->_fieldMappings[$alias . '__' . $fieldAlias] = $alias . '.' . $fields[$i];
-						$fieldName  = $this->name($alias . '.' . $fields[$i]);
+						$fieldName = $this->name($alias . '.' . $fields[$i]);
 						$fieldAlias = $this->name($alias . '__' . $fieldAlias);
 					} else {
 						$build = explode('.', $fields[$i]);
 						$this->_fieldMappings[$build[0] . '__' . $fieldAlias] = $fields[$i];
-						$fieldName  = $this->name($build[0] . '.' . $build[1]);
+						$fieldName = $this->name($build[0] . '.' . $build[1]);
 						$fieldAlias = $this->name(preg_replace("/^\[(.+)\]$/", "$1", $build[0]) . '__' . $fieldAlias);
 					}
 					if ($model->getColumnType($fields[$i]) === 'datetime') {
@@ -590,7 +590,7 @@ class DboSqlsrv extends DboSource {
 					list($order2, $rOrder) = array($this->_mapFields($order), $this->_mapFields($rOrder));
 
 					//return "SELECT * FROM (SELECT {$limit} * FROM (SELECT TOP {$offset} {$fields} FROM {$table} {$alias} {$joins} {$conditions} {$group} {$order}) AS Set1 {$rOrder}) AS Set2 {$order2}";
-					$limitint = (int)$offset + 1 - (int)trim(str_replace('TOP','', $limit));
+					$limitint = (int)$offset + 1 - (int)trim(str_replace('TOP', '', $limit));
 					return "SELECT * FROM (SELECT row_number() OVER ({$order}) as resultNum, {$fields} FROM {$table} {$alias} {$joins} {$conditions} {$group}) as numberResults WHERE resultNum BETWEEN {$limitint} and {$offset} ";
 				}
 				return "SELECT {$limit} {$fields} FROM {$table} {$alias} {$joins} {$conditions} {$group} {$order}";

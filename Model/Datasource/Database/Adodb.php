@@ -75,7 +75,7 @@ class Adodb extends DboSource {
 		'integer' => array('name' => 'I', 'limit' => '11', 'formatter' => 'intval'),
 		'float' => array('name' => 'N', 'formatter' => 'floatval'),
 		'timestamp' => array('name' => 'T', 'format' => 'Y-m-d H:i:s', 'formatter' => 'date'),
-		'time' => array('name' => 'T',  'format' => 'H:i:s', 'formatter' => 'date'),
+		'time' => array('name' => 'T', 'format' => 'H:i:s', 'formatter' => 'date'),
 		'datetime' => array('name' => 'T', 'format' => 'Y-m-d H:i:s', 'formatter' => 'date'),
 		'date' => array('name' => 'D', 'format' => 'Y-m-d', 'formatter' => 'date'),
 		'binary' => array('name' => 'B'),
@@ -530,7 +530,6 @@ class Adodb extends DboSource {
 		//use concrete instance of DataDict to make the suffixes for us.
 		$out .=	$this->_adodbDataDict->_CreateSuffix($out, $metaType, $_notNull, $_default, $_autoInc, $_constraint, $_unsigned);
 		return $out;
-
 	}
 
 /**

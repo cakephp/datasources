@@ -57,7 +57,7 @@ class DboOdbc extends DboSource {
 		'login' => 'root',
 		'password' => '',
 		'database' => 'cake',
-		'connect'  => 'odbc_pconnect'
+		'connect' => 'odbc_pconnect'
 	);
 
 /**
@@ -94,7 +94,7 @@ class DboOdbc extends DboSource {
 			exit('no odbc?');
 		}
 		$this->connected = false;
-		$this->connection = $connect($config['database'], $config['login'], $config['password'],  SQL_CUR_USE_ODBC);
+		$this->connection = $connect($config['database'], $config['login'], $config['password'], SQL_CUR_USE_ODBC);
 		if ($this->connection) {
 			$this->connected = true;
 		}
@@ -167,7 +167,7 @@ class DboOdbc extends DboSource {
  * @return array Fields in table. Keys are name and type
  */
 	public function &describe($model) {
-		$cache=parent::describe($model);
+		$cache = parent::describe($model);
 
 		if ($cache != null) {
 			return $cache;
@@ -273,7 +273,7 @@ class DboOdbc extends DboSource {
  */
 	public function column($real) {
 		if (is_array($real)) {
-			$col=$real['name'];
+			$col = $real['name'];
 			if (isset($real['limit'])) {
 				$col .= '(' . $real['limit'] . ')';
 			}
@@ -283,10 +283,10 @@ class DboOdbc extends DboSource {
 	}
 
 /**
-* Enter description here...
-*
-* @param unknown_type $results
-*/
+ * Enter description here...
+ *
+ * @param unknown_type $results
+ */
 	public function resultSet(&$results) {
 		$this->results = $results;
 		$numFields = odbc_num_fields($results);
@@ -294,7 +294,7 @@ class DboOdbc extends DboSource {
 		$index = 0;
 		$j = 0;
 		while ($j < $numFields) {
-			$column = odbc_field_name($results, $j+1);
+			$column = odbc_field_name($results, $j + 1);
 
 			if (strpos($column, '_dot_') !== false) {
 				list($table, $column) = explode('_dot_', $column);
@@ -307,13 +307,13 @@ class DboOdbc extends DboSource {
 	}
 
 /**
-* Generates the fields list of an SQL query.
-*
-* @param Model $model
-* @param string $alias Alias tablename
-* @param mixed $fields
-* @return array
-*/
+ * Generates the fields list of an SQL query.
+ *
+ * @param Model $model
+ * @param string $alias Alias tablename
+ * @param mixed $fields
+ * @return array
+ */
 	public function fields(Model $model, $alias = null, $fields = null, $quote = true) {
 		if (empty($alias)) {
 			$alias = $model->name;

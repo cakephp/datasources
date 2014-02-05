@@ -27,11 +27,11 @@ App::uses('AmazonAssociatesSource', 'Datasources.Model/Datasource');
  */
 class AmazonAssociatesTestDataSource extends AmazonAssociatesSource {
 
-	/**
-	 * Public wrapper for the protected _signQuery method.
-	 *
-	 * @return string Url.
-	 */
+/**
+ * Public wrapper for the protected _signQuery method.
+ *
+ * @return string Url.
+ */
 	public function signQuery() {
 		return parent::_signQuery();
 	}

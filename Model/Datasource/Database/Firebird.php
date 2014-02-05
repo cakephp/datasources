@@ -96,16 +96,16 @@ class DboFirebird extends DboSource {
  */
 	public $columns = array(
 		'primary_key' => array('name' => 'IDENTITY (1, 1) NOT NULL'),
-		'string'	=> array('name'	 => 'varchar', 'limit' => '255'),
-		'text'		=> array('name' => 'BLOB SUB_TYPE 1 SEGMENT SIZE 100 CHARACTER SET NONE'),
-		'integer'	=> array('name' => 'integer'),
-		'float'		=> array('name' => 'float', 'formatter' => 'floatval'),
-		'datetime'	=> array('name' => 'timestamp', 'format'	=> 'd.m.Y H:i:s', 'formatter' => 'date'),
-		'timestamp' => array('name'	=> 'timestamp', 'format'	 => 'd.m.Y H:i:s', 'formatter' => 'date'),
-		'time'		=> array('name' => 'time', 'format'	   => 'H:i:s', 'formatter' => 'date'),
-		'date'		=> array('name' => 'date', 'format'	   => 'd.m.Y', 'formatter' => 'date'),
-		'binary'	=> array('name' => 'blob'),
-		'boolean'	=> array('name' => 'smallint')
+		'string' => array('name' => 'varchar', 'limit' => '255'),
+		'text' => array('name' => 'BLOB SUB_TYPE 1 SEGMENT SIZE 100 CHARACTER SET NONE'),
+		'integer' => array('name' => 'integer'),
+		'float'	=> array('name' => 'float', 'formatter' => 'floatval'),
+		'datetime' => array('name' => 'timestamp', 'format'	=> 'd.m.Y H:i:s', 'formatter' => 'date'),
+		'timestamp' => array('name'	=> 'timestamp', 'format' => 'd.m.Y H:i:s', 'formatter' => 'date'),
+		'time' => array('name' => 'time', 'format' => 'H:i:s', 'formatter' => 'date'),
+		'date' => array('name' => 'date', 'format' => 'd.m.Y', 'formatter' => 'date'),
+		'binary' => array('name' => 'blob'),
+		'boolean' => array('name' => 'smallint')
 	);
 
 /**
@@ -114,8 +114,8 @@ class DboFirebird extends DboSource {
  * @var array
  */
 	protected $_commands = array(
-		'begin'	   => 'SET TRANSACTION',
-		'commit'   => 'COMMIT',
+		'begin' => 'SET TRANSACTION',
+		'commit' => 'COMMIT',
 		'rollback' => 'ROLLBACK'
 	);
 
@@ -188,12 +188,12 @@ class DboFirebird extends DboSource {
 			return $cache;
 		}
 		$sql = "select RDB" . "$" . "RELATION_NAME as name
-				FROM RDB" ."$" . "RELATIONS
+				FROM RDB" . "$" . "RELATIONS
 				Where RDB" . "$" . "SYSTEM_FLAG =0";
 
 		$result = @ibase_query($this->connection, $sql);
 		$tables = array();
-		while ($row = ibase_fetch_row ($result)) {
+		while ($row = ibase_fetch_row($result)) {
 			$tables[] = strtolower(trim($row[0]));
 		}
 		parent::listSources($tables);
@@ -354,7 +354,7 @@ class DboFirebird extends DboSource {
  */
 	public function lastInsertId($source = null, $field = 'id') {
 		$query = "SELECT RDB\$TRIGGER_SOURCE
-		FROM RDB\$TRIGGERS WHERE RDB\$RELATION_NAME = '".  strtoupper($source) .  "' AND
+		FROM RDB\$TRIGGERS WHERE RDB\$RELATION_NAME = '" . strtoupper($source) . "' AND
 		RDB\$SYSTEM_FLAG IS NULL AND  RDB\$TRIGGER_TYPE = 1 ";
 
 		$result = @ibase_query($this->connection, $query);
@@ -365,10 +365,10 @@ class DboFirebird extends DboSource {
 				$pos = strpos($row[0], "GEN_ID(");
 
 				if ($pos > 0) {
-					$pos2 = strpos($row[0],",", $pos + 7);
+					$pos2 = strpos($row[0], ",", $pos + 7);
 
 					if ($pos2 > 0) {
-						$generator = substr($row[0], $pos +7, $pos2 - $pos- 7);
+						$generator = substr($row[0], $pos + 7, $pos2 - $pos - 7);
 					}
 				}
 				break;
@@ -376,7 +376,7 @@ class DboFirebird extends DboSource {
 		}
 
 		if (!empty($generator)) {
-			$sql = "SELECT GEN_ID(". $generator	 . ",0) AS maxi FROM RDB" . "$" . "DATABASE";
+			$sql = "SELECT GEN_ID(" . $generator . ",0) AS maxi FROM RDB" . "$" . "DATABASE";
 			$res = $this->rawQuery($sql);
 			$data = $this->fetchRow($res);
 			return $data['maxi'];

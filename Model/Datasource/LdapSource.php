@@ -416,7 +416,7 @@ class LdapSource extends DataSource {
  * @return unknown
  */
 	public function read(Model $model, $queryData = array(), $recursive = null) {
-	$this->model = $model;
+		$this->model = $model;
 		$this->_scrubQueryData($queryData);
 		if ($recursive !== null) {
 			$_recursive = $model->recursive;
@@ -598,9 +598,9 @@ class LdapSource extends DataSource {
 		return false;
 	}
 
-	/**
-	 * Courtesy of gabriel at hrz dot uni-marburg dot de @ http://ar.php.net/ldap_delete
-	 */
+/**
+ * Courtesy of gabriel at hrz dot uni-marburg dot de @ http://ar.php.net/ldap_delete
+ */
 	protected function _deleteRecursively($dn) {
 		// Search for sub entries
 		$subentries = ldap_list($this->database, $dn, "objectClass=*", array());
@@ -768,7 +768,7 @@ class LdapSource extends DataSource {
 						case 'NAME':
 							if ($strings[$i + 1] !== '(') {
 								do {
-								$i++;
+									$i++;
 									if (!isset($entry['name']) || strlen($entry['name']) === 0) {
 										$entry['name'] = $strings[$i];
 									} else {
@@ -863,14 +863,14 @@ class LdapSource extends DataSource {
 		return $return;
 	}
 
-	/**
-	 * LdapSource::_parseList()
-	 *
-	 * @param integer $i
-	 * @param array $strings
-	 * @param array $attrs
-	 * @return integer
-	 */
+/**
+ * LdapSource::_parseList()
+ *
+ * @param integer $i
+ * @param array $strings
+ * @param array $attrs
+ * @return integer
+ */
 	protected function _parseList($i, $strings, &$attrs) {
 	/**
 	 ** A list starts with a ( followed by a list of attributes separated by $ terminated by )
