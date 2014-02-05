@@ -120,12 +120,12 @@ class AmazonAssociatesSource extends DataSource {
 
 		$this->query = array_merge(
 			array(
-				'Service'        => 'AWSECommerceService',
+				'Service' => 'AWSECommerceService',
 				'AWSAccessKeyId' => $this->config['key'],
-				'Timestamp'      => gmdate("Y-m-d\TH:i:s\Z"),
-				'AccociateTag'   => $this->config['tag'],
-				'Operation'      => 'ItemSearch',
-				'Version'        => '2009-03-31',
+				'Timestamp' => gmdate("Y-m-d\TH:i:s\Z"),
+				'AccociateTag' => $this->config['tag'],
+				'Operation' => 'ItemSearch',
+				'Version' => '2009-03-31',
 			),
 			$query
 		);
@@ -141,12 +141,12 @@ class AmazonAssociatesSource extends DataSource {
 	public function findById($id) {
 		$this->query = array_merge(
 			array(
-				'Service'        => 'AWSECommerceService',
+				'Service' => 'AWSECommerceService',
 				'AWSAccessKeyId' => $this->config['key'],
-				'Timestamp'      => gmdate("Y-m-d\TH:i:s\Z"),
-				'AccociateTag'   => $this->config['tag'],
-				'Version'        => '2009-03-31',
-				'Operation'      => 'ItemLookup',
+				'Timestamp' => gmdate("Y-m-d\TH:i:s\Z"),
+				'AccociateTag' => $this->config['tag'],
+				'Version' => '2009-03-31',
+				'Operation' => 'ItemLookup',
 			),
 			array('ItemId' => $id)
 		);

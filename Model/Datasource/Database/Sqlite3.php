@@ -100,28 +100,28 @@ class DboSqlite3 extends DboSource {
  *
  * @var string
  */
-	public $lastError = NULL;
+	public $lastError = null;
 
 /**
  * PDO Statement
  *
  * @var string
  */
-	public $pdoStatement = NULL;
+	public $pdoStatement = null;
 
 /**
  * Rows
  *
  * @var mixed
  */
-	public $rows = NULL;
+	public $rows = null;
 
 /**
  * Row Count
  *
  * @var integer
  */
-	public $rowCount = NULL;
+	public $rowCount = null;
 
 /**
  * Transaction Started
@@ -147,7 +147,7 @@ class DboSqlite3 extends DboSource {
 		$this->last_error = null;
 		$config = $this->config;
 		try {
-			$this->connection = new PDO($config['connect'].':' . $config['database'],null,null, array(PDO::ATTR_PERSISTENT => $config['persistent']));
+			$this->connection = new PDO($config['connect'] . ':' . $config['database'], null, null, array(PDO::ATTR_PERSISTENT => $config['persistent']));
 			$this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			$this->connected = is_object($this->connection);
 		}
@@ -163,7 +163,7 @@ class DboSqlite3 extends DboSource {
  * @return boolean True if the database could be disconnected, else false
  */
 	public function disconnect() {
-		$this->connection = NULL;
+		$this->connection = null;
 		$this->connected = false;
 		return $this->connected;
 	}
@@ -175,7 +175,7 @@ class DboSqlite3 extends DboSource {
  * @return resource Result resource identifier
  */
 	protected function _execute($sql) {
-		if (strncmp($sql,"CREATE",6) === 0) {
+		if (strncmp($sql, "CREATE", 6) === 0) {
 			$statements = explode(";", $sql);
 			if (count($statements) > 1) {
 				foreach ($statements as $st) {
@@ -186,21 +186,21 @@ class DboSqlite3 extends DboSource {
 		}
 		for ($i = 0; $i < 2; $i++) {
 			try {
-				$this->last_error = NULL;
+				$this->last_error = null;
 				$this->pdo_statement = $this->connection->query($sql);
 				if (is_object($this->pdo_statement)) {
 					$this->rows = $this->pdo_statement->fetchAll(PDO::FETCH_NUM);
 					$this->row_count = count($this->rows);
 					return $this->pdo_statement;
 				}
-	  		}
-	  		catch(PDOException $e) {
-	  			// Schema change; re-run query
+			}
+			catch(PDOException $e) {
+				// Schema change; re-run query
 				if ($e->errorInfo[1] === 17) {
 					$this->last_error = $e->getMessage();
 				}
-				 continue;
-	  		}
+				continue;
+			}
 		}
 		return false;
 	}
@@ -286,10 +286,10 @@ class DboSqlite3 extends DboSource {
 			return $parent;
 		}
 		if ($data === null || (is_array($data) && empty($data))) {
-			return 'NULL';
+			return 'null';
 		}
 		if ($data === '') {
-			return  "''";
+			return "''";
 		}
 		switch ($column) {
 			case 'boolean':
@@ -298,8 +298,8 @@ class DboSqlite3 extends DboSource {
 			default:
 				$data = $this->connection->quote($data);
 				return $data;
-			break;
 		}
+
 		return "'" . $data . "'";
 	}
 
@@ -445,7 +445,7 @@ class DboSqlite3 extends DboSource {
 		if (is_array($real)) {
 			$col = $real['name'];
 			if (isset($real['limit'])) {
-				$col .= '(' . $real['limit'].')';
+				$col .= '(' . $real['limit'] . ')';
 			}
 			return $col;
 		}
@@ -499,7 +499,7 @@ class DboSqlite3 extends DboSource {
 		}
 		while ($j < $numFields) {
 			if (preg_match('/.*AS (.*).*/i', $selects[$j], $matches)) {
-				 $columnName = trim($matches[1],'"');
+				$columnName = trim($matches[1], '"');
 			} else {
 				$columnName = trim(str_replace('"', '', $selects[$j]));
 			}
@@ -530,7 +530,7 @@ class DboSqlite3 extends DboSource {
 			$i = 0;
 
 			foreach ($row as $index => $field) {
-				if (isset($this->map[$index]) and $this->map[$index] !== '') {
+				if (isset($this->map[$index]) && $this->map[$index] !== '') {
 					list($table, $column) = $this->map[$index];
 					$resultRow[$table][$column] = $row[$index];
 				} else {
@@ -702,10 +702,9 @@ class DboSqlite3 extends DboSource {
 					}
 				}
 				return "CREATE TABLE {$table} (\n{$columns});\n{$indexes}";
-			break;
+
 			default:
 				return parent::renderStatement($type, $data);
-			break;
 		}
 	}
 

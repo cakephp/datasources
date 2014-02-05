@@ -217,10 +217,12 @@ class XmlrpcSourceTest extends CakeTestCase {
 		// Struct
 		$xml = '<?xml version="1.0"?><methodResponse><params><param><value><struct><member><name>test</name><value><string>testing</string></value></member><member><name>boolean</name><value><boolean>1</boolean></value></member></struct></value></param></params></methodResponse>';
 		$this->assertEquals(array('test' => 'testing', 'boolean' => true), $this->Xmlrpc->parseResponse($xml));
-/*
+
+		/*
 		$xml = '<?xml version="1.0"?><methodResponse><params><param><value><struct><member><name>test</name><value><struct><member><name>a</name><value><string>b</string></value></member><member><name>c</name><value><string>d</string></value></member></struct></value></member><member><name>test2</name><value><array><data><value><int>1</int></value><value><i4>2</i4></data></array></value></member></struct></value></param></params></methodResponse>';
 		$this->assertEquals(array('test' => array('a' => 'b', 'c' => 'd'), 'test2' => array(1, 2)), $this->Xmlrpc->parseResponse($xml));
-*/
+		*/
+
 		// Struct in Array
 		$xml = '<?xml version="1.0"?><methodResponse><params><param><value><array><data><value><struct><member><name>longitude</name><value><string>53</string></value></member><member><name>altitude</name><value><string>8.72543</string></value></member></struct></value></data></array></value></param></params></methodResponse>';
 		$this->assertEquals(array(array('longitude' => 53, 'altitude' => 8.72543)), $this->Xmlrpc->parseResponse($xml));

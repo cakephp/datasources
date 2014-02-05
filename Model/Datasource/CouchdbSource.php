@@ -65,11 +65,13 @@ class CouchdbSource extends DataSource {
  */
 	public function connect() {
 		if ($this->connected !== true) {
-			if (isset($this->config['login']))
+			if (isset($this->config['login'])) {
 				$this->config['request']['uri']['user'] = $this->config['login'];
+			}
 
-			if (isset($this->config['password']))
+			if (isset($this->config['password'])) {
 				$this->config['request']['uri']['pass'] = $this->config['password'];
+			}
 
 			$this->Socket = new HttpSocket($this->config);
 			if (strpos($this->Socket->get(), 'couchdb') !== false) {
