@@ -42,7 +42,7 @@ App::uses('Sqlserver', 'Model/Datasource/Database');
  *
  * @package       Cake.Model.Datasource.Database
  */
-class OdbcShrimpFreeTds extends Sqlserver {
+class OdbcFreeTds extends Sqlserver {
  
 /**
  * Driver description
