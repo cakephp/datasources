@@ -8,7 +8,6 @@ env:
   global:
     - PLUGIN_NAME=Datasources
     - REQUIRE=""
-    - DB=mysql CAKE_VERSION=master
 
   matrix:
     - DB=mysql CAKE_VERSION=2.3
