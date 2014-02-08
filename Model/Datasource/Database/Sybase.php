@@ -115,7 +115,7 @@ class DboSybase extends DboSource {
  * @return boolean True if the database could be disconnected, else false
  */
 	public function disconnect() {
-		$this->connected = !@sybase_close($this->connection);
+		$this->connected = !sybase_close($this->connection);
 		return !$this->connected;
 	}
 
@@ -272,7 +272,7 @@ class DboSybase extends DboSource {
 /**
  * Returns a formatted error message from previous database operation.
  *
- * @todo not implemented
+ * NOTE: not implemented
  * @return string Error message with error number
  */
 	public function lastError() {
@@ -300,7 +300,7 @@ class DboSybase extends DboSource {
  */
 	public function lastNumRows() {
 		if ($this->hasResult()) {
-			return @sybase_num_rows($this->_result);
+			return sybase_num_rows($this->_result);
 		}
 		return null;
 	}

@@ -153,8 +153,8 @@ class DboDb2 extends DboSource {
  * @return boolean True if the database could be disconnected, else false
  */
 	public function disconnect() {
-		@db2_free_result($this->results);
-		$this->connected = !@db2_close($this->connection);
+		db2_free_result($this->results);
+		$this->connected = !db2_close($this->connection);
 		return !$this->connected;
 	}
 
@@ -261,7 +261,7 @@ class DboDb2 extends DboSource {
  * @param string $data String to be prepared for use in an SQL statement
  * @param string $column The column into which this data will be inserted
  * @return string Quoted and escaped
- * @todo Add logic that formats/escapes data based on column type
+ * NOTE: Add logic that formats/escapes data based on column type
  */
 	public function value($data, $column = null, $safe = false) {
 		$parent = parent::value($data, $column, $safe);
@@ -463,7 +463,7 @@ class DboDb2 extends DboSource {
 				$rt = sprintf('FETCH FIRST %d ROWS ONLY', $limit);
 			}
 
-			// TODO: Implement paging with the offset.  This could get hairy.
+			// UPDATE: Implement paging with the offset.  This could get hairy.
 			/*
 			WITH WHOLE AS
 			(SELECT FIRSTNME, MIDINIT, LASTNAME, SALARY,
