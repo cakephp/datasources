@@ -211,7 +211,7 @@ class LdapSource extends DataSource {
 		}
 		$bindDN = empty($bindDN) ? $config['login'] : $bindDN;
 		$bindPasswd = empty($passwd) ? $config['password'] : $passwd;
-		$this->database = @ldap_connect($config['host']);
+		$this->database = ldap_connect($config['host']);
 		if (!$this->database) {
 			//Try Next Server Listed
 			if ($hasFailover) {
@@ -236,7 +236,7 @@ class LdapSource extends DataSource {
 		//So little known fact, if your php-ldap lib is built against openldap like pretty much every linux
 		//distro out their like redhat, suse etc. The connect doesn't acutally happen when you call ldap_connect
 		//it happens when you call ldap_bind.  So if you are using failover then you have to test here also.
-		$bindResult = @ldap_bind($this->database, $bindDN, $bindPasswd);
+		$bindResult = ldap_bind($this->database, $bindDN, $bindPasswd);
 		if (!$bindResult) {
 			if (ldap_errno($this->database) == 49) {
 				$this->log("Auth failed for '$bindDN'!", 'ldap.error');
@@ -290,8 +290,8 @@ class LdapSource extends DataSource {
  *
  */
 	public function disconnect() {
-		@ldap_free_result($this->results);
-		@ldap_unbind($this->database);
+		ldap_free_result($this->results);
+		ldap_unbind($this->database);
 		$this->connected = false;
 		return $this->connected;
 	}
@@ -367,7 +367,7 @@ class LdapSource extends DataSource {
 		}
 		$dn = $key . $table . $basedn;
 
-		$res = @ldap_add($this->database, $dn, $fieldsData);
+		$res = ldap_add($this->database, $dn, $fieldsData);
 		// Add the entry
 		if ($res) {
 			$model->setInsertID($id);
@@ -542,7 +542,7 @@ class LdapSource extends DataSource {
 		if ($resultSet) {
 			$dn = $resultSet[0][$model->alias]['dn'];
 
-			if (@ldap_modify($this->database, $dn, $entry)) {
+			if (ldap_modify($this->database, $dn, $entry)) {
 				return true;
 			}
 			$this->log("Error updating $dn: " . ldap_error($this->database) . "\nHere is what I sent: " . print_r($entry, true), 'ldap.error');
@@ -586,7 +586,7 @@ class LdapSource extends DataSource {
 				}
 			} else {
 				// Single entry delete
-				if (@ldap_delete($this->database, $dn)) {
+				if (ldap_delete($this->database, $dn)) {
 					return true;
 				}
 			}
@@ -613,7 +613,7 @@ class LdapSource extends DataSource {
 			}
 		}
 
-		return @ldap_delete($this->database, $dn);
+		return ldap_delete($this->database, $dn);
 	}
 
 	public function generateAssociationQuery(Model $model, Model $linkModel, $type, $association, $assocData, &$queryData, $external, &$resultSet) {
@@ -718,7 +718,7 @@ class LdapSource extends DataSource {
  */
 	public function lastNumRows() {
 		if ($this->_result && is_resource($this->_result)) {
-			return @ldap_count_entries($this->database, $this->_result);
+			return ldap_count_entries($this->database, $this->_result);
 		}
 		return null;
 	}
@@ -743,13 +743,13 @@ class LdapSource extends DataSource {
  */
 	protected function _getLDAPschema() {
 		$schemaTypes = array('objectclasses', 'attributetypes');
-		$this->results = @ldap_read($this->database, $this->SchemaDN, $this->SchemaFilter, $schemaTypes, 0, 0, 0, LDAP_DEREF_ALWAYS);
+		$this->results = ldap_read($this->database, $this->SchemaDN, $this->SchemaFilter, $schemaTypes, 0, 0, 0, LDAP_DEREF_ALWAYS);
 		if ($this->results === null) {
 			$this->log( "LDAP schema filter $schemaFilter is invalid!", 'ldap.error');
 			return array();
 		}
 
-		$schemaEntries = @ldap_get_entries($this->database, $this->results);
+		$schemaEntries = ldap_get_entries($this->database, $this->results);
 		if (!$schemaEntries) {
 			return array();
 		}
@@ -940,7 +940,7 @@ class LdapSource extends DataSource {
  * Log given LDAP query.
  *
  * @param string $query LDAP statement
- * @todo: Add hook to log errors instead of returning false
+ * Add hook to log errors instead of returning false
  */
 	public function logQuery($query) {
 		$this->_queriesCnt++;
@@ -1150,21 +1150,21 @@ class LdapSource extends DataSource {
 
 			switch ($queryData['type']) {
 				case 'search':
-					// TODO pb ldap_search &$queryData['limit']
+					// ADD: pb ldap_search &$queryData['limit']
 					if (empty($queryData['fields'])) {
 						$queryData['fields'] = $this->defaultNSAttributes();
 					}
 
 					//Handle LDAP Scope
 					if (isset($queryData['scope']) && $queryData['scope'] === 'base') {
-						$res = @ldap_read($this->database, $queryData['targetDn'], $queryData['conditions'], $queryData['fields']);
+						$res = ldap_read($this->database, $queryData['targetDn'], $queryData['conditions'], $queryData['fields']);
 					} elseif (isset($queryData['scope']) && $queryData['scope'] === 'one') {
-						$res = @ldap_list($this->database, $queryData['targetDn'], $queryData['conditions'], $queryData['fields']);
+						$res = ldap_list($this->database, $queryData['targetDn'], $queryData['conditions'], $queryData['fields']);
 					} else {
 						if ($queryData['fields'] == 1) {
 							$queryData['fields'] = array();
 						}
-						$res = @ldap_search($this->database, $queryData['targetDn'], $queryData['conditions'], $queryData['fields'], 0, $queryData['limit']);
+						$res = ldap_search($this->database, $queryData['targetDn'], $queryData['conditions'], $queryData['fields'], 0, $queryData['limit']);
 					}
 
 					if (!$res) {
@@ -1183,7 +1183,7 @@ class LdapSource extends DataSource {
 					}
 					break;
 				case 'delete':
-					$res = @ldap_delete($this->database, $queryData['targetDn'] . ',' . $this->config['basedn']);
+					$res = ldap_delete($this->database, $queryData['targetDn'] . ',' . $this->config['basedn']);
 					break;
 				default:
 					$res = false;

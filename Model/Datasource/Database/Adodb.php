@@ -139,8 +139,8 @@ class Adodb extends DboSource {
  * @return resource Result resource identifier
  */
 	protected function _execute($sql, $params = array(), $prepareOptions = array()) {
-		global $ADODB_FETCH_MODE;
-		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+		global ${'ADOBE_FETCH_MODE'};
+		${'ADOBE_FETCH_MODE'} = ADODB_FETCH_ASSOC;
 		return $this->_adodb->execute($sql);
 	}
 
@@ -306,7 +306,7 @@ class Adodb extends DboSource {
  * @param integer $limit Limit of results returned
  * @param integer $offset Offset from which to start results
  * @return string SQL limit/offset statement
- * @todo Please change output string to whatever select your database accepts. adodb doesn't allow us to get the correct limit string out of it.
+ * UPDATE: Please change output string to whatever select your database accepts. adodb doesn't allow us to get the correct limit string out of it.
  */
 	public function limit($limit, $offset = null) {
 		if ($limit) {

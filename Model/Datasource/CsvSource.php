@@ -210,7 +210,7 @@ class CsvSource extends DataSource {
 		if ($this->connected) {
 			if (!empty($this->handle)) {
 				foreach ($this->handle as $h) {
-					@fclose($h);
+					fclose($h);
 				}
 				$this->handle = false;
 			}

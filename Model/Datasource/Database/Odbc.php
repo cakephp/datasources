@@ -117,7 +117,7 @@ class DboOdbc extends DboSource {
  * @return boolean True if the database could be disconnected, else false
  */
 	public function disconnect() {
-		return @odbc_close($this->connection);
+		return odbc_close($this->connection);
 	}
 
 /**
@@ -135,7 +135,7 @@ class DboOdbc extends DboSource {
 			case 'ROLLBACK':
 				return odbc_rollback($this->connection);
 		}
-		// TODO: should flags be set? possible requirement:  SQL_CURSOR_STATIC
+		// UPDATE: should flags be set? possible requirement:  SQL_CURSOR_STATIC
 		return odbc_exec($this->connection, $sql);
 	}
 
@@ -197,7 +197,7 @@ class DboOdbc extends DboSource {
  * @param string $data String to be prepared for use in an SQL statement
  * @param string $column The column into which this data will be inserted
  * @return string Quoted and escaped
- * @todo Add logic that formats/escapes data based on column type
+ * NOTE: Add logic that formats/escapes data based on column type
  */
 	public function value($data, $column = null) {
 		$parent = parent::value($data, $column);

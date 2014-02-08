@@ -163,7 +163,7 @@ class DboSqlsrv extends DboSource {
  */
 	public function disconnect() {
 		if (!empty($this->results)) {
-			@sqlsrv_free_stmt($this->results);
+			sqlsrv_free_stmt($this->results);
 		}
 		$this->connected = !sqlsrv_close($this->connection);
 		return !$this->connected;
@@ -453,7 +453,7 @@ class DboSqlsrv extends DboSource {
  */
 	public function lastNumRows() {
 		if ($this->_result) {
-			return @sqlsrv_num_rows($this->_result);
+			return sqlsrv_num_rows($this->_result);
 		}
 		return null;
 	}

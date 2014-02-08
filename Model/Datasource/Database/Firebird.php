@@ -149,7 +149,7 @@ class DboFirebird extends DboSource {
  */
 	public function disconnect() {
 		$this->connected = false;
-		return @ibase_close($this->connection);
+		return ibase_close($this->connection);
 	}
 
 /**
@@ -159,7 +159,7 @@ class DboFirebird extends DboSource {
  * @return resource Result resource identifier
  */
 	protected function _execute($sql) {
-		return @ibase_query($this->connection,	$sql);
+		return ibase_query($this->connection,	$sql);
 	}
 
 /**
@@ -191,7 +191,7 @@ class DboFirebird extends DboSource {
 				FROM RDB" . "$" . "RELATIONS
 				Where RDB" . "$" . "SYSTEM_FLAG =0";
 
-		$result = @ibase_query($this->connection, $sql);
+		$result = ibase_query($this->connection, $sql);
 		$tables = array();
 		while ($row = ibase_fetch_row($result)) {
 			$tables[] = strtolower(trim($row[0]));
@@ -357,7 +357,7 @@ class DboFirebird extends DboSource {
 		FROM RDB\$TRIGGERS WHERE RDB\$RELATION_NAME = '" . strtoupper($source) . "' AND
 		RDB\$SYSTEM_FLAG IS NULL AND  RDB\$TRIGGER_TYPE = 1 ";
 
-		$result = @ibase_query($this->connection, $query);
+		$result = ibase_query($this->connection, $query);
 		$generator = '';
 
 		while ($row = ibase_fetch_row($result, IBASE_TEXT)) {
