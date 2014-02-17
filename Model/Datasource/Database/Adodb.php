@@ -139,8 +139,10 @@ class Adodb extends DboSource {
  * @return resource Result resource identifier
  */
 	protected function _execute($sql, $params = array(), $prepareOptions = array()) {
+		// @codingStandardsIgnoreStart
 		global $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+		// @codingStandardsIgnoreEnd
 		return $this->_adodb->execute($sql);
 	}
 
