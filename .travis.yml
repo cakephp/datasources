@@ -19,6 +19,10 @@ matrix:
     - php: 5.4
       env:
         - PHPCS=1
+  allow_failures:
+    - php: 5.4
+      env:
+        - PHPCS=1
 
 before_script:
   - git clone https://github.com/FriendsOfCake/travis.git --depth 1 ../travis
