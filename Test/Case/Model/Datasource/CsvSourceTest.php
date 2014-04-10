@@ -168,22 +168,22 @@ class CsvSourceTest extends CakeTestCase {
 		$model = ClassRegistry::init('UserTest');
 		$expected = array(
 			'id'=>array(
-				'type'=>'text',
-				'null'=>true,
-				'default'=>null,
-				'length'=>null
+				'type' => 'text',
+				'null' => true,
+				'default' => null,
+				'length' => null
 			),
 			'name'=>array(
-				'type'=>'text',
-				'null'=>true,
-				'default'=>null,
-				'length'=>null
+				'type' => 'text',
+				'null' => true,
+				'default' => null,
+				'length' => null
 			),
 			'age'=>array(
-				'type'=>'text',
-				'null'=>true,
-				'default'=>null,
-				'length'=>null
+				'type' => 'text',
+				'null' => true,
+				'default' => null,
+				'length' => null
 			)
 		);
 		$this->assertEquals($expected, $this->Csv->describe($model));
