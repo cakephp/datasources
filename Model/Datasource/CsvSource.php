@@ -190,21 +190,21 @@ class CsvSource extends DataSource {
 		//pull the fields and build the schema
 		$this->_getDescriptionFromFirstLine($model);
 		$schema = array();
-		foreach($this->fields as $fieldname) {
+		foreach ($this->fields as $fieldname) {
 			$schema[$fieldname] = array(
-				'type'=>'text',
-				'null'=>true,
-				'default'=>null,
-				'length'=>null
+				'type' => 'text',
+				'null' => true,
+				'default' => null,
+				'length' => null
 			);
 		}
 		
 		//save to cache
 		$this->_cacheDescription($table, array(
-			'schema'=>$schema,
-			'fields'=>$this->fields,
-			'delimiter'=>$this->delimiter,
-			'maxCol'=>$this->maxCol
+			'schema' => $schema,
+			'fields' => $this->fields,
+			'delimiter' => $this->delimiter,
+			'maxCol' => $this->maxCol
 		));
 		
 		//return
