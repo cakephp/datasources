@@ -22,6 +22,8 @@
  *     'extension' => 'csv', // File extension
  *     'readonly' => true, // Mark for read only access
  *     'recursive' => false // Only false is supported at the moment
+ *     'delimiter' => ',', // File delimiter
+ *     'encoding' => 'UTF8' // File convert to encode
  *   );
  */
 App::uses('DataSource', 'Model/Datasource');
@@ -182,28 +184,23 @@ class CsvSource extends DataSource {
  * @return boolean True, Success
  */
 	protected function _getDescriptionFromFirstLine(Model $model) {
-		$filename = $model->table . '.' . $this->config['extension'];
-		$handle = fopen($this->config['path'] . DS . $filename, 'r');
-		$line = rtrim(fgets($handle));
-        $dataTab = explode("\t", $line);
-        $dataComma = explode(',', $line);
-        $dataSemicolon = explode(';', $line);
+        $filename = $model->table . '.' . $this->config['extension'];
+        $handle = fopen($this->config['path'] . DS . $filename, 'r');
+        $line = rtrim(fgets($handle));
 
-        if (count($dataTab) > count($dataSemicolon)) {
-            $this->delimiter = "\t";
-            $this->fields = $dataTab;
-            $this->maxCol = count($dataTab);
-        } elseif (count($dataComma) > count($dataSemicolon)) {
-            $this->delimiter = ',';
-            $this->fields = $dataComma;
-            $this->maxCol = count($dataComma);
-        }else {
-			$this->delimiter = ';';
-			$this->fields = $dataSemicolon;
-			$this->maxCol = count($dataSemicolon);
-		}
-		fclose($handle);
-		return true;
+        $this->delimiter = isset($this->config['delimiter']) ? $this->config['delimiter'] : $this->delimiter;
+
+        $data = explode($this->delimiter, $line);
+
+        if (isset($this->config['encoding'])) {
+            mb_convert_variables($this->config['encoding'], "ASCII,UTF-8,SJIS-win", $data);
+        }
+        $this->fields = $data;
+        $this->maxCol = count($data);
+
+        fclose($handle);
+        return true;
+
 	}
 
 /**
@@ -318,6 +315,13 @@ class CsvSource extends DataSource {
 		if ($model->findQueryType === 'count') {
 			return array(array(array('count' => count($resultSet))));
 		}
+
+        if (isset($this->config['encoding'])) {
+            mb_convert_variables($this->config['encoding'], "ASCII,UTF-8,SJIS-win", $resultSet);
+
+            return $resultSet;
+        }
+
 		return $resultSet;
 	}
 
