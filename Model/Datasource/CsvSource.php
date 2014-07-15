@@ -185,14 +185,19 @@ class CsvSource extends DataSource {
 		$filename = $model->table . '.' . $this->config['extension'];
 		$handle = fopen($this->config['path'] . DS . $filename, 'r');
 		$line = rtrim(fgets($handle));
-		$dataComma = explode(',', $line);
-		$dataSemicolon = explode(';', $line);
+        $dataTab = explode("\t", $line);
+        $dataComma = explode(',', $line);
+        $dataSemicolon = explode(';', $line);
 
-		if (count($dataComma) > count($dataSemicolon)) {
-			$this->delimiter = ',';
-			$this->fields = $dataComma;
-			$this->maxCol = count($dataComma);
-		} else {
+        if (count($dataTab) > count($dataSemicolon)) {
+            $this->delimiter = "\t";
+            $this->fields = $dataTab;
+            $this->maxCol = count($dataTab);
+        } elseif (count($dataComma) > count($dataSemicolon)) {
+            $this->delimiter = ',';
+            $this->fields = $dataComma;
+            $this->maxCol = count($dataComma);
+        }else {
 			$this->delimiter = ';';
 			$this->fields = $dataSemicolon;
 			$this->maxCol = count($dataSemicolon);
