@@ -140,26 +140,44 @@ class ArraySource extends Datasource {
 		if ($limit !== false) {
 			$data = array_slice($data, ($queryData['page'] - 1) * $queryData['limit'], $queryData['limit'], false);
 		}
+
 		// Filter fields
-		if (!empty($queryData['fields'])) {
-			$listOfFields = array();
-			foreach ((array)$queryData['fields'] as $field) {
-				if (strpos($field, '.') !== false) {
-					list($alias, $field) = explode('.', $field, 2);
-					if ($alias !== $model->alias) {
-						continue;
-					}
-				}
-				$listOfFields[] = $field;
-			}
-			foreach ($data as $id => $record) {
-				foreach ($record[$model->alias] as $field => $value) {
-					if (!in_array($field, $listOfFields)) {
-						unset($data[$id][$model->alias][$field]);
-					}
-				}
-			}
-		}
+		//
+		// NOTE:
+		// The following bit of code has been commented out (disabled) on purpose.
+		// The reason for this patch lies on a strange behaviour in
+		// CakePHP 1.3.X's DBO Datasource (`dbo_source.php:generateAssociationQuery():1230`),
+		// where `$queryData['fields']` is polluted with a fields list from the root model
+		// when querying its `hasMany/HABTM` relationships, thus affecting all queries on the
+		// following related models (since `$queryData` is passed by reference).
+		// This pollution affected the following bit of code in a way that, if no
+		// `fields` for the current relationship were initially specified by the developer,
+		// it would unset ALL of them, giving inconsistent results.
+		// Since trying to fully understand all the side effects that changing
+		// CakePHP's DBO Datasource would carry, and since field-filtering makes
+		// almost no sense in terms of optimization on Array Datasources (unlike in SQL),
+		// this patch consists in ignoring field-filtering on Array Datasource's models.
+		// Albert Boada (github.com/albertboada)
+		//
+		// if (!empty($queryData['fields'])) {
+		// 	$listOfFields = array();
+		// 	foreach ((array)$queryData['fields'] as $field) {
+		// 		if (strpos($field, '.') !== false) {
+		// 			list($alias, $field) = explode('.', $field, 2);
+		// 			if ($alias !== $model->alias) {
+		// 				continue;
+		// 			}
+		// 		}
+		// 		$listOfFields[] = $field;
+		// 	}
+		// 	foreach ($data as $id => $record) {
+		// 		foreach ($record[$model->alias] as $field => $value) {
+		// 			if (!in_array($field, $listOfFields)) {
+		// 				unset($data[$id][$model->alias][$field]);
+		// 			}
+		// 		}
+		// 	}
+		// }
 		$this->_registerLog($model, $queryData, getMicrotime() - $startTime, count($data));
 		$_associations = $model->__associations;
 		if ($queryData['recursive'] > -1) {
