@@ -425,11 +425,12 @@ class LdapSource extends DataSource {
 
 		// Check if we are doing a 'count' .. this is kinda ugly but i couldn't find a better way to do this, yet
 		if (is_string($queryData['fields']) && $queryData['fields'] === 'COUNT(*) AS ' . $this->name('count')) {
-			$queryData['fields'] = array();
+			// limit a count request to a minimum field set
+			$queryData['fields'] = array($model->primaryKey);
 		}
 
 		// Prepare query data ------------------------
-		$queryData['conditions'] = $this->_conditions($queryData['conditions'], $model);
+		$queryData['conditions'] = $this->_conditionsArrayToString($queryData['conditions'], $model);
 		if (empty($queryData['targetDn'])) {
 			$queryData['targetDn'] = $model->useTable;
 		}
@@ -459,6 +460,11 @@ class LdapSource extends DataSource {
 		$resultSet = ldap_get_entries($this->database, $res);
 		$resultSet = $this->_ldapFormat($model, $resultSet);
 
+		// If an offset was specified, apply it now
+		if ($queryData['offset']) {
+			$resultSet = array_slice($resultSet, $queryData['offset']);
+			$this->count = count($resultSet);
+		}
 		// Query on linked models  ----------------------
 		if ($model->recursive > 0) {
 			foreach ($model->_associations as $type) {
@@ -487,7 +493,12 @@ class LdapSource extends DataSource {
 		}
 
 		// Add the count field to the resultSet (needed by find() to work out how many entries we got back .. used when $model->exists() is called)
-		$resultSet[0][0]['count'] = $this->lastNumRows();
+		if ($queryData['offset']) {
+			// if an offset was applied, net count instead of the actual count
+			$resultSet[0][0]['count'] = $this->count;
+		} else {
+			$resultSet[0][0]['count'] = $this->lastNumRows();
+		}
 		return $resultSet;
 	}
 
@@ -1014,101 +1025,80 @@ class LdapSource extends DataSource {
 		}
 	}
 
-	protected function _conditions($conditions, $model) {
-		$res = '';
-		$key = $model->primaryKey;
-		$name = $model->name;
-
-		if (is_array($conditions) && count($conditions) === 1) {
-			$sqlHack = "$name.$key";
-			$conditions = str_ireplace($sqlHack, $key, $conditions);
-			foreach ($conditions as $k => $v) {
-				if ($k === $name . '.dn') {
-					$res = substr($v, 0, strpos($v, ','));
-				} elseif (($k === $sqlHack) && (empty($v) || $v === '*')) {
-					$res = 'objectclass=*';
-				} elseif ($k === $sqlHack) {
-					$res = "$key=$v";
-				} else {
-					$res = "$k=$v";
-				}
-			}
-			$conditions = $res;
-		}
-
-		if (is_array($conditions)) {
-			// Conditions expressed as an array
-			if (empty($conditions)) {
-				$res = 'objectclass=*';
-			}
-		}
-
-		if (empty($conditions)) {
-			$res = 'objectclass=*';
-		} else {
-			$res = $conditions;
-		}
-		return $res;
-	}
-
 /**
  * Convert an array into a ldap condition string
  *
- * @param array $conditions condition
+ * @param array $conditions Condition
+ * @param object $model Model
+ * @param string $join The type of opeation to use to join the conditions (&, |, !)
  * @return string
  */
-	protected function _conditionsArrayToString($conditions) {
-		$opsRec = array('and' => array('prefix' => '&'), 'or' => array('prefix' => '|'));
-		$opsNeg = array('and not' => array(), 'or not' => array(), 'not equals' => array());
-		$opsTer = array('equals' => array('null' => '*'));
-
-		$ops = array_merge($opsRec, $opsNeg, $opsTer);
-
+	protected function _conditionsArrayToString($conditions, $model, $join = '&') {
 		if (is_array($conditions)) {
-			$operand = array_keys($conditions);
-			$operand = $operand[0];
-
-			if (!in_array($operand, array_keys($ops))) {
-				$this->log("No operators defined in LDAP search conditions.", 'ldap.error');
-				return null;
-			}
-
-			$children = $conditions[$operand];
-
-			if (in_array($operand, array_keys($opsRec))) {
-				if (!is_array($children)) {
-					return null;
-				}
-				$tmp = '(' . $opsRec[$operand]['prefix'];
-				foreach ($children as $key => $value) {
-					$child = array($key => $value);
-					$tmp .= $this->_conditionsArrayToString($child);
-				}
-				return $tmp . ')';
-			}
-
-			if (in_array($operand, array_keys($opsNeg))) {
-				if (!is_array($children)) {
-					return null;
-				}
-				$nextOperand = trim(str_replace('not', '', $operand));
-
-				return '(!' . $this->_conditionsArrayToString(array($nextOperand => $children)) . ')';
-			}
-
-			if (in_array($operand, array_keys($opsTer))) {
-				$tmp = '';
-				foreach ($children as $key => $value) {
-					if (!is_array($value)) {
-						$tmp .= '(' . $key . '=' . ($value === null ? $opsTer['equals']['null'] : $value) . ')';
-					} else {
-						foreach ($value as $subvalue) {
-							$tmp .= $this->_conditionsArrayToString(array('equals' => array($key => $subvalue)));
+			// Process array of conditions
+			$ret_parts = array();
+			foreach ($conditions as $k => $v) {
+				// Check key for each component part
+				switch (strtoupper($k)) {
+					case 'OR':
+						if (is_array($v)) {
+							// the children of this condition will be processed with an OR join
+							$ret_parts[] = $this->_conditionsArrayToString($v, $model, '|');
+						} else {
+							// Single OR condition?  This is probably an error.
+							$ret_parts[] = $this->_conditionsArrayToString($v, $model);
 						}
-					}
+						break;
+					case 'NOT':
+						// the childern of this condition will be processed with a NOT join
+						$ret_parts[] = $this->_conditionsArrayToString($v, $model, '!');
+						break;
+					case 'AND':
+						// the children of this condition will be processed with an AND join (default)
+						$ret_parts[] = $this->_conditionsArrayToString($v, $model);
+						break;
+					default:
+						// This is an array, but not an explicitly named boolean operation
+						if (is_numeric($k)) {
+							// numeric keys indicate a default AND
+							$ret_parts[] = $this->_conditionsArrayToString($v, $model);
+						} else {
+							// Remove SQL-like naming from keys
+							$k = str_ireplace($model->name.'.', '', $k);
+							if (strpos($k, '!=')) {
+								// A not equals must be converted to a NOT condition
+								$ret_parts[] = '(!('.rtrim(substr($k, 0, strpos($k, '!='))).'='.$v.'))';
+							} else if (preg_match('/([<>~]=)$/', $k, $op)) {
+								// A lexical greater-than/less-than/approximately can be passed directly
+								$ret_parts[] = '('.$k.$v.')';
+							} else if (is_array($v)) {
+								// An array of values is an IN statement.  This must be converted to an OR join
+								$r = '(|';
+								foreach ($v as $i) {
+										$r .= '('.$k.'='.$i.')';
+								}
+								$ret_parts[] = $r.')';
+							} else if ($v === NULL) {
+								// A check for NULL must be converted to a NOT any match
+								$ret_parts[] = '(!('.$k.'=*))';
+							} else {
+								// A single key-value pair is an equality check
+								$ret_parts[] = '('.$k.'='.$v.')';
+							}
+						}
 				}
-				return $tmp;
 			}
+			// If there is only one part to this condition, return immediately
+			if (count($conditions) == 1) {
+					return $ret_parts[0];
+			}
+			// Otherwise paste the parts together with the join
+			return '('.$join.implode('', $ret_parts).')';
+		} else {
+			// Remove SQL-like naming from keys
+			$conditions = str_ireplace($model->name.'.', '', $conditions);
+			// Ensure string condition has leading and trailing parenthesis
+			return strpos($conditions, '(') === 0 ? (string) $conditions : '('.$conditions.')';
 		}
 	}
 
@@ -1164,7 +1154,8 @@ class LdapSource extends DataSource {
 						if ($queryData['fields'] == 1) {
 							$queryData['fields'] = array();
 						}
-						$res = @ldap_search($this->database, $queryData['targetDn'], $queryData['conditions'], $queryData['fields'], 0, $queryData['limit']);
+						// if an offset was requested, grab $offset + $limit results.  We'll select just the desired results later (in read())
+						$res = @ldap_search($this->database, $queryData['targetDn'], $queryData['conditions'], $queryData['fields'], 0, (isset($queryData['offset']) ? $queryData['offset'] : 0) + $queryData['limit']);
 					}
 
 					if (!$res) {
@@ -1387,19 +1378,10 @@ class LdapSource extends DataSource {
  * @return integer Entry count
  */
 	public function calculate(Model $model, $func, $params = array()) {
-		$params = (array)$params;
-
 		switch (strtolower($func)) {
 			case 'count':
-				if (empty($params) && $model->id) {
-					// quick search to make sure it exsits
-					$queryData['targetDn'] = $model->id;
-					$queryData['conditions'] = 'objectClass=*';
-					$queryData['scope'] = 'base';
-					$query = $this->read($model, $queryData);
-				}
-				return $this->count;
-
+				// read() expects this magic string as a count indicator
+				return 'COUNT(*) AS ' . $this->name('count');
 			case 'max':
 			case 'min':
 				break;
