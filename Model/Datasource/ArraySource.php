@@ -205,6 +205,10 @@ class ArraySource extends DataSource {
 			} else {
 				$data = array($data[0]);
 			}
+		} else {
+			if (!isset($data[0])) {
+				$data = array($model->alias => array());
+			}
 		}
 		return $data;
 	}
