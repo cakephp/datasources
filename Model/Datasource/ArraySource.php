@@ -166,6 +166,11 @@ class ArraySource extends DataSource {
 		}
 		// Order
 		if (!empty($queryData['order'])) {
+			// For CakePHP >= 2.8
+			if (!isset($queryData['order'][0])) {
+				$queryData['order'] = array($queryData['order']);
+			}
+
 			if (is_string($queryData['order'][0])) {
 				$field = $queryData['order'][0];
 				$alias = $model->alias;
