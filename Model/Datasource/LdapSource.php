@@ -139,7 +139,7 @@ class LdapSource extends DataSource {
  */
 	protected $_queriesLog = array();
 
-	/**
+/**
  * Total duration of all queries.
  *
  * @var int
@@ -258,7 +258,7 @@ class LdapSource extends DataSource {
 		//So little known fact, if your php-ldap lib is built against openldap like pretty much every linux
 		//distro out their like redhat, suse etc. The connect doesn't acutally happen when you call ldap_connect
 		//it happens when you call ldap_bind.  So if you are using failover then you have to test here also.
-		$bindResult = @ldap_bind($this->database, $bindDN, $bindPasswd);
+		$bindResult = @ldap_bind($this->database, $bindDN, $bindPasswd); // @codingStandardsIgnoreLine
 		if (!$bindResult) {
 			if (ldap_errno($this->database) == 49) {
 				$this->log("Auth failed for '$bindDN'!", 'ldap.error');
@@ -299,6 +299,7 @@ class LdapSource extends DataSource {
  * Disconnects database, kills the connection and says the connection is closed,
  * and if DEBUG is turned on, the log for this object is shown.
  *
+ * @return void
  */
 	public function close() {
 		if ($this->fullDebug && Configure::read('debug') > 1) {
@@ -309,6 +310,7 @@ class LdapSource extends DataSource {
 
 /**
  * disconnect  close connection and release any remaining results in the buffer
+ *
  * @return bool The connection status
  */
 	public function disconnect() {
@@ -348,7 +350,7 @@ class LdapSource extends DataSource {
 /**
  * The "C" in CRUD
  *
- * @param Model $model
+ * @param Model $model The model to be created.
  * @param array $fields The field names
  * @param array $values The fields' values
  * @return bool True on success, false on error
@@ -406,9 +408,10 @@ class LdapSource extends DataSource {
 
 /**
  * Returns the query
- * @param string $find
+ *
+ * @param string $find The name of the query
  * @param mixed $query The query as a string or single-element array
- * @param Model $model
+ * @param Model $model The model being queried
  * @return mixed
  */
 	public function query($find, $query, $model) {
@@ -437,8 +440,8 @@ class LdapSource extends DataSource {
 /**
  * The "R" in CRUD
  *
- * @param Model $model
- * @param array $queryData
+ * @param Model $model The model being read.
+ * @param array $queryData An array of query data used to find the data you want
  * @param int $recursive Number of levels of association
  * @return mixed Resultset or false on error
  */
@@ -519,10 +522,11 @@ class LdapSource extends DataSource {
 
 /**
  * The "U" in CRUD
- * 
- * @param Model $model
- * @param array $fields
- * @param int $values
+ *
+ * @param Model $model The model being updated.
+ * @param array $fields  Array of fields to be updated
+ * @param int $values Array of values to be update $fields to.
+ * @param mixed $conditions *unused*
  * @return bool Success
  */
 	public function update(Model $model, $fields = null, $values = null, $conditions = null) {
@@ -587,7 +591,9 @@ class LdapSource extends DataSource {
 
 /**
  * The "D" in CRUD
- * @param Model $model
+ *
+ * @param Model $model The model class having record(s) deleted
+ * @param mixed $conditions *unused*
  * @return bool Success
  */
 	public function delete(Model $model, $conditions = null) {
@@ -633,8 +639,10 @@ class LdapSource extends DataSource {
 
 /**
  * Recursive delete
+ *
  * Courtesy of gabriel at hrz dot uni-marburg dot de @ http://ar.php.net/ldap_delete
- * @param string $dn
+ *
+ * @param string $dn The DN to be deleted recursively.
  * @return bool Success
  */
 	protected function _deleteRecursively($dn) {
@@ -654,15 +662,15 @@ class LdapSource extends DataSource {
 
 /**
  * Generate query parameters for an association
- * 
+ *
  * @param Model $model The source model
  * @param Model $linkModel The associated model
  * @param string $type The type of association
  * @param array $association *unused*
  * @param array $assocData The model association parameters
- * @param array $queryData The associative array to modify
+ * @param array &$queryData The associative array to modify
  * @param array $external *unused*
- * @param array $resultSet The source model data
+ * @param array &$resultSet The source model data
  * @return mixed Array or null on failure
  */
 	public function generateAssociationQuery(Model $model, Model $linkModel, $type, $association, $assocData, &$queryData, $external, &$resultSet) {
@@ -704,15 +712,15 @@ class LdapSource extends DataSource {
 
 /**
  * Query an associated model
- * 
+ *
  * @param Model $model The source model
- * @param Model $linkModel The associated model
+ * @param Model &$linkModel The associated model
  * @param string $type The type of association
- * @param array $association
+ * @param array $association Association name
  * @param array $assocData The model association parameters
- * @param array $queryData The associative array to modify
- * @param array $external
- * @param array $resultSet The source model data
+ * @param array &$queryData The associative array to modify
+ * @param array $external *unused*
+ * @param array &$resultSet The source model data
  * @param int $recursive The depth of recursion
  * @param array $stack The source model data
  * @return mixed Array or null on failure
@@ -781,6 +789,7 @@ class LdapSource extends DataSource {
  * Returns number of rows in previous resultset. If no previous resultset exists,
  * this returns false.
  *
+ * @param mixed $source *unused*
  * @return int Number of rows in resultset
  */
 	public function lastNumRows($source = null) {
@@ -804,6 +813,8 @@ class LdapSource extends DataSource {
 	}
 
 /**
+ * Returns LDAP scheme information
+ *
  * The following was kindly "borrowed" from the excellent phpldapadmin project
  *
  * @return array
@@ -931,12 +942,12 @@ class LdapSource extends DataSource {
 	}
 
 /**
- * LdapSource::_parseList()
+ * Parse LDAP schema strings
  *
- * @param int $i
- * @param array $strings
- * @param array $attrs
- * @return int
+ * @param int $i The index of $strings to be parsed.
+ * @param array $strings LDAP schema strings.
+ * @param array &$attrs The reference variable to be filled with the results of parsing.
+ * @return int The next index of $strings to be parsed.
  */
 	protected function _parseList($i, $strings, &$attrs) {
 	/**
@@ -991,6 +1002,9 @@ class LdapSource extends DataSource {
 
 /**
  * Function not supported
+ *
+ * @param string $query *unused*
+ * @return null
  */
 	public function execute($query) {
 		return null;
@@ -998,6 +1012,10 @@ class LdapSource extends DataSource {
 
 /**
  * Function not supported
+ *
+ * @param string $query *unused*
+ * @param bool $cache *unused*
+ * @return array
  */
 	public function fetchAll($query, $cache = true) {
 		return array();
@@ -1007,7 +1025,8 @@ class LdapSource extends DataSource {
  * Log given LDAP query.
  *
  * @param string $query LDAP statement
- * @todo: Add hook to log errors instead of returning false
+ * @todo Add hook to log errors instead of returning false
+ * @return void
  */
 	public function logQuery($query) {
 		$this->_queriesCnt++;
@@ -1027,7 +1046,8 @@ class LdapSource extends DataSource {
 /**
  * Outputs the contents of the queries log.
  *
- * @param bool $sorted
+ * @param bool $sorted Get the queries sorted by time taken, defaults to false.
+ * @return void
  */
 	public function showLog($sorted = false) {
 		if ($sorted) {
@@ -1062,6 +1082,7 @@ class LdapSource extends DataSource {
  * and execution time in microseconds. If the query fails, an error is output instead.
  *
  * @param string $query Query to show information on.
+ * @return void
  */
 	public function showQuery($query) {
 		$error = $this->error;
@@ -1080,9 +1101,9 @@ class LdapSource extends DataSource {
 
 /**
  * Filter conditions to remove SQL-like naming conventions
- * 
+ *
  * @param mixed $conditions Array or string
- * @param Model $model
+ * @param Model $model The model
  * @return string
  */
 	protected function _conditions($conditions, $model) {
@@ -1183,10 +1204,10 @@ class LdapSource extends DataSource {
 		}
 	}
 
-/** 
+/**
  * Look for the base DN in the target DN
- * 
- * @param string $targetDN
+ *
+ * @param string $targetDN The target DN
  * @return bool
  */
 	public function checkBaseDn($targetDN) {
@@ -1195,10 +1216,11 @@ class LdapSource extends DataSource {
 		return preg_match($pattern, $targetDN);
 	}
 
-/** 
- * 
- * @param array $queryData
- * @param bool $cache
+/**
+ * Execcutes query
+ *
+ * @param array $queryData An array of query data
+ * @param bool $cache Whether or not the result of query should be cached
  * @return mixed LDAP resource or false on error
  */
 	protected function _executeQuery($queryData = array(), $cache = true) {
@@ -1248,7 +1270,7 @@ class LdapSource extends DataSource {
 							$queryData['fields'] = array();
 						}
 						// Use error control operator to suppress output of sizelimit exceeded message when sizelimit is used.
-						$res = @ldap_search($this->database, $queryData['targetDn'], $queryData['conditions'], $queryData['fields'], 0, $queryData['limit']);
+						$res = @ldap_search($this->database, $queryData['targetDn'], $queryData['conditions'], $queryData['fields'], 0, $queryData['limit']);  // @codingStandardsIgnoreLine
 					}
 
 					if (!$res) {
@@ -1289,8 +1311,8 @@ class LdapSource extends DataSource {
 
 /**
  * Convert a query arry to a string
- * 
- * @param array $queryData
+ *
+ * @param array $queryData An array of query data
  * @return string
  */
 	protected function _queryToString($queryData) {
@@ -1320,10 +1342,10 @@ class LdapSource extends DataSource {
 	}
 
 /**
- * LdapSource::_ldapFormat()
+ * Format results of ldap_get_entries()
  *
- * @param Model $model
- * @param array $data
+ * @param Model $model The model
+ * @param array $data Results of ldap_get_entries()
  * @return array
  */
 	protected function _ldapFormat(Model $model, $data) {
@@ -1359,7 +1381,7 @@ class LdapSource extends DataSource {
 /**
  * Escape special characters for LDAP query
  *
- * @param string $str
+ * @param string $str The input string
  * @return string
  */
 	protected function _ldapQuote($str) {
@@ -1372,11 +1394,12 @@ class LdapSource extends DataSource {
 
 /**
  * Modify $data array to add in association information
- * 
- * @param array $data
- * @param array $merge
- * @param string $association
- * @param string $type
+ *
+ * @param array &$data The data to merge.
+ * @param array $merge The data to merge.
+ * @param string $association The association name to merge.
+ * @param string $type The type of association
+ * @return void
  */
 	protected function _mergeAssociation(&$data, $merge, $association, $type) {
 		if (isset($merge[0]) && !isset($merge[0][$association])) {
@@ -1424,7 +1447,7 @@ class LdapSource extends DataSource {
 /**
  * Private helper method to remove query metadata in given data array.
  *
- * @param array $data
+ * @param array &$data The data to scrub.
  * @return void
  */
 	protected function _scrubQueryData(&$data) {
@@ -1450,6 +1473,7 @@ class LdapSource extends DataSource {
 
 /**
  * Return LDAP object classes, cache results
+ *
  * @return array
  */
 	protected function _getObjectClasses() {
@@ -1476,6 +1500,11 @@ class LdapSource extends DataSource {
 		return $objectclasses;
 	}
 
+/**
+ * Function not supported
+ *
+ * @return null
+ */
 	public function boolean() {
 		return null;
 	}
@@ -1483,7 +1512,7 @@ class LdapSource extends DataSource {
 /**
  * Returns an calculation
  *
- * @param model $model
+ * @param model $model The model to get a calculated field for.
  * @param string $func Lowercase name of SQL function, i.e. 'count' or 'max'
  * @param array $params Function parameters (any values must be quoted manually)
  * @return null
@@ -1493,10 +1522,10 @@ class LdapSource extends DataSource {
 	}
 
 /**
- * LdapSource::describe()
+ * Returns a Model description (metadata) or null if none found.
  *
- * @param mixed $model
- * @param string $field
+ * @param mixed $model The model to describe.
+ * @param string $field Array of Metadata for the $model
  * @return array
  */
 	public function describe($model, $field = null) {
@@ -1510,10 +1539,10 @@ class LdapSource extends DataSource {
 	}
 
 /**
- * LdapSource::inArrayInsensitive()
+ * Checks if a key or value exists in an array case-insensitively.
  *
- * @param string $needle
- * @param array $haystack
+ * @param string $needle The searched value.
+ * @param array $haystack The array.
  * @return bool
  */
 	public function inArrayInsensitive($needle, $haystack) {
@@ -1529,7 +1558,7 @@ class LdapSource extends DataSource {
 	}
 
 /**
- * LdapSource::defaultNSAttributes()
+ * Returns default attributes for search queries.
  *
  * @return array
  */
@@ -1541,6 +1570,7 @@ class LdapSource extends DataSource {
 /**
  * debugLDAPConnection debugs the current connection to check the settings
  *
+ * @return void
  */
 	public function debugLDAPConnection() {
 		$opts = array('LDAP_OPT_DEREF', 'LDAP_OPT_SIZELIMIT', 'LDAP_OPT_TIMELIMIT', 'LDAP_OPT_NETWORK_TIMEOUT',
@@ -1570,6 +1600,8 @@ class LdapSource extends DataSource {
 
 /**
  * Set default options for Microsoft Active Directory
+ *
+ * @return void
  */
 	public function setActiveDirectoryEnv() {
 		//Need to disable referals for AD
@@ -1581,6 +1613,8 @@ class LdapSource extends DataSource {
 
 /**
  * Set default options for OpenLDAP
+ *
+ * @return void
  */
 	public function setOpenLDAPEnv() {
 		$this->OperationalAttributes = ' + ';
@@ -1588,6 +1622,8 @@ class LdapSource extends DataSource {
 
 /**
  * Assign the schema patch from the server
+ *
+ * @return void
  */
 	public function setSchemaPath() {
 		$checkDN = ldap_read($this->database, '', 'objectClass=*', array('subschemaSubentry'));
