@@ -22,6 +22,7 @@
  * @license	   MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 App::uses('Inflector', 'Utility');
+App::uses('DataSource', 'Model/Datasource');
 
 /**
  * Ldap Datasource
@@ -90,14 +91,14 @@ class LdapSource extends DataSource {
  *
  * @var string
  */
-	public $SchemaAtributes;
+	public $SchemaAttributes;
 
 /**
  * Schema Filter
  *
  * @var string
  */
-	public $SchemaFilter;
+	public $SchemaFilter = '(objectClass=subschema)';
 
 /**
  * Result for formal queries
@@ -137,6 +138,13 @@ class LdapSource extends DataSource {
  * @var array
  */
 	protected $_queriesLog = array();
+
+	/**
+ * Total duration of all queries.
+ *
+ * @var int
+ */
+	protected $_queriesTime = null;
 
 /**
  * Count of queries
@@ -304,8 +312,12 @@ class LdapSource extends DataSource {
  * @return bool The connection status
  */
 	public function disconnect() {
-		ldap_free_result($this->_result);
-		ldap_unbind($this->database);
+		if ($this->_result) {
+			ldap_free_result($this->_result);
+		}
+		if (is_resource($this->database)) {
+			ldap_unbind($this->database);
+		}
 		$this->connected = false;
 		return $this->connected;
 	}
@@ -463,7 +475,7 @@ class LdapSource extends DataSource {
 		}
 
 		// Execute search query ------------------------
-		$res = $this->_executeQuery($queryData);
+		$res = $this->_executeQuery($queryData, $model->cacheQueries);
 
 		if ($this->lastNumRows() == 0) {
 			return false;
@@ -513,7 +525,7 @@ class LdapSource extends DataSource {
  * @param int $values
  * @return bool Success
  */
-	public function update(Model $model, $fields = null, $values = null) {
+	public function update(Model $model, $fields = null, $values = null, $conditions = null) {
 		$fieldsData = array();
 
 		if ($fields === null) {
@@ -578,7 +590,7 @@ class LdapSource extends DataSource {
  * @param Model $model
  * @return bool Success
  */
-	public function delete(Model $model) {
+	public function delete(Model $model, $conditions = null) {
 		// Boolean to determine if we want to recursively delete or not
 		//$recursive = true;
 		$recursive = false;
@@ -721,7 +733,7 @@ class LdapSource extends DataSource {
 		for ($i = 0; $i < $count; $i++) {
 			$row = $resultSet[$i];
 			$queryData = $this->generateAssociationQuery($model, $linkModel, $type, $association, $assocData, $queryData, $external, $row);
-			$fetch = $this->_executeQuery($queryData);
+			$fetch = $this->_executeQuery($queryData, $model->cacheQueries);
 			$fetch = ldap_get_entries($this->database, $fetch);
 			$fetch = $this->_ldapFormat($linkModel, $fetch);
 
@@ -771,7 +783,7 @@ class LdapSource extends DataSource {
  *
  * @return int Number of rows in resultset
  */
-	public function lastNumRows() {
+	public function lastNumRows($source = null) {
 		if ($this->_result && is_resource($this->_result)) {
 			return ldap_count_entries($this->database, $this->_result);
 		}
@@ -1192,7 +1204,7 @@ class LdapSource extends DataSource {
 	protected function _executeQuery($queryData = array(), $cache = true) {
 		$t = microtime(true);
 
-		$pattern = '/,[ \t]+(\w+)=/';
+		$pattern = '/,[ \t]*(\w+)=/';
 		$queryData['targetDn'] = preg_replace($pattern, ', $1=', $queryData['targetDn']);
 		if ($this->checkBaseDn($queryData['targetDn']) == 0) {
 			$this->log("Missing BaseDN in " . $queryData['targetDn'], 'debug');
@@ -1469,32 +1481,15 @@ class LdapSource extends DataSource {
 	}
 
 /**
- * Returns the count of records
+ * Returns an calculation
  *
  * @param model $model
  * @param string $func Lowercase name of SQL function, i.e. 'count' or 'max'
  * @param array $params Function parameters (any values must be quoted manually)
- * @return int Entry count
+ * @return null
  */
 	public function calculate(Model $model, $func, $params = array()) {
-		$params = (array)$params;
-
-		switch (strtolower($func)) {
-			case 'count':
-				if (empty($params) && $model->id) {
-					// quick search to make sure it exsits
-					$queryData['targetDn'] = $model->id;
-					$queryData['conditions'] = 'objectClass=*';
-					$queryData['scope'] = 'base';
-					$query = $this->read($model, $queryData);
-				}
-				return $this->count;
-
-			case 'max':
-			case 'min':
-				break;
-		}
-		return 0;
+		return null;
 	}
 
 /**
