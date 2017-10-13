@@ -39,14 +39,14 @@ class LdapSource extends DataSource {
 /**
  * Cache Sources
  *
- * @var boolean
+ * @var bool
  */
 	public $cacheSources = true;
 
 /**
  * Schema Results
  *
- * @var boolean
+ * @var bool
  */
 	public $SchemaResults = false;
 
@@ -60,7 +60,7 @@ class LdapSource extends DataSource {
 /**
  * Count
  *
- * @var integer
+ * @var int
  */
 	public $count = 0;
 
@@ -120,7 +120,7 @@ class LdapSource extends DataSource {
 /**
  * MultiMaster Use
  *
- * @var integer
+ * @var int
  */
 	protected $_multiMasterUse = 0;
 
@@ -130,6 +130,20 @@ class LdapSource extends DataSource {
  * @var array
  */
 	protected $_descriptions = array();
+
+/**
+ * Log of queries
+ *
+ * @var array
+ */
+	protected $_queriesLog = array();
+
+/**
+ * Count of queries
+ *
+ * @var int
+ */
+	protected $_queriesCnt = 0;
 
 /**
  * Constructor
@@ -195,9 +209,9 @@ class LdapSource extends DataSource {
  * jumps to the next and attempts to connect and so on.  If will also check try to setup any special connection options
  * needed like referal chasing and tls support
  *
- * @param string the users dn to bind with
- * @param string the password for the previously state bindDN
- * @return boolean the status of the connection
+ * @param string $bindDN The users dn to bind with
+ * @param string $passwd The password for the previously state bindDN
+ * @return bool The status of the connection
  */
 	public function connect($bindDN = null, $passwd = null) {
 		$config = array_merge($this->_baseConfig, $this->config);
@@ -206,12 +220,12 @@ class LdapSource extends DataSource {
 		if (isset($config['host']) && is_array($config['host'])) {
 			$config['host'] = $config['host'][$this->_multiMasterUse];
 			if (count($this->config['host']) > (1 + $this->_multiMasterUse)) {
-				$hasFailOver = true;
+				$hasFailover = true;
 			}
 		}
 		$bindDN = empty($bindDN) ? $config['login'] : $bindDN;
 		$bindPasswd = empty($passwd) ? $config['password'] : $passwd;
-		$this->database = @ldap_connect($config['host']);
+		$this->database = ldap_connect($config['host']);
 		if (!$this->database) {
 			//Try Next Server Listed
 			if ($hasFailover) {
@@ -260,9 +274,9 @@ class LdapSource extends DataSource {
  * Test if the dn/passwd combo is valid
  * This may actually belong in the component code, will look into that
  *
- * @param string bindDN to connect as
- * @param string password for the bindDN
- * @param boolean or string on error
+ * @param string $dn Bind DN to connect as
+ * @param string $passwd Password for the bind DN
+ * @return mixed True on success or string on error
  */
 	public function auth($dn, $passwd) {
 		$this->connect($dn, $passwd);
@@ -287,11 +301,11 @@ class LdapSource extends DataSource {
 
 /**
  * disconnect  close connection and release any remaining results in the buffer
- *
+ * @return bool The connection status
  */
 	public function disconnect() {
-		@ldap_free_result($this->results);
-		@ldap_unbind($this->database);
+		ldap_free_result($this->_result);
+		ldap_unbind($this->database);
 		$this->connected = false;
 		return $this->connected;
 	}
@@ -299,7 +313,7 @@ class LdapSource extends DataSource {
 /**
  * Checks if it's connected to the database
  *
- * @return boolean True if the database is connected, else false
+ * @return bool True if the database is connected, else false
  */
 	public function isConnected() {
 		return $this->connected;
@@ -309,7 +323,7 @@ class LdapSource extends DataSource {
  * Reconnects to database server with optional new settings
  *
  * @param array $config An array defining the new configuration settings
- * @return boolean True on success, false on failure
+ * @return bool True on success, false on failure
  */
 	public function reconnect($config = null) {
 		$this->disconnect();
@@ -323,9 +337,9 @@ class LdapSource extends DataSource {
  * The "C" in CRUD
  *
  * @param Model $model
- * @param array $fields containing the field names
- * @param array $values containing the fields' values
- * @return true on success, false on error
+ * @param array $fields The field names
+ * @param array $values The fields' values
+ * @return bool True on success, false on error
  */
 	public function create(Model $model, $fields = null, $values = null) {
 		$basedn = $this->config['basedn'];
@@ -333,7 +347,6 @@ class LdapSource extends DataSource {
 		$table = $model->useTable;
 		$fieldsData = array();
 		$id = null;
-		$objectclasses = null;
 
 		if ($fields == null) {
 			unset($fields, $values);
@@ -367,7 +380,7 @@ class LdapSource extends DataSource {
 		}
 		$dn = $key . $table . $basedn;
 
-		$res = @ldap_add($this->database, $dn, $fieldsData);
+		$res = ldap_add($this->database, $dn, $fieldsData);
 		// Add the entry
 		if ($res) {
 			$model->setInsertID($id);
@@ -381,7 +394,9 @@ class LdapSource extends DataSource {
 
 /**
  * Returns the query
- *
+ * @param string $find
+ * @param mixed $query The query as a string or single-element array
+ * @param Model $model
  * @return mixed
  */
 	public function query($find, $query, $model) {
@@ -412,8 +427,8 @@ class LdapSource extends DataSource {
  *
  * @param Model $model
  * @param array $queryData
- * @param integer $recursive Number of levels of association
- * @return unknown
+ * @param int $recursive Number of levels of association
+ * @return mixed Resultset or false on error
  */
 	public function read(Model $model, $queryData = array(), $recursive = null) {
 		$this->model = $model;
@@ -443,7 +458,6 @@ class LdapSource extends DataSource {
 			foreach ($model->{$type} as $assoc => $assocData) {
 				if ($model->recursive > -1) {
 					$linkModel = $model->{$assoc};
-					$linkedModels[] = $type . '/' . $assoc;
 				}
 			}
 		}
@@ -493,6 +507,11 @@ class LdapSource extends DataSource {
 
 /**
  * The "U" in CRUD
+ * 
+ * @param Model $model
+ * @param array $fields
+ * @param int $values
+ * @return bool Success
  */
 	public function update(Model $model, $fields = null, $values = null) {
 		$fieldsData = array();
@@ -542,7 +561,7 @@ class LdapSource extends DataSource {
 		if ($resultSet) {
 			$dn = $resultSet[0][$model->alias]['dn'];
 
-			if (@ldap_modify($this->database, $dn, $entry)) {
+			if (ldap_modify($this->database, $dn, $entry)) {
 				return true;
 			}
 			$this->log("Error updating $dn: " . ldap_error($this->database) . "\nHere is what I sent: " . print_r($entry, true), 'ldap.error');
@@ -556,6 +575,8 @@ class LdapSource extends DataSource {
 
 /**
  * The "D" in CRUD
+ * @param Model $model
+ * @return bool Success
  */
 	public function delete(Model $model) {
 		// Boolean to determine if we want to recursively delete or not
@@ -586,7 +607,7 @@ class LdapSource extends DataSource {
 				}
 			} else {
 				// Single entry delete
-				if (@ldap_delete($this->database, $dn)) {
+				if (ldap_delete($this->database, $dn)) {
 					return true;
 				}
 			}
@@ -594,12 +615,15 @@ class LdapSource extends DataSource {
 
 		$model->onError();
 		$errMsg = ldap_error($this->database);
-		$this->log("Failed Trying to delete: $dn \nLdap Erro:$errMsg", 'ldap.error');
+		$this->log("Failed Trying to delete: $dn \nLdap Error:$errMsg", 'ldap.error');
 		return false;
 	}
 
 /**
+ * Recursive delete
  * Courtesy of gabriel at hrz dot uni-marburg dot de @ http://ar.php.net/ldap_delete
+ * @param string $dn
+ * @return bool Success
  */
 	protected function _deleteRecursively($dn) {
 		// Search for sub entries
@@ -613,9 +637,22 @@ class LdapSource extends DataSource {
 			}
 		}
 
-		return @ldap_delete($this->database, $dn);
+		return ldap_delete($this->database, $dn);
 	}
 
+/**
+ * Generate query parameters for an association
+ * 
+ * @param Model $model The source model
+ * @param Model $linkModel The associated model
+ * @param string $type The type of association
+ * @param array $association *unused*
+ * @param array $assocData The model association parameters
+ * @param array $queryData The associative array to modify
+ * @param array $external *unused*
+ * @param array $resultSet The source model data
+ * @return mixed Array or null on failure
+ */
 	public function generateAssociationQuery(Model $model, Model $linkModel, $type, $association, $assocData, &$queryData, $external, &$resultSet) {
 		$this->_scrubQueryData($queryData);
 
@@ -626,6 +663,7 @@ class LdapSource extends DataSource {
 				$queryData['targetDn'] = $linkModel->useTable;
 				$queryData['type'] = 'search';
 				$queryData['limit'] = 1;
+				$queryData['fields'] = $assocData['fields'];
 				return $queryData;
 
 			case 'belongsTo':
@@ -634,6 +672,7 @@ class LdapSource extends DataSource {
 				$queryData['targetDn'] = $linkModel->useTable;
 				$queryData['type'] = 'search';
 				$queryData['limit'] = 1;
+				$queryData['fields'] = $assocData['fields'];
 				return $queryData;
 
 			case 'hasMany':
@@ -642,6 +681,7 @@ class LdapSource extends DataSource {
 				$queryData['targetDn'] = $linkModel->useTable;
 				$queryData['type'] = 'search';
 				$queryData['limit'] = $assocData['limit'];
+				$queryData['fields'] = $assocData['fields'];
 				return $queryData;
 
 			case 'hasAndBelongsToMany':
@@ -650,6 +690,21 @@ class LdapSource extends DataSource {
 		return null;
 	}
 
+/**
+ * Query an associated model
+ * 
+ * @param Model $model The source model
+ * @param Model $linkModel The associated model
+ * @param string $type The type of association
+ * @param array $association
+ * @param array $assocData The model association parameters
+ * @param array $queryData The associative array to modify
+ * @param array $external
+ * @param array $resultSet The source model data
+ * @param int $recursive The depth of recursion
+ * @param array $stack The source model data
+ * @return mixed Array or null on failure
+ */
 	public function queryAssociation(Model $model, &$linkModel, $type, $association, $assocData, &$queryData, $external, &$resultSet, $recursive, $stack) {
 		if (!isset($resultSet) || !is_array($resultSet)) {
 			if (Configure::read('debug') > 0) {
@@ -714,11 +769,11 @@ class LdapSource extends DataSource {
  * Returns number of rows in previous resultset. If no previous resultset exists,
  * this returns false.
  *
- * @return integer Number of rows in resultset
+ * @return int Number of rows in resultset
  */
 	public function lastNumRows() {
 		if ($this->_result && is_resource($this->_result)) {
-			return @ldap_count_entries($this->database, $this->_result);
+			return ldap_count_entries($this->database, $this->_result);
 		}
 		return null;
 	}
@@ -726,8 +781,8 @@ class LdapSource extends DataSource {
 /**
  * Convert Active Directory timestamps to unix ones
  *
- * @param integer $adTimestamp Active directory timestamp
- * @return integer Unix timestamp
+ * @param int $adTimestamp Active directory timestamp
+ * @return int Unix timestamp
  */
 	public function convertTimestampADToUnix($adTimestamp) {
 		$epochDiff = 11644473600; // difference 1601<>1970 in seconds. see reference URL
@@ -743,13 +798,13 @@ class LdapSource extends DataSource {
  */
 	protected function _getLDAPschema() {
 		$schemaTypes = array('objectclasses', 'attributetypes');
-		$this->results = @ldap_read($this->database, $this->SchemaDN, $this->SchemaFilter, $schemaTypes, 0, 0, 0, LDAP_DEREF_ALWAYS);
-		if ($this->results === null) {
-			$this->log( "LDAP schema filter $schemaFilter is invalid!", 'ldap.error');
+		$this->_result = ldap_read($this->database, $this->SchemaDN, $this->SchemaFilter, $schemaTypes, 0, 0, 0, LDAP_DEREF_ALWAYS);
+		if ($this->_result === null) {
+			$this->log( "LDAP schema filter {$this->SchemaFilter} is invalid!", 'ldap.error');
 			return array();
 		}
 
-		$schemaEntries = @ldap_get_entries($this->database, $this->results);
+		$schemaEntries = ldap_get_entries($this->database, $this->_result);
 		if (!$schemaEntries) {
 			return array();
 		}
@@ -866,10 +921,10 @@ class LdapSource extends DataSource {
 /**
  * LdapSource::_parseList()
  *
- * @param integer $i
+ * @param int $i
  * @param array $strings
  * @param array $attrs
- * @return integer
+ * @return int
  */
 	protected function _parseList($i, $strings, &$attrs) {
 	/**
@@ -948,13 +1003,10 @@ class LdapSource extends DataSource {
 		$this->_queriesLog[] = array(
 			'query' => $query,
 			'error' => $this->error,
-			'affected' => $this->affected,
+			'affected' => isset($this->affected) ? $this->affected : '',
 			'numRows' => $this->numRows,
 			'took' => $this->took
 		);
-		if (count($this->_queriesLog) > $this->_queriesLogMax) {
-			array_pop($this->_queriesLog);
-		}
 		if ($this->error) {
 			return false;
 		}
@@ -963,7 +1015,7 @@ class LdapSource extends DataSource {
 /**
  * Outputs the contents of the queries log.
  *
- * @param boolean $sorted
+ * @param bool $sorted
  */
 	public function showLog($sorted = false) {
 		if ($sorted) {
@@ -1014,6 +1066,13 @@ class LdapSource extends DataSource {
 		}
 	}
 
+/**
+ * Filter conditions to remove SQL-like naming conventions
+ * 
+ * @param mixed $conditions Array or string
+ * @param Model $model
+ * @return string
+ */
 	protected function _conditions($conditions, $model) {
 		$res = '';
 		$key = $model->primaryKey;
@@ -1054,7 +1113,7 @@ class LdapSource extends DataSource {
 /**
  * Convert an array into a ldap condition string
  *
- * @param array $conditions condition
+ * @param array $conditions Condition
  * @return string
  */
 	protected function _conditionsArrayToString($conditions) {
@@ -1112,12 +1171,24 @@ class LdapSource extends DataSource {
 		}
 	}
 
+/** 
+ * Look for the base DN in the target DN
+ * 
+ * @param string $targetDN
+ * @return bool
+ */
 	public function checkBaseDn($targetDN) {
 		$parts = preg_split('/,\s*/', $this->config['basedn']);
 		$pattern = '/' . implode(',\s*', $parts) . '/i';
 		return preg_match($pattern, $targetDN);
 	}
 
+/** 
+ * 
+ * @param array $queryData
+ * @param bool $cache
+ * @return mixed LDAP resource or false on error
+ */
 	protected function _executeQuery($queryData = array(), $cache = true) {
 		$t = microtime(true);
 
@@ -1157,13 +1228,14 @@ class LdapSource extends DataSource {
 
 					//Handle LDAP Scope
 					if (isset($queryData['scope']) && $queryData['scope'] === 'base') {
-						$res = @ldap_read($this->database, $queryData['targetDn'], $queryData['conditions'], $queryData['fields']);
+						$res = ldap_read($this->database, $queryData['targetDn'], $queryData['conditions'], $queryData['fields']);
 					} elseif (isset($queryData['scope']) && $queryData['scope'] === 'one') {
-						$res = @ldap_list($this->database, $queryData['targetDn'], $queryData['conditions'], $queryData['fields']);
+						$res = ldap_list($this->database, $queryData['targetDn'], $queryData['conditions'], $queryData['fields']);
 					} else {
 						if ($queryData['fields'] == 1) {
 							$queryData['fields'] = array();
 						}
+						// Use error control operator to suppress output of sizelimit exceeded message when sizelimit is used.
 						$res = @ldap_search($this->database, $queryData['targetDn'], $queryData['conditions'], $queryData['fields'], 0, $queryData['limit']);
 					}
 
@@ -1183,7 +1255,7 @@ class LdapSource extends DataSource {
 					}
 					break;
 				case 'delete':
-					$res = @ldap_delete($this->database, $queryData['targetDn'] . ',' . $this->config['basedn']);
+					$res = ldap_delete($this->database, $queryData['targetDn'] . ',' . $this->config['basedn']);
 					break;
 				default:
 					$res = false;
@@ -1203,6 +1275,12 @@ class LdapSource extends DataSource {
 		return $this->_result;
 	}
 
+/**
+ * Convert a query arry to a string
+ * 
+ * @param array $queryData
+ * @return string
+ */
 	protected function _queryToString($queryData) {
 		$tmp = '';
 		if (!empty($queryData['scope'])) {
@@ -1267,7 +1345,7 @@ class LdapSource extends DataSource {
 	}
 
 /**
- * LdapSource::_ldapQuote()
+ * Escape special characters for LDAP query
  *
  * @param string $str
  * @return string
@@ -1280,6 +1358,14 @@ class LdapSource extends DataSource {
 		);
 	}
 
+/**
+ * Modify $data array to add in association information
+ * 
+ * @param array $data
+ * @param array $merge
+ * @param string $association
+ * @param string $type
+ */
 	protected function _mergeAssociation(&$data, $merge, $association, $type) {
 		if (isset($merge[0]) && !isset($merge[0][$association])) {
 			$association = Inflector::pluralize($association);
@@ -1310,7 +1396,7 @@ class LdapSource extends DataSource {
 					$data[$association] = array();
 				}
 			} else {
-				foreach ($merge as $i => $row) {
+				foreach ($merge as $row) {
 					if (count($row) === 1) {
 						$data[$association][] = $row[$association];
 					} else {
@@ -1350,6 +1436,10 @@ class LdapSource extends DataSource {
 		}
 	}
 
+/**
+ * Return LDAP object classes, cache results
+ * @return array
+ */
 	protected function _getObjectClasses() {
 		$cache = null;
 		if ($this->cacheSources !== false) {
@@ -1384,7 +1474,7 @@ class LdapSource extends DataSource {
  * @param model $model
  * @param string $func Lowercase name of SQL function, i.e. 'count' or 'max'
  * @param array $params Function parameters (any values must be quoted manually)
- * @return integer Entry count
+ * @return int Entry count
  */
 	public function calculate(Model $model, $func, $params = array()) {
 		$params = (array)$params;
@@ -1429,7 +1519,7 @@ class LdapSource extends DataSource {
  *
  * @param string $needle
  * @param array $haystack
- * @return boolean
+ * @return bool
  */
 	public function inArrayInsensitive($needle, $haystack) {
 		$found = false;
@@ -1483,6 +1573,9 @@ class LdapSource extends DataSource {
 		$this->SchemaAttributes = 'objectClasses attributeTypes ldapSyntaxes matchingRules matchingRuleUse createTimestamp modifyTimestamp';
 	}
 
+/**
+ * Set default options for Microsoft Active Directory
+ */
 	public function setActiveDirectoryEnv() {
 		//Need to disable referals for AD
 		ldap_set_option($this->database, LDAP_OPT_REFERRALS, 0);
@@ -1491,10 +1584,16 @@ class LdapSource extends DataSource {
 		$this->SchemaAttributes = 'objectClasses attributeTypes ldapSyntaxes matchingRules matchingRuleUse createTimestamp modifyTimestamp subschemaSubentry';
 	}
 
+/**
+ * Set default options for OpenLDAP
+ */
 	public function setOpenLDAPEnv() {
 		$this->OperationalAttributes = ' + ';
 	}
 
+/**
+ * Assign the schema patch from the server
+ */
 	public function setSchemaPath() {
 		$checkDN = ldap_read($this->database, '', 'objectClass=*', array('subschemaSubentry'));
 		$schemaEntry = ldap_get_entries($this->database, $checkDN);
