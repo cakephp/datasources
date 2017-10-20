@@ -295,9 +295,9 @@ class XmlrpcSourceTest extends CakeTestCase {
 
 		// Not XML-RPC Response
 		$config = array(
-			'host' => 'rss1.smashingmagazine.com',
+			'host' => 'www.w3.org',
 			'port' => 80,
-			'url' => '/feed/'
+			'url' => '/TR/1999/REC-xpath-19991116.xml'
 		);
 		$Xmlrpc = new XmlrpcSource($config);
 		$this->assertFalse($Xmlrpc->query('examples.getStateName', array(1)));

@@ -1,0 +1,18 @@
+dn: olcDatabase={1}hdb,cn=config
+changetype: modify
+replace: olcSuffix
+olcSuffix: dc=cakephp,dc=org
+
+dn: olcDatabase={1}hdb,cn=config
+changetype: modify
+replace: olcRootDN
+olcRootDN: cn=admin,dc=cakephp,dc=org
+
+dn: olcDatabase={1}hdb,cn=config
+changetype: modify
+replace: olcRootPW
+olcRootPW: password
+
+dn: olcDatabase={1}hdb,cn=config
+changetype: modify
+delete: olcAccess
