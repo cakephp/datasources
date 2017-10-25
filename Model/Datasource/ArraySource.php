@@ -164,6 +164,10 @@ class ArraySource extends DataSource {
 			}
 			return array(array(array('count' => count($data))));
 		}
+		// Sort and Direction must overwrite Order
+		if (!empty($queryData['sort'])) {
+			$queryData['order'] = array($queryData['sort'].' '.((empty($queryData['direction'])) ? 'ASC' : strtoupper($queryData['direction'])));
+		}
 		// Order
 		if (!empty($queryData['order'])) {
 			// For CakePHP >= 2.8
