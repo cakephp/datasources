@@ -90,10 +90,13 @@ class ArraySource extends DataSource {
  * Returns a Model description (metadata) or null if none found.
  *
  * @param Model $model
- * @return array Show only id
+ * @return array
  */
 	public function describe($model) {
-		return array('id' => array());
+		if (!empty($model->records[0])) {
+			return array_fill_keys(array_keys($model->records[0]), array());
+		}
+		return array($model->primaryKey => array());
 	}
 
 /**
@@ -165,28 +168,45 @@ class ArraySource extends DataSource {
 			return array(array(array('count' => count($data))));
 		}
 		// Order
-		if (!empty($queryData['order'])) {
-			// For CakePHP >= 2.8
-			if (!isset($queryData['order'][0])) {
-				$queryData['order'] = array($queryData['order']);
+		if ($data && !empty($queryData['order'])) {
+			// Fix for CakePHP < 2.8
+			$order = $queryData['order'];
+			if (isset($order[0]) && is_array($order[0])) {
+				$order = $order[0];
 			}
 
-			if (is_string($queryData['order'][0])) {
-				$field = $queryData['order'][0];
+			$count = count($data);
+			$args = array();
+			foreach ($order as $field => $dir) {
+				if (is_numeric($field)) {
+					$field = $dir;
+					$dir = 'ASC';
+				}
+
 				$alias = $model->alias;
 				if (strpos($field, '.') !== false) {
 					list($alias, $field) = explode('.', $field, 2);
 				}
-				if ($alias === $model->alias) {
-					$sort = 'ASC';
-					if (strpos($field, ' ') !== false) {
-						list($field, $sort) = explode(' ', $field, 2);
-					}
-					if ($data) {
-						$data = Hash::sort($data, '{n}.' . $model->alias . '.' . $field, $sort);
-					}
+				if ($alias !== $model->alias) {
+					continue;
 				}
+
+				if (strpos($field, ' ') !== false) {
+					list($field, $dir) = explode(' ', $field, 2);
+				}
+
+				$field = $alias . '.' . $field;
+				$values = array();
+				foreach ($data as $key => $val) {
+					$values[$key] = Hash::get($val, $field);
+				}
+				$args[] = $values;
+				$args[] = strtolower($dir) === 'asc' ? SORT_ASC : SORT_DESC;
 			}
+			$args[] =& $data;
+
+			call_user_func_array('array_multisort', $args);
+			unset($args);
 		}
 		// Limit
 		if ($limit !== false) {

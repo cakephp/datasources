@@ -466,12 +466,38 @@ class ArraySourceTest extends CakeTestCase {
  * @return void
  */
 	public function testFindOrder() {
-		$result = $this->Model->find('all', array('order' => 'ArrayModel.name'));
 		$expected = array(
 			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)),
 			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)),
-			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1))
+			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
 		);
+		$result = $this->Model->find('all', array('order' => 'ArrayModel.name'));
+		$this->assertEquals($expected, $result);
+
+		$result = $this->Model->find('all', array('order' => 'ArrayModel.name ASC'));
+		$this->assertEquals($expected, $result);
+
+		$result = $this->Model->find('all', array('order' => 'name'));
+		$this->assertEquals($expected, $result);
+
+		$result = $this->Model->find('all', array('order' => 'name ASC'));
+		$this->assertEquals($expected, $result);
+
+		$result = $this->Model->find('all', array('order' => array('name' => 'ASC')));
+		$this->assertEquals($expected, $result);
+
+		$expected = array(
+			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
+			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)),
+			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)),
+		);
+		$result = $this->Model->find('all', array('order' => 'ArrayModel.name DESC'));
+		$this->assertEquals($expected, $result);
+
+		$result = $this->Model->find('all', array('order' => 'name DESC'));
+		$this->assertEquals($expected, $result);
+
+		$result = $this->Model->find('all', array('order' => array('name' => 'DESC')));
 		$this->assertEquals($expected, $result);
 
 		$result = $this->Model->find('all', array('fields' => array('ArrayModel.id'), 'order' => 'ArrayModel.name'));
@@ -485,6 +511,14 @@ class ArraySourceTest extends CakeTestCase {
 		$result = $this->Model->find('all', array('fields' => array('ArrayModel.id'), 'order' => 'ArrayModel.name', 'limit' => 1, 'page' => 2));
 		$expected = array(
 			array('ArrayModel' => array('id' => 3))
+		);
+		$this->assertEquals($expected, $result);
+
+		$result = $this->Model->find('all', array('order' => array('relate_id' => 'DESC', 'id' => 'ASC')));
+		$expected = array(
+			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)),
+			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
+			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)),
 		);
 		$this->assertEquals($expected, $result);
 	}
@@ -658,11 +692,6 @@ class ArraySourceTest extends CakeTestCase {
  * @return void
  */
 	public function testFindList() {
-		$result = $this->Model->find('list');
-		$expected = array(1 => 1, 2 => 2, 3 => 3);
-		$this->assertEquals($expected, $result);
-
-		$this->Model->displayField = 'name';
 		$result = $this->Model->find('list');
 		$expected = array(1 => 'USA', 2 => 'Brazil', 3 => 'Germany');
 		$this->assertEquals($expected, $result);
