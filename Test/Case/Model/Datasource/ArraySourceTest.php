@@ -18,6 +18,8 @@
 
 App::uses('ArraySource', 'Datasources.Model/Datasource');
 App::uses('ConnectionManager', 'Model');
+App::uses('CakeRequest', 'Network');
+App::uses('Controller', 'Controller');
 
 // Add new db config
 ConnectionManager::create('test_array', array('datasource' => 'Datasources.ArraySource'));
@@ -38,7 +40,7 @@ class ArrayModel extends CakeTestModel {
 /**
  * Set recursive
  *
- * @var integer
+ * @var int
  */
 	public $recursive = -1;
 
@@ -1319,6 +1321,31 @@ class ArraySourceTest extends CakeTestCase {
 			)
 		));
 		$this->assertSame($expected, $result);
+	}
+
+/**
+ * Tests that ArraySource works with PaginatorComponent
+ *
+ * @return void
+ */
+	public function testPaginator() {
+		$controller = new Controller(new CakeRequest);
+		$controller->uses = array('ArrayModel');
+		$controller->components = array('Paginator');
+		$controller->constructClasses();
+		$controller->startupProcess();
+
+		$controller->paginate = array(
+			'sort' => 'name',
+			'direction' => 'desc',
+		);
+
+		$expected = array(
+			array('ArrayModel' => array('id' => 1, 'name' => 'USA', 'relate_id' => 1)),
+			array('ArrayModel' => array('id' => 3, 'name' => 'Germany', 'relate_id' => 2)),
+			array('ArrayModel' => array('id' => 2, 'name' => 'Brazil', 'relate_id' => 1)),
+		);
+		$this->assertEquals($expected, $controller->paginate());
 	}
 
 }
