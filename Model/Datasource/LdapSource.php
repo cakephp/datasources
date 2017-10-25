@@ -252,7 +252,7 @@ class LdapSource extends DataSource {
 		if ($config['tls']) {
 			if (!ldap_start_tls($this->database)) {
 				$this->log("Ldap_start_tls failed", 'ldap.error');
-				fatal_error("Ldap_start_tls failed");
+				return $this->disconnect();
 			}
 		}
 		//So little known fact, if your php-ldap lib is built against openldap like pretty much every linux
