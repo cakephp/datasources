@@ -66,6 +66,7 @@ class ArraySource extends DataSource {
 
 /**
  * Imitation of DboSource method.
+ *
  * @param mixed $data Either a string with a column to quote. An array of columns
  *   to quote.
  * @return string SQL field
@@ -89,18 +90,21 @@ class ArraySource extends DataSource {
 /**
  * Returns a Model description (metadata) or null if none found.
  *
- * @param Model $model
- * @return array Show only id
+ * @param Model $model Model object
+ * @return array
  */
 	public function describe($model) {
-		return array('id' => array());
+		if (!empty($model->records[0])) {
+			return array_fill_keys(array_keys($model->records[0]), array());
+		}
+		return array($model->primaryKey => array());
 	}
 
 /**
  * List sources
  *
- * @param mixed $data
- * @return boolean Always false. It's not supported
+ * @param mixed $data Unused
+ * @return bool Always false. It's not supported
  */
 	public function listSources($data = null) {
 		return false;
@@ -111,7 +115,7 @@ class ArraySource extends DataSource {
  *
  * @param Model $model The model being read.
  * @param array $queryData An array of query data used to find the data you want
- * @param null $recursive
+ * @param int $recursive Number of levels of association
  * @return mixed
  */
 	public function read(Model $model, $queryData = array(), $recursive = null) {
@@ -165,28 +169,45 @@ class ArraySource extends DataSource {
 			return array(array(array('count' => count($data))));
 		}
 		// Order
-		if (!empty($queryData['order'])) {
-			// For CakePHP >= 2.8
-			if (!isset($queryData['order'][0])) {
-				$queryData['order'] = array($queryData['order']);
+		if ($data && !empty($queryData['order'])) {
+			// Fix for CakePHP < 2.8
+			$order = $queryData['order'];
+			if (isset($order[0]) && is_array($order[0])) {
+				$order = $order[0];
 			}
 
-			if (is_string($queryData['order'][0])) {
-				$field = $queryData['order'][0];
+			$count = count($data);
+			$args = array();
+			foreach ($order as $field => $dir) {
+				if (is_numeric($field)) {
+					$field = $dir;
+					$dir = 'ASC';
+				}
+
 				$alias = $model->alias;
 				if (strpos($field, '.') !== false) {
 					list($alias, $field) = explode('.', $field, 2);
 				}
-				if ($alias === $model->alias) {
-					$sort = 'ASC';
-					if (strpos($field, ' ') !== false) {
-						list($field, $sort) = explode(' ', $field, 2);
-					}
-					if ($data) {
-						$data = Hash::sort($data, '{n}.' . $model->alias . '.' . $field, $sort);
-					}
+				if ($alias !== $model->alias) {
+					continue;
 				}
+
+				if (strpos($field, ' ') !== false) {
+					list($field, $dir) = explode(' ', $field, 2);
+				}
+
+				$field = $alias . '.' . $field;
+				$values = array();
+				foreach ($data as $key => $val) {
+					$values[$key] = Hash::get($val, $field);
+				}
+				$args[] = $values;
+				$args[] = strtolower($dir) === 'asc' ? SORT_ASC : SORT_DESC;
 			}
+			$args[] =& $data;
+
+			call_user_func_array('array_multisort', $args);
+			unset($args);
 		}
 		// Limit
 		if ($limit !== false) {
@@ -246,11 +267,11 @@ class ArraySource extends DataSource {
 /**
  * Conditions Filter
  *
- * @param Model $model
- * @param string $record
- * @param array $conditions
- * @param boolean $or
- * @return boolean
+ * @param Model $model A Model object
+ * @param array $record A single row of the records of the Model
+ * @param array $conditions Filter condition
+ * @param bool $or Whether or not returning true when either condition matches.
+ * @return bool
  */
 	public function conditionsFilter(Model $model, $record, $conditions, $or = false) {
 		foreach ($conditions as $field => $value) {
@@ -334,7 +355,7 @@ class ArraySource extends DataSource {
 /**
  * Returns an calculation
  *
- * @param model $model
+ * @param Model $model Model
  * @param string $type Lowercase name type, i.e. 'count' or 'max'
  * @param array $params Function parameters (any values must be quoted manually)
  * @return string Calculation method
@@ -346,7 +367,7 @@ class ArraySource extends DataSource {
 /**
  * Implemented to make the datasource work with Model::find('count').
  *
- * @return boolean Always false;
+ * @return bool Always false;
  */
 	public function expression() {
 		return false;
@@ -360,11 +381,12 @@ class ArraySource extends DataSource {
  * @param string $type Association type, one of the model association types ie. hasMany
  * @param string $association The name of the association
  * @param array $assocData The data about the association
- * @param array $queryData
- * @param boolean $external Whether or not the association query is on an external datasource.
- * @param array $resultSet Existing results
- * @param integer $recursive Number of levels of association
- * @param array $stack
+ * @param array &$queryData An array of queryData information containing keys similar to Model::find().
+ * @param bool $external Whether or not the association query is on an external datasource.
+ * @param array &$resultSet Existing results
+ * @param int $recursive Number of levels of association
+ * @param array $stack Unused
+ * @return void
  */
 	public function queryAssociation(Model $model, Model $linkModel, $type, $association, $assocData, &$queryData, $external, &$resultSet, $recursive, $stack) {
 		$assocData = array_merge(array('conditions' => null, 'fields' => null, 'order' => null), $assocData);
@@ -440,8 +462,8 @@ class ArraySource extends DataSource {
 /**
  * Get the query log as an array.
  *
- * @param boolean $sorted Get the queries sorted by time taken, defaults to false.
- * @param boolean $clear Clear after return logs
+ * @param bool $sorted Get the queries sorted by time taken, defaults to false.
+ * @param bool $clear Clear after return logs
  * @return array Array of queries run as an array
  */
 	public function getLog($sorted = false, $clear = true) {
@@ -459,10 +481,10 @@ class ArraySource extends DataSource {
 /**
  * Generate a log registry
  *
- * @param Model $model
- * @param array $queryData
- * @param float $took
- * @param integer $numRows
+ * @param Model $model A Model object
+ * @param array &$queryData An array of query data
+ * @param float $took Time the query took
+ * @param int $numRows Number of rows the query returned
  * @return void
  */
 	protected function _registerLog(Model $model, &$queryData, $took, $numRows) {
@@ -482,7 +504,7 @@ class ArraySource extends DataSource {
  * Generate a pseudo select to log
  *
  * @param Model $model Model
- * @param array $queryData Query data sent by find
+ * @param array &$queryData Query data sent by find
  * @return string Pseudo query
  */
 	protected function _pseudoSelect(Model $model, &$queryData) {
