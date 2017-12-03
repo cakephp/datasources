@@ -111,6 +111,15 @@ class ArraySource extends DataSource {
 	}
 
 /**
+ * Implemented to make the datasource work with CaKePHP 2.5.2
+ *
+ * @return boolean Always true;
+ */
+    public function isConnected() {
+        return true;
+    }
+
+/**
  * Used to read records from the Datasource. The "R" in CRUD
  *
  * @param Model $model The model being read.
