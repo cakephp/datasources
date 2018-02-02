@@ -167,7 +167,24 @@ class CsvSourceTest extends CakeTestCase {
 		ConnectionManager::create('test_csv', $this->config);
 		$model = ClassRegistry::init('UserTest');
 		$expected = array(
-			'id', 'name', 'age'
+			'id'=>array(
+				'type' => 'text',
+				'null' => true,
+				'default' => null,
+				'length' => null
+			),
+			'name'=>array(
+				'type' => 'text',
+				'null' => true,
+				'default' => null,
+				'length' => null
+			),
+			'age'=>array(
+				'type' => 'text',
+				'null' => true,
+				'default' => null,
+				'length' => null
+			)
 		);
 		$this->assertEquals($expected, $this->Csv->describe($model));
 	}

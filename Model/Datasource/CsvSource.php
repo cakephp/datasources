@@ -171,8 +171,44 @@ class CsvSource extends DataSource {
  * @return mixed
  */
 	public function describe($model) {
+		//get table name
+		if (is_string($model)) {
+			$table = $model;
+		} else {
+			$table = $model->table;
+		}
+		
+		//see if it's cached
+		$cache = parent::describe($table);
+		if ($cache) {
+			$this->fields = $cache['fields'];
+			$this->delimiter = $cache['delimiter'];
+			$this->maxCol = $cache['maxCol'];
+			return $cache['schema'];
+		}
+		
+		//pull the fields and build the schema
 		$this->_getDescriptionFromFirstLine($model);
-		return $this->fields;
+		$schema = array();
+		foreach ($this->fields as $fieldname) {
+			$schema[$fieldname] = array(
+				'type' => 'text',
+				'null' => true,
+				'default' => null,
+				'length' => null
+			);
+		}
+		
+		//save to cache
+		$this->_cacheDescription($table, array(
+			'schema' => $schema,
+			'fields' => $this->fields,
+			'delimiter' => $this->delimiter,
+			'maxCol' => $this->maxCol
+		));
+		
+		//return
+		return $schema;
 	}
 
 /**
